@@ -4,17 +4,6 @@ const { Product, Brand, Model, Category, SubCategory, Photo, User } = require(".
 const bcrypt = require('bcrypt');
 
 async function registerImage(fastify, options) {
-
-    fastify.decorate('authenticate', async (req, reply) => {
-        try {
-          await req.jwtVerify()
-          console.log("verification successfull")
-        } catch (error) {
-          reply.send(error)
-          
-        }
-      });
-      
     fastify.register(require('@fastify/multipart'));
     // fastify.post('/upload/:id', async (req, reply) => {
     //     try {
@@ -65,10 +54,16 @@ async function registerImage(fastify, options) {
         try {
             const parts = req.parts();
             let name;
-            for await (const part of parts) {       
-                if (part.type === 'field') {
+            let fileName;
+            for await (const part of parts) {   
+                if (part.type === 'file') {
+                    fileName = part.filename;
+                    filePath = path.join('public/image/', fileName);
+                    const writableStream = fs.createWriteStream(filePath);
+                    await part.file.pipe(writableStream);
+                } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
-                       name = part.value;
+                        name = part.value;
                     } 
                 }
             }
@@ -78,9 +73,11 @@ async function registerImage(fastify, options) {
             }
             const brand = new Brand({
                 'brandName':name,
+                'brandImage': `public/image/${fileName}`,
+
             });
             const BrandSaved = await brand.save();
-            return { brandName: name };
+            return { brandName: name, };
         } catch (error) {
             console.error('Error uploading file:', error);
             return reply.status(500).send('Internal Server Error');
@@ -92,19 +89,26 @@ async function registerImage(fastify, options) {
         try {
             const parts = req.parts();
             let name;
-            for await (const part of parts) {       
-                if (part.type === 'field') {
+            let fileName;
+            for await (const part of parts) {   
+                if (part.type === 'file') {
+                    fileName = part.filename;
+                    filePath = path.join('public/image/', fileName);
+                    const writableStream = fs.createWriteStream(filePath);
+                    await part.file.pipe(writableStream);
+                } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
-                       name = part.value;
-                    }
+                        name = part.value;
+                    } 
                 }
             }
-            const existingBrand = await models.Category.findOne({ categoryName: name });
+            const existingBrand = await Category.findOne({ categoryName: name });
             if (existingBrand) {
                 return reply.status(409).send({ error: "Category already registered" });
             }
-            const category = new models.Category({
+            const category = new Category({
                 'categoryName':name,
+                'categoryImage':`public/image/${fileName}`,
             });
             const BrandSaved = await category.save();
             return { categoryName: name };
@@ -122,23 +126,29 @@ async function registerImage(fastify, options) {
 
             let name, category;
 
-            for await (const part of parts) {
-                if (part.type === 'field') {
+            for await (const part of parts) {   
+                if (part.type === 'file') {
+                    fileName = part.filename;
+                    filePath = path.join('public/image/', fileName);
+                    const writableStream = fs.createWriteStream(filePath);
+                    await part.file.pipe(writableStream);
+                } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
-                       name = part.value;
+                        name = part.value;
                     } else if (part.fieldname === 'category') {
                         category = part.value;
                     }
                 }
             }
-            const existingBrand = await models.SubCategory.findOne({ subCategoryName: name });
+            const existingBrand = await SubCategory.findOne({ subCategoryName: name });
             if (existingBrand) {
                 return reply.status(409).send({ error: "Category already registered" });
             }
 
-            const subcat = new models.SubCategory({
+            const subcat = new SubCategory({
                 subCategoryName:name,
                 category: category,
+                subCategoryImage:`public/image/${fileName}`,
             });
 
             const ProdSaved = await subcat.save();
@@ -187,7 +197,6 @@ async function registerImage(fastify, options) {
                 category:category,
                 subCategory:subCategory,
             });
-
             const ProdSaved = await model.save();
             console.log(model._id)
             const photo = new Photo({
@@ -267,9 +276,9 @@ async function registerImage(fastify, options) {
             }
             const user_id = await User.findOne({ $or: [{ _id:shop }] });
             const mymodel = await Model.findOne({ _id:name });
-            // const cate = await Category.findOne({ _id:mymodel.category._id });
-            // const subcate = await SubCategory.findOne({ _id:mymodel.subCategory._id });
-            // const brnd = await Brand.findOne({ _id:mymodel.brand._id });
+            const cate = await Category.findOne({ _id:mymodel.category._id });
+            const subcate = await SubCategory.findOne({ _id:mymodel.subCategory._id });
+            const brnd = await Brand.findOne({ _id:mymodel.brand._id });
             const pht = await Photo.findOne({ model:name });
             const prod = new Product({
                 model: {
@@ -278,14 +287,24 @@ async function registerImage(fastify, options) {
                     photo: mymodel.photo,
                     description: "this is automated description \n  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                 },
-                brand: mymodel.brand._id,
+                brand: {
+                    _id: brnd._id,
+                    brandName: brnd.brandName
+                },
                 user: {
                     _id: user_id._id,
                     shopNumber: user_id.mobile,
                     shopName: user_id.name,
                 },
-                category: mymodel.category._id,
-                subCategory: mymodel.subCategory._id,
+                category: {
+                    _id: cate._id,
+                    categoryName: cate.categoryName
+                },
+                subCategory: {
+                    _id: subcate._id,
+                    subCategoryName: subcate.subCategoryName,
+                    category: subcate.category
+                },
                 photos:pht._id,
                 specifications: { keyone:"value1" }, // Allow any key-value pairs
                 price: price,
@@ -300,6 +319,40 @@ async function registerImage(fastify, options) {
             return reply.status(500).send('Internal Server Error');
         }
     });
+
+
+    fastify.post('/enquiry/:id', { onRequest: [fastify.authenticate] }, async function (req, reply) {
+        try {
+            const parts = req.parts();
+            let name;
+            let fileName;
+            for await (const part of parts) {   
+                if (part.type === 'file') {
+                    fileName = part.filename;
+                    filePath = path.join('public/image/', fileName);
+                    const writableStream = fs.createWriteStream(filePath);
+                    await part.file.pipe(writableStream);
+                } else if (part.type === 'field') {
+                    if (part.fieldname === 'name') {
+                        name = part.value;
+                    } 
+                }
+            }
+            const existingBrand = await Category.findOne({ categoryName: name });
+            if (existingBrand) {
+                return reply.status(409).send({ error: "Category already registered" });
+            }
+            const category = new Category({
+                'categoryName':name,
+                'categoryImage':`public/image/${fileName}`,
+            });
+            const BrandSaved = await category.save();
+            return { categoryName: name };
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            return reply.status(500).send('Internal Server Error');
+        }
+    });    
 }
 
 

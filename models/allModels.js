@@ -23,14 +23,17 @@ const ordersSchema = new mongoose.Schema({
 
 const brandSchema = new mongoose.Schema({
     brandName: { type: String, default: null },
+    brandImage: { type: String, default: null },
 });
 
 const categorySchema = new mongoose.Schema({
     categoryName: { type: String, default: null },
+    categoryImage: { type: String, default: null },
 });
 
 const subCategorySchema = new mongoose.Schema({
     subCategoryName: { type: String, default: null },
+    subCategoryImage: { type: String, default: null },
     category: { type: Schema.Types.ObjectId, ref: 'Category' },
 });
 
@@ -62,19 +65,39 @@ const productSchema = new mongoose.Schema({
         photo: { type: 'string' },
         description: { type: 'string' },
     },
-    brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
+    brand: {
+        _id: { type: 'string' },
+        brandName: { type: 'string' },
+        brandImage: { type: 'string' }
+    },
     user: {
         _id: { type: 'string' },
         shopNumber: { type: Number },
         shopName: { type: String },
     },
-    category: { type: Schema.Types.ObjectId, ref: 'Category' },
-    subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
+    category: {
+        _id: { type: 'string' },
+        categoryName: { type: 'string' }
+    },
+    subCategory: {
+        _id: { type: 'string' },
+        subCategoryName: { type: 'string' },
+        category: { type: 'string' }
+    },
     photos: { type: Schema.Types.ObjectId, ref: 'Photo' },
     specifications: { type: 'object' }, // Allow any key-value pairs
     price: { type: 'number' },
     quantity: { type: 'number' },
     productDate: { type: Date, default: Date.now },
+});
+
+
+const inquirySchema = new mongoose.Schema({
+    date:{ type: Date, default: Date.now },
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    shop: { type: Schema.Types.ObjectId, ref: 'User' },
+    product: { type: Schema.Types.ObjectId, ref: 'Product' },
+
 });
 
 
@@ -88,5 +111,6 @@ const Category = mongoose.model('Category', categorySchema);
 const SubCategory = mongoose.model('SubCategory', subCategorySchema);
 const Model = mongoose.model('Model', modelSchema);
 const Photo = mongoose.model('Photo',photoSchema);
+const Inquiry = mongoose.model('Inquiry',inquirySchema);
 
-module.exports = { User, Brand, Category, SubCategory, Model, Address, Order, Product, Photo};
+module.exports = { User, Brand, Category, SubCategory, Model, Address, Order, Product, Photo, Inquiry};
