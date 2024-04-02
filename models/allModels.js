@@ -62,24 +62,14 @@ const productSchema = new mongoose.Schema({
         photo: { type: 'string' },
         description: { type: 'string' },
     },
-    brand: {
-        _id: { type: 'string' },
-        brandName: { type: 'string' }
-    },
+    brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
     user: {
         _id: { type: 'string' },
         shopNumber: { type: Number },
         shopName: { type: String },
     },
-    category: {
-        _id: { type: 'string' },
-        categoryName: { type: 'string' }
-    },
-    subCategory: {
-        _id: { type: 'string' },
-        subCategoryName: { type: 'string' },
-        category: { type: 'string' }
-    },
+    category: { type: Schema.Types.ObjectId, ref: 'Category' },
+    subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
     photos: { type: Schema.Types.ObjectId, ref: 'Photo' },
     specifications: { type: 'object' }, // Allow any key-value pairs
     price: { type: 'number' },

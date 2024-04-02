@@ -1,10 +1,10 @@
 const { Product } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
-  fastify.get("/all_lead", async (req, reply) => {
+  fastify.get("/products", async (req, reply) => {
     try {
       const userId = "6604f9313a87c4f151fd06d7";
-      const existingData = await Product.find().populate({ path: 'photos', model: 'Photo' });
+      const existingData = await Product.find();
         
       if (existingData.length > 0) {
         reply.send(existingData);

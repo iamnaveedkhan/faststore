@@ -4,6 +4,17 @@ const { Product, Brand, Model, Category, SubCategory, Photo, User } = require(".
 const bcrypt = require('bcrypt');
 
 async function registerImage(fastify, options) {
+
+    fastify.decorate('authenticate', async (req, reply) => {
+        try {
+          await req.jwtVerify()
+          console.log("verification successfull")
+        } catch (error) {
+          reply.send(error)
+          
+        }
+      });
+      
     fastify.register(require('@fastify/multipart'));
     // fastify.post('/upload/:id', async (req, reply) => {
     //     try {
@@ -256,9 +267,9 @@ async function registerImage(fastify, options) {
             }
             const user_id = await User.findOne({ $or: [{ _id:shop }] });
             const mymodel = await Model.findOne({ _id:name });
-            const cate = await Category.findOne({ _id:mymodel.category._id });
-            const subcate = await SubCategory.findOne({ _id:mymodel.subCategory._id });
-            const brnd = await Brand.findOne({ _id:mymodel.brand._id });
+            // const cate = await Category.findOne({ _id:mymodel.category._id });
+            // const subcate = await SubCategory.findOne({ _id:mymodel.subCategory._id });
+            // const brnd = await Brand.findOne({ _id:mymodel.brand._id });
             const pht = await Photo.findOne({ model:name });
             const prod = new Product({
                 model: {
@@ -267,24 +278,14 @@ async function registerImage(fastify, options) {
                     photo: mymodel.photo,
                     description: "this is automated description \n  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                 },
-                brand: {
-                    _id: brnd._id,
-                    brandName: brnd.brandName
-                },
+                brand: mymodel.brand._id,
                 user: {
                     _id: user_id._id,
                     shopNumber: user_id.mobile,
                     shopName: user_id.name,
                 },
-                category: {
-                    _id: cate._id,
-                    categoryName: cate.categoryName
-                },
-                subCategory: {
-                    _id: subcate._id,
-                    subCategoryName: subcate.subCategoryName,
-                    category: subcate.category
-                },
+                category: mymodel.category._id,
+                subCategory: mymodel.subCategory._id,
                 photos:pht._id,
                 specifications: { keyone:"value1" }, // Allow any key-value pairs
                 price: price,
