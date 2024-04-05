@@ -56,8 +56,6 @@ async function registerImage(fastify, options) {
             let name;
             let fileName;
 
-            let hasNameField = false;
-            let hasFileField = false;
 
             for await (const part of parts) {   
                 if (part.type === 'file') {
@@ -65,18 +63,15 @@ async function registerImage(fastify, options) {
                     filePath = path.join('public/image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
-                    hasFileField = true;
+                   
                 } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                         name = part.value;
-                        hasNameField = true;
+                       
                     } 
                 }
             }
 
-            if (!hasNameField || !hasFileField) {
-                return reply.status(400).send({ error: "Name and file fields are required" });
-            }
             
             const existingBrand = await Brand.findOne({ brandName: name });
             if (existingBrand) {
