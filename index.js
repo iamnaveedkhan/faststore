@@ -1,11 +1,11 @@
 const fastifyRoot = require("fastify");
 
+
 require("dotenv").config();
 const { connect } = require("./db");
 const fastify = fastifyRoot({});
 const bcrypt = require('bcrypt');
 const path = require('node:path');
-
 
 fastify.register(require("@fastify/view"), {
   engine: {
@@ -94,20 +94,6 @@ fastify.get('/newdash', {onRequest: [fastify.authenticate]}, function (req, repl
 //   return reply.view('/public/logedin.ejs', { userId });
 // });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 fastify.post('/moblogin', async (request, reply) => {
   const { mob } = request.body;
 
@@ -140,7 +126,7 @@ fastify.register(require("./routes/products/index"));
 
 const start = async () => {
     await connect();
-    fastify.listen({ port: 3000 }, async (err, address) => {
+    fastify.listen({ port: 3000 , host: '0.0.0.0'}, async (err, address) => {
       if (err) {
         console.log(err);
         process.exit(1);
