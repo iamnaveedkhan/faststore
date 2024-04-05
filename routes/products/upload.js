@@ -60,7 +60,7 @@ async function registerImage(fastify, options) {
             for await (const part of parts) {   
                 if (part.type === 'file') {
                     fileName = part.filename;
-                    filePath = path.join('/image/', fileName);
+                    filePath = path.join('image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
                    
