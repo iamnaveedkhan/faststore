@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { Product, Brand, Model, Category, SubCategory, Photo, User } = require("../../models/allModels");
+const { Product, Brand, Model, Category, SubCategory, Photo, User, Inquiry } = require("../../models/allModels");
 const bcrypt = require('bcrypt');
 
 async function registerImage(fastify, options) {
@@ -60,7 +60,7 @@ async function registerImage(fastify, options) {
             for await (const part of parts) {   
                 if (part.type === 'file') {
                     fileName = part.filename;
-                    filePath = path.join('image/', fileName);
+                    filePath = path.join('public/image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
                    
@@ -97,8 +97,8 @@ async function registerImage(fastify, options) {
             let name;
             let fileName;
 
-            let hasNameField = false;
-            let hasFileField = false;
+            // let hasNameField = false;
+            // let hasFileField = false;
 
             for await (const part of parts) {   
                 if (part.type === 'file') {
@@ -106,18 +106,18 @@ async function registerImage(fastify, options) {
                     filePath = path.join('public/image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
-                    hasFileField = true;
+                    // hasFileField = true;
                 } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                         name = part.value;
-                        hasNameField = true;
+                        // hasNameField = true;
                     } 
                 }
             }
 
-            if (!hasNameField || !hasFileField) {
-                return reply.status(400).send({ error: "Name and file fields are required" });
-            }
+            // if (!hasNameField || !hasFileField) {
+            //     return reply.status(400).send({ error: "Name and file fields are required" });
+            // }
 
             const existingBrand = await Category.findOne({ categoryName: name });
             if (existingBrand) {
@@ -338,33 +338,25 @@ async function registerImage(fastify, options) {
     });
 
 
-    fastify.post('/enquiry/:id', { onRequest: [fastify.authenticate] }, async function (req, reply) {
+    fastify.get('/enquiry/:id', { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
-            const parts = req.parts();
-            let name;
-            let fileName;
-            for await (const part of parts) {   
-                if (part.type === 'file') {
-                    fileName = part.filename;
-                    filePath = path.join('public/image/', fileName);
-                    const writableStream = fs.createWriteStream(filePath);
-                    await part.file.pipe(writableStream);
-                } else if (part.type === 'field') {
-                    if (part.fieldname === 'name') {
-                        name = part.value;
-                    } 
-                }
+            const productId = req.params.id;
+            const userId = req.user.userId._id;
+            console.log(userId);
+            
+            const existingProduct = await Product.findOne({ _id: productId });
+            if (existingProduct) {
+                
+                shopName = existingProduct.user._id;
+                const product = new Inquiry({
+                    'user':userId,
+                    'product': productId,
+                    'shop':shopName,
+                });
+                 await product.save();
             }
-            const existingBrand = await Category.findOne({ categoryName: name });
-            if (existingBrand) {
-                return reply.status(409).send({ error: "Category already registered" });
-            }
-            const category = new Category({
-                'categoryName':name,
-                'categoryImage':`public/image/${fileName}`,
-            });
-            const BrandSaved = await category.save();
-            return { categoryName: name };
+            
+            return { shopName: shopName };
         } catch (error) {
             console.error('Error uploading file:', error);
             return reply.status(500).send('Internal Server Error');
