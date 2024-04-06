@@ -150,6 +150,24 @@ async function getProduct(fastify, options) {
     }
   });
 
+  fastify.get("/selectedsubcategory/:id", async (req, reply) => {
+    try {
+      const category = req.params.id;
+      const existingData =  await SubCategory.find({
+        category___id: category,
+      });
+
+      if (existingData.length > 0) {
+        reply.send(existingData);
+      } else {
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
   fastify.get("/subCategory/:id", async (req, reply) => {
     try {
       const subCategoryId = req.params.id;
