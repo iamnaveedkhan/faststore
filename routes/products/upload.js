@@ -269,18 +269,17 @@ async function registerImage(fastify, options) {
     });
 
 
-    fastify.post('/product', async (req, reply) => {
+    fastify.post('/product',  { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
             const parts = req.parts();
 
-            let name, shop,price,quantity;
-
+            let name,price,quantity;
+            const shop = req.user.userId._id;
             for await (const part of parts) {
                 if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                        name = part.value;
-                    } else if (part.fieldname === 'shop') {
-                        shop = part.value;
+                    
                     } else if (part.fieldname === 'price') {
                         price = part.value;
                     } else if (part.fieldname === 'quantity') {
