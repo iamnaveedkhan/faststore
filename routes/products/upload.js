@@ -142,6 +142,7 @@ async function registerImage(fastify, options) {
             const parts = req.parts();
 
             let name, category;
+            let fileName;
 
             for await (const part of parts) {   
                 if (part.type === 'file') {

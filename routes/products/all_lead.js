@@ -197,7 +197,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/enquiries", async (req, reply) => {
+  fastify.get("/inquiries", async (req, reply) => {
     try {
       const existingData = await Inquiry.find();
 
@@ -205,6 +205,21 @@ async function getProduct(fastify, options) {
         reply.send(existingData);
       } else {
         reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  fastify.get("/inquiry/:id", async (req, reply) => {
+    try {
+      const inquiryId = req.params.id;
+      const existingInquiry = await Inquiry.findOne({ _id: inquiryId });
+      if (existingInquiry) {
+        reply.send(existingInquiry);
+      } else {
+        reply.code(404).send({ error: "Inquiry not found" });
       }
     } catch (error) {
       console.error(error);

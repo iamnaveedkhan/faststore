@@ -64,6 +64,10 @@ fastify.decorate("authenticate", async (req, reply) => {
 //   return { hello: 'world' };
 // });
 
+fastify.get('/search/:key',(req,reply)=>{
+   reply.send("workin");
+})
+
 fastify.get(
   "/logedin",
   { onRequest: [fastify.authenticate] },
@@ -143,6 +147,8 @@ fastify.post("/moblogin", async (request, reply) => {
 
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
+
+
 
 const start = async () => {
   await connect();
