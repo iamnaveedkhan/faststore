@@ -153,7 +153,7 @@ async function getProduct(fastify, options) {
   fastify.get("/selectedsubcategory/:id", async (req, reply) => {
     try {
       const category = req.params.id;
-      const existingData =  await SubCategory.find({
+      const existingData =  await Category.find({
         category___id: category,
       });
 
