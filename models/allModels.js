@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
     name: { type: String, default: null },
     mobile: { type: Number, unique: true },
     role: { type: Number, default: 1 },
-    isActive : { type:Number, default : 1}
+    isActive : { type:Number, default : 1},
+    password:{type:String,default:"Zerotouch"}
 });
 
 const addressesSchema = new mongoose.Schema({
@@ -100,8 +101,6 @@ const inquirySchema = new mongoose.Schema({
     product: { type: Schema.Types.ObjectId, ref: 'Product' },
 
 });
-
-
 
 const User = mongoose.model('User', userSchema);
 const Address = mongoose.model('Address', addressesSchema);
