@@ -274,24 +274,24 @@ async function registerImage(fastify, options) {
 
     fastify.post('/product',  { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
-            const parts = req.parts();
+            // const parts = req.parts();
 
-            let name,price,quantity;
+            const {name,price,quantity} = req.body;
             const shop = req.user.userId._id;
 
-            for await (const part of parts) {
-                if (part.type === 'field') {
-                    if (part.fieldname === 'name') {
-                       name = part.value;
+            // for await (const part of parts) {
+            //     if (part.type === 'field') {
+            //         if (part.fieldname === 'name') {
+            //            name = part.value;
 
 
-                    } else if (part.fieldname === 'price') {
-                        price = part.value;
-                    } else if (part.fieldname === 'quantity') {
-                        quantity = part.value;
-                    }
-                }
-            }
+            //         } else if (part.fieldname === 'price') {
+            //             price = part.value;
+            //         } else if (part.fieldname === 'quantity') {
+            //             quantity = part.value;
+            //         }
+            //     }
+            // }
             const existingProduct = await Product.findOne({ $or: [{ model___id:name }] });
             if (existingProduct) {
                 return reply.status(409).send({ error: "Product Already Added" });
