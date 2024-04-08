@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
     name: { type: String, default: null },
     mobile: { type: Number, unique: true },
     role: { type: Number, default: 1 },
+    isActive : { type:Number, default : 1}
 });
 
 const addressesSchema = new mongoose.Schema({

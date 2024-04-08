@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 async function registerUser(fastify, options) {
   fastify.post("/register_user", async (request, reply) => {
     try {
-      const { mobile , name } = request.body;
+      const { mobile , name , role , isActive} = request.body;
 
       // Check if a user with the provided email or username already exists
       const existingUser = await User.findOne({ mobile });
@@ -22,15 +22,15 @@ async function registerUser(fastify, options) {
       const user = new User({
         name,
         mobile,
+        role,
       });
-
       // Save the user to the database
       const savedUser = await user.save();
-      return reply.send({ success: "User registered" });
+      console.log(savedUser._id);
+      const token = fastify.jwt.sign({ userId: savedUser._id });
+      var status = "success";
 
-      // Continue with other logic, e.g., creating JWT token and sending response
-      // const token = fastify.jwt.sign({ userId: savedUser._id });
-      // reply.header('Authorization', `Bearer ${token}`).send(savedUser);
+      return reply.send({ token, status });
     } catch (error) {
       console.error(error);
       reply.status(500).send({ error: "Internal Server Error" });

@@ -20,6 +20,8 @@ fastify.register(require("@fastify/cors"), (instance) => {
   };
 });
 
+
+
 fastify.register(require("@fastify/view"), {
   engine: {
     ejs: require("ejs"),
@@ -42,13 +44,8 @@ fastify.register(require("@fastify/static"), {
   root: path.join(__dirname, "public"),
   prefix: "/public/",
 });
-// fastify.register(require('fastify-formbody'));
-const { User, Product } = require("./models/allModels");
 
-// const Lead = require(model.Lead);
-// const Comment = require(model.Comment);
-// const Status = require(model.Status);
-// const Call = require(model.Call);
+const { User, Product, Brand, Category } = require("./models/allModels");
 
 fastify.decorate("authenticate", async (req, reply) => {
   try {
@@ -59,19 +56,33 @@ fastify.decorate("authenticate", async (req, reply) => {
   }
 });
 
-// fastify.get('/', async (request, reply) => {
-//   // Your view logic here
-//   return { hello: 'world' };
-// });
+fastify.get('/search/:key', async (req, reply) => {
+  try {
+    const key = req.params.key;
+    const searchRegex = new RegExp(key, 'i'); 
 
-fastify.get('/search/:key',(req,reply)=>{
-   reply.send("workin");
-})
+    const data = await Product.aggregate([
+      {
+        $match: {
+          $or: [
+            { "brand.brandName": { $regex: searchRegex } },
+            { "model.productName": { $regex: searchRegex } },
+            { "category.categoryName": { $regex: searchRegex } },
+            { "subCategory.subCategoryName": { $regex: searchRegex } }
+          ]
+        }
+      }
+    ]);
+    reply.send(data);
+  } catch (error) {
+    console.error('Error during search:', error);
+    reply.status(500).send({ error: 'Internal Server Error' });
+  }
+});
 
 fastify.get(
   "/logedin",
-  { onRequest: [fastify.authenticate] },
-  async function (req, reply) {
+  { onRequest: [fastify.authenticate] }, async function (req, reply) {
     const userId = req.user.userId;
 
     return reply.view("/public/logedin.ejs", { userId });
@@ -97,57 +108,8 @@ fastify.get(
   }
 );
 
-// fastify.post('/', async (request, reply) => {
-//   const { uname, upass } = request.body;
-
-//   // const token = fastify.jwt.sign({ userId: 'existingUser._id' });
-//   const refreshToken = fastify.jwt.sign({ userId: ex },{expiresIn: '10m'});
-
-//   reply.setCookie('refreshToken', refreshToken,{
-//     path: '/',
-//     secure: true,
-//     httpOnly: true,
-//     sameSite: true
-//   })
-
-//   return reply.redirect('/logedin');
-// });
-
-// fastify.get('/logedin', { onRequest: [fastify.authenticate] }, async function (req, reply) {
-//   // Authentication is successful if this route is reached
-//   const userId = req.user.userId;
-
-//   return reply.view('/public/logedin.ejs', { userId });
-// });
-
-fastify.post("/moblogin", async (request, reply) => {
-  const { mob } = request.body;
-  let status;
-
-  if (!mob) {
-    return { err: "Field cannot be empty" };
-  }
-  console.log(mob);
-  try {
-    const existingUser = await User.findOne({ $or: [{ mobile: mob }] });
-
-    if (existingUser) {
-      const token = fastify.jwt.sign({ userId: existingUser });
-      status = "success";
-      reply.send({ token, status });
-    } else {
-      status = "fail";
-      return reply.status(404).send({ error: "User not found...", status });
-    }
-  } catch (error) {
-    console.error("Error during login:", error);
-    return reply.status(500).send({ error: "Internal Server Error" });
-  }
-});
-
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
-
 
 
 const start = async () => {
