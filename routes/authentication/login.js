@@ -1,16 +1,18 @@
+const { User } = require("../../models/allModels");
 async function loginUser(fastify, options) {
   fastify.post("/moblogin", async (request, reply) => {
     const { mob } = request.body;
     let status;
-  
+    
     if (!mob) {
       return { err: "Field cannot be empty" };
     }
-    console.log(mob);
+    
     try {
-      const existingUser = await User.findOne({ $and: [{ mobile: mob },{ isActive: 1}] });
-  
-      if (existingUser) {
+      const existingUser = await User.findOne({ $and: [{ mobile: mob }] });
+      if (existingUser.isActive === 2) {
+        console.log(existingUser.isActive);
+        console.log(mob);
         const token = fastify.jwt.sign({ userId: existingUser });
         status = "success";
         reply.send({ token, status });

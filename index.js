@@ -111,7 +111,6 @@ fastify.get(
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
 
-
 const start = async () => {
   await connect();
   fastify.listen({ port: 3000, host: "0.0.0.0" }, async (err, address) => {
