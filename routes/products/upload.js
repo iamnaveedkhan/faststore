@@ -269,16 +269,29 @@ async function registerImage(fastify, options) {
     });
 
 
+<<<<<<< HEAD
     fastify.post('/product', { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
             const parts = req.parts();
             const shop = req.user.userId._id;
             let name,price,quantity;
 
+=======
+    fastify.post('/product',  { onRequest: [fastify.authenticate] }, async function (req, reply) {
+        try {
+            const parts = req.parts();
+
+            let name,price,quantity;
+            const shop = req.user.userId._id;
+>>>>>>> ae31985e268e45ed86eab4969a72b380ff061c1a
             for await (const part of parts) {
                 if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                        name = part.value;
+<<<<<<< HEAD
+=======
+                    
+>>>>>>> ae31985e268e45ed86eab4969a72b380ff061c1a
                     } else if (part.fieldname === 'price') {
                         price = part.value;
                     } else if (part.fieldname === 'quantity') {
