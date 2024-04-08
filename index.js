@@ -110,6 +110,8 @@ fastify.get(
 
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
+fastify.register(require("./routes/update/index"));
+
 
 const start = async () => {
   await connect();

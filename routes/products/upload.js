@@ -1,61 +1,16 @@
 const path = require('path');
 const fs = require('fs');
+
 const { Product, Brand, Model, Category, SubCategory, Photo, User, Inquiry } = require("../../models/allModels");
 const bcrypt = require('bcrypt');
 
-async function registerImage(fastify, options) {
+async function Upload(fastify, options) {
     fastify.register(require('@fastify/multipart'));
-    // fastify.post('/upload/:id', async (req, reply) => {
-    //     try {
-    //         const parts = req.parts();
-    //         let filePath;
-
-    //         let name, category, landmark, userId, fileName;
-
-    //         for await (const part of parts) {
-    //             if (part.type === 'file') {
-    //                 fileName = part.filename;
-    //                 filePath = path.join('public/image/', fileName);
-    //                 const writableStream = fs.createWriteStream(filePath);
-    //                 await part.file.pipe(writableStream);
-    //             } else if (part.type === 'field') {
-    //                 if (part.fieldname === 'name') {
-    //                    name = part.value;
-    //                 } else if (part.fieldname === 'category') {
-    //                     category = part.value;
-    //                 } else if (part.fieldname === 'landmark') {
-    //                     landmark = part.value;
-    //                 }
-    //             }
-    //         }
-
-    //         userId = req.params.id;
-
-    //         const Prod = new Product({
-    //             photo: `public/image/${fileName}`,
-    //             name,
-    //             category,
-    //             landmark,
-    //             user_id: userId
-    //         });
-
-    //         const ProdSaved = await Prod.save();
-
-    //         return { imagePath: filePath };
-    //     } catch (error) {
-    //         console.error('Error uploading file:', error);
-    //         return reply.status(500).send('Internal Server Error');
-    //     }
-    // });
-
-
-
     fastify.post('/brand', async (req, reply) => {
         try {
             const parts = req.parts();
             let name;
             let fileName;
-
 
             for await (const part of parts) {   
                 if (part.type === 'file') {
@@ -370,4 +325,4 @@ async function registerImage(fastify, options) {
 }
 
 
-module.exports = registerImage;
+module.exports = Upload;
