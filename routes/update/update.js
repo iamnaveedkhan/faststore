@@ -37,7 +37,6 @@ async function Update(fastify, options) {
                 const updatedProduct = await exsistingProduct.save();
             }
             
-
             return reply.send({ brand: updatedBrand });
         } catch (error) {
             console.error('Error updating brand:', error);
