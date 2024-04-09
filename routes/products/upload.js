@@ -223,10 +223,6 @@ async function Upload(fastify, options) {
         }
     });
 
-
-
-
-
     fastify.post('/product',  { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
             const parts = req.parts();
@@ -245,10 +241,22 @@ async function Upload(fastify, options) {
                     }
                 }
             }
-            const existingProduct = await Product.findOne({ $or: [{ model___id:name }] });
+            const existingProduct = await Product.findOne({ $and: [{ "model._id":name},{"user._id":shop }] });
             if (existingProduct) {
-                return reply.status(409).send({ error: "Product Already Added" });
-            }
+            
+                existingProduct.quantity = quantity;
+                existingProduct.price = price;
+              
+                await existingProduct.save();
+    
+                return { model_id: name, message: "Product updated successfully" };
+            } 
+            // if (existingProduct) {
+                
+            //     return reply.status(409).send({ error: "Product Already Added" });
+            // }
+            else{
+
             const user_id = await User.findOne({ $or: [{ _id:shop }] });
             const mymodel = await Model.findOne({ _id:name });
             const cate = await Category.findOne({ _id:mymodel.category._id });
@@ -286,8 +294,9 @@ async function Upload(fastify, options) {
                 price: price,
                 quantity:quantity,
             });
-
             const ProdSaved = await prod.save();
+        }
+            
 
             return { model_id: name };
         } catch (error) {
