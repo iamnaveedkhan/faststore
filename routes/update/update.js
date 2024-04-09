@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { Brand, Category } = require("../../models/allModels");
+const { Brand, Category, Product } = require("../../models/allModels");
 async function Update(fastify, options) {
     fastify.register(require('@fastify/multipart'));
     fastify.post('/brand/:id', async (req, reply) => {
@@ -25,11 +25,18 @@ async function Update(fastify, options) {
             if (!existingBrand) {
                 return reply.status(404).send({ error: "Brand not found" });
             }
-        
             existingBrand.brandName = name;
             existingBrand.brandImage = `public/image/${fileName}`;
-
             const updatedBrand = await existingBrand.save();
+
+
+            const exsistingProduct = await Product.find({"brand._id":existingBrand._id})
+            for await (const x of exsistingProduct) { 
+                exsistingProduct.brand.brandName = name;
+                exsistingProduct.brand.brandImage = `public/image/${fileName}`;
+                const updatedProduct = await exsistingProduct.save();
+            }
+            
 
             return reply.send({ brand: updatedBrand });
         } catch (error) {

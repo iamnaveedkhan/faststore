@@ -266,7 +266,8 @@ async function Upload(fastify, options) {
                 },
                 brand: {
                     _id: brnd._id,
-                    brandName: brnd.brandName
+                    brandName: brnd.brandName,
+                    brandImage:brnd.brandImage
                 },
                 user: {
                     _id: user_id._id,
