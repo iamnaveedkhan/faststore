@@ -28,7 +28,7 @@ async function getProduct(fastify, options) {
 
   fastify.get("/product/:id", async (req, reply) => {
     try {
-      const userId = req.params.id;
+      const userId = req.params.userId._id;
       const existingData = await Product.find({ _id: userId }).populate({
         path: "photos",
         model: "Photo",
