@@ -96,9 +96,21 @@ const productSchema = new mongoose.Schema({
 
 const inquirySchema = new mongoose.Schema({
     date:{ type: Date, default: Date.now },
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    shop: { type: Schema.Types.ObjectId, ref: 'User' },
-    product: { type: Schema.Types.ObjectId, ref: 'Product' },
+    customer: {
+        _id: { type: 'string' },
+        customerNumber: { type: Number },
+        customerName: { type: String },
+    },
+    shop: {
+        _id: { type: 'string' },
+        shopNumber: { type: Number },
+        shopName: { type: String },
+    },
+    product: {
+            _id: { type: 'string' },
+            productName: { type: 'string' },
+            photo: { type: 'string' },
+        },
 
 });
 

@@ -12,22 +12,29 @@ async function Upload(fastify, options) {
             let name;
             let fileName;
 
+            let hasNameField = false;
+            let hasFileField = false;
+
             for await (const part of parts) {   
                 if (part.type === 'file') {
                     fileName = part.filename;
                     filePath = path.join('public/image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
-                   
+                    hasFileField = true;
                 } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                         name = part.value;
-                       
+                        hasNameField = true;
                     } 
                 }
             }
 
             
+            if (!hasNameField || !hasFileField) {
+                return reply.status(400).send({ error: "Name and file fields are required" });
+            }
+
             const existingBrand = await Brand.findOne({ brandName: name });
             if (existingBrand) {
                 return reply.status(409).send({ error: "Brand already registered" });
@@ -52,27 +59,24 @@ async function Upload(fastify, options) {
             let name;
             let fileName;
 
-            // let hasNameField = false;
-            // let hasFileField = false;
-
             for await (const part of parts) {   
                 if (part.type === 'file') {
                     fileName = part.filename;
                     filePath = path.join('public/image/', fileName);
                     const writableStream = fs.createWriteStream(filePath);
                     await part.file.pipe(writableStream);
-                    // hasFileField = true;
+                    hasFileField = true;
                 } else if (part.type === 'field') {
                     if (part.fieldname === 'name') {
                         name = part.value;
-                        // hasNameField = true;
+                        
                     } 
                 }
             }
 
-            // if (!hasNameField || !hasFileField) {
-            //     return reply.status(400).send({ error: "Name and file fields are required" });
-            // }
+            if ((name == undefined || name == "") || fileName == undefined) {
+                return reply.status(400).send({ error: "Name and file fields are required" });
+            }
 
             const existingBrand = await Category.findOne({ categoryName: name });
             if (existingBrand) {
@@ -89,8 +93,6 @@ async function Upload(fastify, options) {
             return reply.status(500).send('Internal Server Error');
         }
     });
-
-
 
     fastify.post('/sub_category', async (req, reply) => {
         try {
@@ -309,7 +311,7 @@ async function Upload(fastify, options) {
     fastify.get('/enquiry/:id', { onRequest: [fastify.authenticate] }, async function (req, reply) {
         try {
             const productId = req.params.id;
-            const userId = req.user.userId._id;
+            const userId = await User.findOne({ _id: req.user.userId._id });
             console.log(userId);
             
             const existingProduct = await Product.findOne({ _id: productId });
@@ -317,10 +319,24 @@ async function Upload(fastify, options) {
                 
                 shopName = existingProduct.user._id;
                 const product = new Inquiry({
-                    'user':userId,
-                    'product': productId,
-                    'shop':shopName,
+                    customer: {
+                        _id: userId._id,
+                        customerNumber: userId.mobile,
+                        customerName:userId.name ,
+                    },
+                    shop: {
+                        _id: existingProduct.user._id,
+                        shopNumber: existingProduct.user.mobile,
+                        shopName: existingProduct.user.name,
+                    },
+                    product: {
+                            _id: existingProduct._id,
+                            productName: existingProduct.model.productName,
+                            photo: existingProduct.model.photo,
+                        },
                 });
+
+                
                  await product.save();
             }
             

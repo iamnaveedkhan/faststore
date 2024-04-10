@@ -217,7 +217,7 @@ async function getProduct(fastify, options) {
 
   fastify.get("/inquiries", async (req, reply) => {
     try {
-      const existingData = await Inquiry.find();
+      const existingData = await Inquiry.find().populate();
 
       if (existingData.length > 0) {
         reply.send(existingData);
