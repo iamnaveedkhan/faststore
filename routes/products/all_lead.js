@@ -215,10 +215,17 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/inquiries", async (req, reply) => {
+  fastify.get("/inquiries",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
     try {
-      const existingData = await Inquiry.find().populate();
-
+      const userId = await User.findOne({ _id: req.user.userId._id });
+      let existingData;
+      if (userId.role==1){
+        existingData = await Inquiry.find();
+      } else if (userId.role === 2) {
+        existingData = await Inquiry.find({ role: 2 });
+    } else {
+        return reply.code(403).send({ error: "Unauthorized access" });
+    }
       if (existingData.length > 0) {
         reply.send(existingData);
       } else {
