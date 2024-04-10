@@ -30,7 +30,7 @@ const brandSchema = new mongoose.Schema({
 
 const categorySchema = new mongoose.Schema({
     categoryName: { type: String, default: null },
-    categoryImage: { type: String },
+    categoryImage: { type: String, default: null },
 });
 
 const subCategorySchema = new mongoose.Schema({
