@@ -220,12 +220,12 @@ async function getProduct(fastify, options) {
       const userId = await User.findOne({ _id: req.user.userId._id });
       let existingData;
       if (userId.role==1){
-        existingData = await Inquiry.find();
-      } else if (userId.role === 2) {
-        existingData = await Inquiry.find({ role: 2 });
+        existingData = await Inquiry.find({ "customer._id" : userId._id});
+      } else if (userId.role == 2) {
+        existingData = await Inquiry.find({ "shop._id" : userId._id});
     } else {
         return reply.code(403).send({ error: "Unauthorized access" });
-    }
+      }
       if (existingData.length > 0) {
         reply.send(existingData);
       } else {

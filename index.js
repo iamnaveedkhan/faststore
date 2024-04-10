@@ -2,7 +2,7 @@ const fastifyRoot = require("fastify");
 
 require("dotenv").config();
 const { connect } = require("./db");
-const fastify = fastifyRoot({});
+const fastify = fastifyRoot({logger:true});
 const bcrypt = require("bcrypt");
 const path = require("node:path");
 
