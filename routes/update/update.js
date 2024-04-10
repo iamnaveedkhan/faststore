@@ -52,26 +52,34 @@ async function Update(fastify, options) {
             let name;
             let fileName;
             let filePath;
-
             for await (const part of parts) { 
-                if(part.type === 'field'){
-                    name = part.value;
+                if (part.type === 'field') {
+                    name = part.value.trim();
                 } else if (part.type === 'file') {
-                    fileName = part.filename;
-                    filePath = path.join('public/image/', fileName);
-                    const writableStream = fs.createWriteStream(filePath);
-                    await part.file.pipe(writableStream);
+                    if (part.filename) {
+                        fileName = part.filename;
+                        filePath = path.join('public/image/', fileName);
+                        const writableStream = fs.createWriteStream(filePath);
+                        await part.file.pipe(writableStream);
+                    } else {
+                        console.log("No file sent");
+                    }
                 } 
             }
             
             const existingCategory = await Category.findById(categoryId);
             if (!existingCategory) {
-                return reply.status(404).send({ error: "Category not found !" });
+                return reply.status(404).send({ error: " Sub Category not found !" });
             }
-        
-            existingCategory.categoryName = name;
-            existingCategory.categoryImage = `public/image/${fileName}`;
 
+            if (name != '' && existingCategory.categoryName != name) {
+                existingCategory.categoryName = name;
+            }
+             
+            if(fileName!=undefined || fileName!= null){
+                existingCategory.categoryImage = `public/image/${fileName}`;
+            }
+    
             const updatedCategory = await existingCategory.save();
 
             return reply.send({ brand: updatedCategory });
@@ -88,11 +96,9 @@ async function Update(fastify, options) {
             let name;
             let fileName;
             let filePath;
-            let hasNameField = false;
             for await (const part of parts) { 
                 if (part.type === 'field') {
                     name = part.value.trim();
-                    hasNameField = true;
                 } else if (part.type === 'file') {
                     if (part.filename) {
                         fileName = part.filename;
@@ -105,26 +111,17 @@ async function Update(fastify, options) {
                 } 
             }
 
-            if(!hasNameField){
-                return reply.status(400).send({ error: "Name and file fields are required" });
-            }
+            
             
             const existingSubCategory = await SubCategory.findById(subCategoryId);
             if (!existingSubCategory) {
                 return reply.status(404).send({ error: " Sub Category not found !" });
             }
 
-            if (name !== '' && existingSubCategory.subCategoryName !== name) {
-                existingSubCategory.subCategoryName = name;
-            } else if (name === '') {
-                return reply.status(400).send({ error: "Please enter the name" });
-            }
-
-        
-            if(existingSubCategory.subCategoryName!=name && name!= '')
-            {
+            if (name != '' && existingSubCategory.subCategoryName != name) {
                 existingSubCategory.subCategoryName = name;
             }
+             
             if(fileName!=undefined || fileName!= null){
                 existingSubCategory.subCategoryImage = `public/image/${fileName}`;
             }
@@ -143,6 +140,10 @@ async function Update(fastify, options) {
             const photosId = req.params.id;
             const parts = req.parts();
             
+            for await (const part of parts){
+                console.log(part);
+            }
+
             return reply.send({ photosId});
 
             // for await (const part of parts) { 
