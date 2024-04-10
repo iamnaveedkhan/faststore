@@ -72,8 +72,11 @@ async function Update(fastify, options) {
                 return reply.status(404).send({ error: " Sub Category not found !" });
             }
 
-            if (name != '' && existingCategory.categoryName != name) {
+            if (name != '' && existingCategory.categoryName != name && name!=undefined) {
                 existingCategory.categoryName = name;
+            }
+            else{
+
             }
              
             if(fileName!=undefined || fileName!= null){
