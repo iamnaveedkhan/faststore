@@ -227,7 +227,7 @@ async function getProduct(fastify, options) {
         return reply.code(403).send({ error: "Unauthorized access" });
       }
       if (existingData.length > 0) {
-        reply.send(existingData);
+        reply.send(existingData.reverse());
       } else {
         reply.code(404).send({ error: "No data found" });
       }
@@ -242,7 +242,7 @@ async function getProduct(fastify, options) {
       const inquiryId = req.params.id;
       const existingInquiry = await Inquiry.findOne({ _id: inquiryId });
       if (existingInquiry) {
-        reply.send(existingInquiry.reverse());
+        reply.send(existingInquiry);
       } else {
         reply.code(404).send({ error: "Inquiry not found" });
       }
