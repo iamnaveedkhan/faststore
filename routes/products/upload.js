@@ -231,7 +231,6 @@ async function Upload(fastify, options) {
 
             const {name,price,quantity} = req.body;
             const shop = req.user.userId._id;
-            
             // for await (const part of parts) {
             //     if (part.type === 'field') {
             //         if (part.fieldname === 'name') {
