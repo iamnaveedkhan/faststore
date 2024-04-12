@@ -111,7 +111,6 @@ const inquirySchema = new mongoose.Schema({
             productName: { type: 'string' },
             photo: { type: 'string' },
         },
-
 });
 
 const User = mongoose.model('User', userSchema);

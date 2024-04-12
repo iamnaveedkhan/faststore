@@ -113,9 +113,7 @@ async function Update(fastify, options) {
                     }
                 } 
             }
-
-            
-            
+          
             const existingSubCategory = await SubCategory.findById(subCategoryId);
             if (!existingSubCategory) {
                 return reply.status(404).send({ error: " Sub Category not found !" });
@@ -138,44 +136,17 @@ async function Update(fastify, options) {
         }
     });
 
-     fastify.post('/photos/:id', async (req, reply) => {
-        try {
-            const photosId = req.params.id;
-            const parts = req.parts();
-            
-            for await (const part of parts){
-                console.log(part);
-            }
-
-            return reply.send({ photosId});
-
-            // for await (const part of parts) { 
-            //     if(part.type === 'field'){
-            //         name = part.value;
-            //     } else if (part.type === 'file') {
-            //         fileName = part.filename;
-            //         filePath = path.join('public/image/', fileName);
-            //         const writableStream = fs.createWriteStream(filePath);
-            //         await part.file.pipe(writableStream);
-            //     } 
-            // }
-            
-            // const existingCategory = await Category.findById(photosId);
-            // if (!existingCategory) {
-            //     return reply.status(404).send({ error: "Category not found !" });
-            // }
-        
-            // existingCategory.categoryName = name;
-            // existingCategory.categoryImage = `public/image/${fileName}`;
-
-            // const updatedCategory = await existingCategory.save();
-
-            // return reply.send({ brand: updatedCategory });
-        } catch (error) {
-            console.error('Error updating cateogy:', error);
-            return reply.status(500).send('Internal Server Error');
-        }
-    });
+    // fastify.post('/photos/:id', async (req, reply) => {
+    //     try {
+    //         const photosId = req.params.id;
+    //         const parts = req.parts();
+    //         reply.send('Request processed successfully');
+    //     } catch (error) {
+    //         console.error('Error processing request:', error);
+    //         reply.status(500).send('Internal Server Error');
+    //     }
+    // });
+    
 }
 
 module.exports = Update;

@@ -242,7 +242,7 @@ async function getProduct(fastify, options) {
       const inquiryId = req.params.id;
       const existingInquiry = await Inquiry.findOne({ _id: inquiryId });
       if (existingInquiry) {
-        reply.send(existingInquiry);
+        reply.send(existingInquiry.reverse());
       } else {
         reply.code(404).send({ error: "Inquiry not found" });
       }
