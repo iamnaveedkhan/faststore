@@ -113,6 +113,12 @@ const inquirySchema = new mongoose.Schema({
         },
 });
 
+// const dimensions = new mongoose.Schema({
+//     color : {
+//         title : "Color",
+//         color1: {}
+//     }
+// })
 const User = mongoose.model('User', userSchema);
 const Address = mongoose.model('Address', addressesSchema);
 const Order = mongoose.model('Order', ordersSchema);

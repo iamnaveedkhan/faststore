@@ -229,20 +229,20 @@ async function Upload(fastify, options) {
         try {
             const parts = req.parts();
 
-            let name,price,quantity;
+            const {name,price,quantity} = req.body;
             const shop = req.user.userId._id;
             
-            for await (const part of parts) {
-                if (part.type === 'field') {
-                    if (part.fieldname === 'name') {
-                       name = part.value;
-                    } else if (part.fieldname === 'price') {
-                        price = part.value;
-                    } else if (part.fieldname === 'quantity') {
-                        quantity = part.value;
-                    }
-                }
-            }
+            // for await (const part of parts) {
+            //     if (part.type === 'field') {
+            //         if (part.fieldname === 'name') {
+            //            name = part.value;
+            //         } else if (part.fieldname === 'price') {
+            //             price = part.value;
+            //         } else if (part.fieldname === 'quantity') {
+            //             quantity = part.value;
+            //         }
+            //     }
+            // }
             const existingProduct = await Product.findOne({ $and: [{ "model._id":name},{"user._id":shop }] });
             if (existingProduct) {
             
@@ -284,11 +284,13 @@ async function Upload(fastify, options) {
                 },
                 category: {
                     _id: cate._id,
-                    categoryName: cate.categoryName
+                    categoryName: cate.categoryName,
+                    categoryImage: cate.categoryImage
                 },
                 subCategory: {
                     _id: subcate._id,
                     subCategoryName: subcate.subCategoryName,
+                    subCategoryImage: subcate.subCategoryImage,
                     category: subcate.category
                 },
                 photos:pht._id,
