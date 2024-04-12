@@ -47,13 +47,25 @@ const modelSchema = new mongoose.Schema({
     subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
 });
 
-// const productSchema = new mongoose.Schema({
-//     productDate: { type: Date, default: Date.now },
-//     quantity: { type: Number, default: 1 },
-//     user_id: { type: Schema.Types.ObjectId, ref: 'User' },
-//     model: { type: Schema.Types.ObjectId, ref: 'Model' },
-//     price: { type : Number, default: null },
-// });
+const product2Schema = new mongoose.Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: String,
+      required: true
+    },
+    properties: mongoose.Schema.Types.Mixed,
+    variants: [{
+      color: String,
+      ram: String,
+      rom: String,
+      images: [String],
+      SKU: String,
+      price: Number,
+    }]
+  });
 
 const photoSchema = new mongoose.Schema({
     model: { type: Schema.Types.ObjectId, ref: 'Model' },
