@@ -4,7 +4,7 @@ const { Brand, Category, Product,SubCategory } = require("../../models/allModels
 const { isNullOrUndefined } = require('util');
 async function Update(fastify, options) {
     fastify.register(require('@fastify/multipart'));
-    fastify.post('/brand/:id', async (req, reply) => {
+    fastify.post('/brand/:id',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const brandId = req.params.id;
             const parts = req.parts();
@@ -21,7 +21,6 @@ async function Update(fastify, options) {
                     await part.file.pipe(writableStream);
                 } 
             }
-
             const existingBrand = await Brand.findById(brandId);
             if (!existingBrand) {
                 return reply.status(404).send({ error: "Brand not found" });
@@ -45,7 +44,7 @@ async function Update(fastify, options) {
         }
     });
 
-    fastify.post('/category/:id', async (req, reply) => {
+    fastify.post('/category/:id', { onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const categoryId = req.params.id;
             const parts = req.parts();
@@ -92,7 +91,7 @@ async function Update(fastify, options) {
         }
     });
 
-    fastify.post('/sub_category/:id', async (req, reply) => {
+    fastify.post('/sub_category/:id',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const subCategoryId = req.params.id;
             const parts = req.parts();

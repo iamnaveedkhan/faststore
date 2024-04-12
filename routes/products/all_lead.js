@@ -9,7 +9,7 @@ const {
 } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
-  fastify.get("/products", async (req, reply) => {
+  fastify.get("/products", { onRequest: [fastify.authenticate] },async (req, reply) => {
     try {
       const userId = "6604f9313a87c4f151fd06d7";
       const existingData = await Product.find();
@@ -26,7 +26,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/product/:id", async (req, reply) => {
+  fastify.get("/product/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const userId = req.params.id;
       const existingData = await Product.find({ _id: userId }).populate({
@@ -44,8 +44,25 @@ async function getProduct(fastify, options) {
       reply.code(500).send({ error: "Internal server error" });
     }
   });
+  
 
-  fastify.get("/brands", async (req, reply) => {
+  fastify.get("/productsbycategory/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+      const subCategoryId = req.params.id;
+      const existingData = await Product.find({ "subCategory._id": subCategoryId });
+
+      if (existingData) {
+        reply.send(existingData);
+      } else {
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  fastify.get("/brands",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const existingData = await Brand.find();
 
@@ -60,7 +77,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/brand/:id", async (req, reply) => {
+  fastify.get("/brand/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const brandId = req.params.id;
       const existingBrand = await Brand.findOne({ _id: brandId });
@@ -75,7 +92,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/users", async (req, reply) => {
+  fastify.get("/users",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const existingData = await User.find();
 
@@ -90,7 +107,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/user/:id", async (req, reply) => {
+  fastify.get("/user/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const userId = req.params.id;
       const existingUser = await User.findOne({ _id: userId });
@@ -105,7 +122,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/categories", async (req, reply) => {
+  fastify.get("/categories", { onRequest: [fastify.authenticate] },async (req, reply) => {
     try {
       const existingData = await Category.find();
 
@@ -120,7 +137,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/category/:id", async (req, reply) => {
+  fastify.get("/category/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const categoryId = req.params.id;
       const existingCategory = await Category.findOne({ _id: categoryId });
@@ -135,7 +152,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/subCategories", async (req, reply) => {
+  fastify.get("/subCategories", { onRequest: [fastify.authenticate] },async (req, reply) => {
     try {
       const existingData = await SubCategory.find();
 
@@ -150,14 +167,14 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/selectedsubcategory/:id", async (req, reply) => {
+  fastify.get("/selectedsubcategory/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const category = req.params.id;
       const existingData =  await SubCategory.find({
         category: category,
       });
 
-      if (existingData.length > 0) {
+      if (existingData.length) {
         reply.send(existingData);
       } else {
         reply.code(404).send({ error: "No data found" });
@@ -168,7 +185,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/subCategory/:id", async (req, reply) => {
+  fastify.get("/subCategory/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const subCategoryId = req.params.id;
       const existingSubCategory = await SubCategory.findOne({
@@ -185,7 +202,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/models", async (req, reply) => {
+  fastify.get("/models",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const existingData = await Model.find();
 
@@ -200,7 +217,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/model/:id", async (req, reply) => {
+  fastify.get("/model/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const modelId = req.params.id;
       const existingModel = await Model.findOne({ _id: modelId });

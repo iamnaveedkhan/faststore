@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 async function Upload(fastify, options) {
     fastify.register(require('@fastify/multipart'));
-    fastify.post('/brand', async (req, reply) => {
+    fastify.post('/brand', { onRequest: [fastify.authenticate] },async (req, reply) => {
         try {
             const parts = req.parts();
             let name;
@@ -53,7 +53,7 @@ async function Upload(fastify, options) {
     });
 
 
-    fastify.post('/category', async (req, reply) => {
+    fastify.post('/category',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const parts = req.parts();
             let name;
@@ -94,7 +94,7 @@ async function Upload(fastify, options) {
         }
     });
 
-    fastify.post('/sub_category', async (req, reply) => {
+    fastify.post('/sub_category',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const parts = req.parts();
 
@@ -136,7 +136,7 @@ async function Upload(fastify, options) {
     });
 
 
-    fastify.post('/model', async (req, reply) => {
+    fastify.post('/model',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const parts = req.parts();
             let filePath;
@@ -187,7 +187,7 @@ async function Upload(fastify, options) {
     });
 
 
-    fastify.post('/photos', async (req, reply) => {
+    fastify.post('/photos',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const parts = req.parts();
             let filePath;
