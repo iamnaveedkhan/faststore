@@ -507,10 +507,6 @@ fastify.post('/addvariant', async (req, reply) => {
 });
 
 
-
-
-
-
 fastify.post(
     "/product2",
     { onRequest: [fastify.authenticate] },
@@ -553,9 +549,6 @@ fastify.post(
       }
     }
   );
-
-
-  
 }
 
 module.exports = Upload;
