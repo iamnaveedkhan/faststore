@@ -81,6 +81,11 @@ const model2Schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    user: {
+        _id: { type: 'string' },
+        shopNumber: { type: Number },
+        shopName: { type: String },
+    },
     properties: {
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
         subcategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
