@@ -43,11 +43,11 @@ async function Upload(fastify, options) {
           }
         }
 
-        if (!hasNameField || !hasFileField) {
-          return reply
-            .status(400)
-            .send({ error: "Name and file fields are required" });
-        }
+        // if (!hasNameField || !hasFileField) {
+        //   return reply
+        //     .status(400)
+        //     .send({ error: "Name and file fields are required" });
+        // }
 
         const existingBrand = await Brand.findOne({ brandName: name });
         if (existingBrand) {
