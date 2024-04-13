@@ -220,7 +220,7 @@ async function getProduct(fastify, options) {
   fastify.get("/modelsbycategory/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const modelId = req.params.id;
-      const existingData = await Model.find({ "subCategory._id": modelId });
+      const existingData = await Model.find({ subCategory: modelId });
 
       if (existingData) {
         reply.send(existingData);
