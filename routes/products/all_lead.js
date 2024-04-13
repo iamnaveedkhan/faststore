@@ -6,9 +6,34 @@ const {
   Category,
   SubCategory,
   Inquiry,
+  Product2
 } = require("../../models/allModels");
 
+
+
+
 async function getProduct(fastify, options) {
+
+  fastify.get("/products2", { onRequest: [fastify.authenticate] },async (req, reply) => {
+    console.log("in products 2");
+    try {
+      const userId = "6604f9313a87c4f151fd06d7";
+      const existingData = await Product2.find();
+
+      if (existingData.length > 0) {
+        reply.send(existingData);
+      } else {
+        console.log("user not found");
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+
+
   fastify.get("/products", { onRequest: [fastify.authenticate] },async (req, reply) => {
     try {
       const userId = "6604f9313a87c4f151fd06d7";
@@ -220,7 +245,7 @@ async function getProduct(fastify, options) {
   fastify.get("/modelsbycategory/:id",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const modelId = req.params.id;
-      const existingData = await Model.find({ subCategory: modelId });
+      const existingData = await Model.find({ "subCategory._id": modelId });
 
       if (existingData) {
         reply.send(existingData);
