@@ -6,7 +6,8 @@ const {
   Category,
   SubCategory,
   Inquiry,
-  Product2
+  Product2,
+  Model2
 } = require("../../models/allModels");
 
 
@@ -14,23 +15,7 @@ const {
 
 async function getProduct(fastify, options) {
 
-  fastify.get("/products2", { onRequest: [fastify.authenticate] },async (req, reply) => {
-    console.log("in products 2");
-    try {
-      const userId = "6604f9313a87c4f151fd06d7";
-      const existingData = await Product2.find();
-
-      if (existingData.length > 0) {
-        reply.send(existingData);
-      } else {
-        console.log("user not found");
-        reply.code(404).send({ error: "No data found" });
-      }
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
-    }
-  });
+ 
 
 
 
@@ -304,6 +289,30 @@ async function getProduct(fastify, options) {
         reply.send(existingInquiry);
       } else {
         reply.code(404).send({ error: "Inquiry not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+
+  fastify.get("/products2",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
+    try {
+      const userId = await User.findOne({ _id: req.user.userId._id });
+      let existingData;
+      if (userId.role==1){
+        existingData = await Product2.find().populate('user').populate('model').populate('variants') 
+        
+      } else if (userId.role == 2) {
+        existingData = await Product2.find().populate('user').populate('model').populate('variants');
+    } else {
+        return reply.code(403).send({ error: "Unauthorized access" });
+      }
+      if (existingData.length > 0) {
+        reply.send(existingData.reverse());
+      } else {
+        reply.code(404).send({ error: "No data found" });
       }
     } catch (error) {
       console.error(error);

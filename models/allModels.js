@@ -57,49 +57,34 @@ const model2Schema = new mongoose.Schema({
         required: true
     },
     properties: {
-        category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        subcategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
-        brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
+        category: String,
+        subcategory: String,
+        brand: String,
         description: String,
     },
+    photo: { type : String, default: " " },
     specification: mongoose.Schema.Types.Mixed,
-    variants: [{
-        color: String,
-        images: [String],
-        SKU: String,
-        price: Number,
-        quantity: Number,
-    }]
   });
 
+  const variantSchema = new mongoose.Schema({
+    model: { type: Schema.Types.ObjectId, ref: 'Model2' },
+    variants: {
+      color: String,
+      images: [String],
+      SKU: String,
+      price: Number,
+      quantity: Number,
+  }
+  })
+
   const product2Schema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-      },
-    type: {
-        type: String,
-        required: true
-    },
+    model: { type: Schema.Types.ObjectId, ref: 'Model2' },
     user: {
         _id: { type: 'string' },
         shopNumber: { type: Number },
         shopName: { type: String },
     },
-    properties: {
-        category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        subcategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
-        brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
-        description: String,
-    },
-    specification: mongoose.Schema.Types.Mixed,
-    variants: [{
-        color: String,
-        images: [String],
-        SKU: String,
-        price: Number,
-        quantity: Number,
-    }]
+    variants:  [{ type: Schema.Types.ObjectId, ref: 'Variant' }]
   });
 
 
@@ -179,5 +164,6 @@ const Model = mongoose.model('Model', modelSchema);
 const Model2 = mongoose.model('Model2', model2Schema);
 const Photo = mongoose.model('Photo',photoSchema);
 const Inquiry = mongoose.model('Inquiry',inquirySchema);
+const Variant = mongoose.model('Variant',variantSchema);
 
-module.exports = { User, Brand, Category, SubCategory, Model, Address, Order, Product , Product2, Model2 , Photo, Inquiry};
+module.exports = { Variant, User, Brand, Category, SubCategory, Model, Address, Order, Product , Product2, Model2 , Photo, Inquiry};
