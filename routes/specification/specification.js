@@ -7,11 +7,12 @@ async function addSpecification(fastify, options) {
 
     // Loop through each key name
     for (let i = 0; i < keyname.length; i++) {
+      
       specifications[keyname[i]] = {
         type: keyType[i],
-        required: ismandatory[i]?true:false, // Convert string to boolean
-        isFilter: isfilter[i]?true:false, // Convert string to boolean
-        isVariant: isvariant[i]?true:false, // Convert string to boolean
+        required: ismandatory[i], // Convert string to boolean
+        isFilter: isfilter[i], // Convert string to boolean
+        isVariant: isvariant[i], // Convert string to boolean
       };
     }
 
