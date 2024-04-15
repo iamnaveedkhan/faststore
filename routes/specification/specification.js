@@ -12,20 +12,20 @@ async function addSpecification(fastify, options) {
       
       // Loop through each key name
       for (let i = 0; i < keyname.length; i++) {
-        if(ismandatory[i]=="true"){
+        if(ismandatory[i]==="true"){
           mandatory = true;
         }
-        if(isfilter[i]=="true"){
+        if(isfilter[i]==="true"){
           filter = true;
         }
-        if(isvariant[i]=="true"){
+        if(isvariant[i]==="true"){
           variant = true;
         }
         specifications[keyname[i]] = {
           type: keyType[i],
-          required: mandatory?true:false, // Convert string to boolean
-          isFilter: filter?true:false, // Convert string to boolean
-          isVariant: variant?true:false, // Convert string to boolean
+          required: mandatory, // Convert string to boolean
+          isFilter: filter, // Convert string to boolean
+          isVariant: variant, // Convert string to boolean
         };
       }
    
