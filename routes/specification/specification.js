@@ -6,9 +6,9 @@ async function addSpecification(fastify, options) {
     for (let i = 0; i < keyname.length; i++) {
       specifications[keyname] = {
         type: keyType,
-        required: ismandatory===true,
-        isFilter:isfilter===true,
-        isVariant:isvariant===true,
+        required: ismandatory?true:false,
+        isFilter:isfilter?true:false,
+        isVariant:isvariant?true:false,
       };
     }
     const Spec = new Specification({
