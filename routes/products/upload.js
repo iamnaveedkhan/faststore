@@ -13,7 +13,8 @@ const {
   Inquiry,
   Product2,
   Model2,
-  Variant
+  Variant,
+  Specification
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
@@ -549,6 +550,9 @@ fastify.post(
       }
     }
   );
+
+
+
 }
 
 module.exports = Upload;

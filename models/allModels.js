@@ -152,6 +152,16 @@ const inquirySchema = new mongoose.Schema({
 //         color1: {}
 //     }
 // })
+
+
+const specificationSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    // category: { type: Schema.Types.ObjectId, ref: 'Category' },
+    // subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
+    specification: mongoose.Schema.Types.Mixed,
+});
+  
+  
 const User = mongoose.model('User', userSchema);
 const Address = mongoose.model('Address', addressesSchema);
 const Order = mongoose.model('Order', ordersSchema);
@@ -165,5 +175,6 @@ const Model2 = mongoose.model('Model2', model2Schema);
 const Photo = mongoose.model('Photo',photoSchema);
 const Inquiry = mongoose.model('Inquiry',inquirySchema);
 const Variant = mongoose.model('Variant',variantSchema);
+const Specification = mongoose.model('Specification', specificationSchema);
 
-module.exports = { Variant, User, Brand, Category, SubCategory, Model, Address, Order, Product , Product2, Model2 , Photo, Inquiry};
+module.exports = { Specification, Variant, User, Brand, Category, SubCategory, Model, Address, Order, Product , Product2, Model2 , Photo, Inquiry};
