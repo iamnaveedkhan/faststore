@@ -31,7 +31,7 @@ async function addSpecification(fastify, options) {
    
 
     const Spec = new Specification({
-      name: "naveed",
+      name: name,
       specification: specifications,
     });
     const BrandSaved = await Spec.save();
