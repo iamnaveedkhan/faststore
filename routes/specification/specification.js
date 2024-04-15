@@ -3,6 +3,7 @@ async function addSpecification(fastify, options) {
   fastify.post("/add-specifications", async (request, reply) => {
     const { name, keyname, keyType, ismandatory, isvariant, isfilter } = request.body;
     const specifications = {};
+    console.log(request.body);
     for (let i = 0; i < keyname.length; i++) {
       specifications[keyname] = {
         type: keyType,
