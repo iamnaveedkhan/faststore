@@ -4,6 +4,8 @@ const { Schema } = mongoose;
 const userSchema = new mongoose.Schema({
     name: { type: String, default: null },
     mobile: { type: Number, unique: true },
+    longitude : { type : String, default: null},
+    latitude : { type : String, default: null},
     role: { type: Number, default: 1 },
     isActive : { type:Number, default : 1},
     password:{type:String,default:"Zerotouch"}

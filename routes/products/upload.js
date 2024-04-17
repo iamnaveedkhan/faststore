@@ -1,6 +1,8 @@
 const path = require("path");
 const fs = require("fs");
-const { Types: { ObjectId } } = require('mongoose');
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 
 const {
   Product,
@@ -14,7 +16,7 @@ const {
   Product2,
   Model2,
   Variant,
-  Specification
+  Specification,
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
@@ -396,119 +398,99 @@ async function Upload(fastify, options) {
     }
   );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  fastify.post('/addmodel', async (req, reply) => {
+  fastify.post("/addmodel", async (req, reply) => {
     try {
-        // Parse form data
-        const data = {};
-        let fileName;
+      // Parse form data
+      const data = {};
+      let fileName;
 
-        for await (const part of req.parts()) {
-            if (part.file) {
-                // It's a file, save it
-                fileName = part.filename;
-                const filePath = path.join("public/image/", fileName);
-                const writableStream = fs.createWriteStream(filePath);
-                await part.file.pipe(writableStream);
-                data['photo'] = `public/image/${fileName}`;
-            } else {
-                // Handle other form fields
-                if (part.fieldname.startsWith('variants[]')) {
-                  del  // It's a variant field
-                    data[part.fieldname] = part.value;
-                } else if (part.fieldname.startsWith('properties.')) {
-                    // Convert string values to ObjectId
-                    data[part.fieldname] = part.value;
-                } else {
-                    data[part.fieldname] = part.value;
-                }
-            }
+      for await (const part of req.parts()) {
+        if (part.file) {
+          // It's a file, save it
+          fileName = part.filename;
+          const filePath = path.join("public/image/", fileName);
+          const writableStream = fs.createWriteStream(filePath);
+          await part.file.pipe(writableStream);
+          data["photo"] = `public/image/${fileName}`;
+        } else {
+          // Handle other form fields
+          if (part.fieldname.startsWith("variants[]")) {
+            del; // It's a variant field
+            data[part.fieldname] = part.value;
+          } else if (part.fieldname.startsWith("properties.")) {
+            // Convert string values to ObjectId
+            data[part.fieldname] = part.value;
+          } else {
+            data[part.fieldname] = part.value;
+          }
         }
+      }
 
-        // Add variants data to the data object
-    
+      // Add variants data to the data object
 
-        // Create a new model instance with the parsed data
-        const newModel = new Model2(data);
+      // Create a new model instance with the parsed data
+      const newModel = new Model2(data);
 
-        // Save the model to the database
-        const savedModel = await newModel.save();
+      // Save the model to the database
+      const savedModel = await newModel.save();
 
-        // Respond with the saved model
-        return savedModel;
+      // Respond with the saved model
+      return savedModel;
     } catch (error) {
-        // Handle errors
-        console.error('Error adding model:', error);
-        reply.code(500).send({ error: 'Internal Server Error' });
+      // Handle errors
+      console.error("Error adding model:", error);
+      reply.code(500).send({ error: "Internal Server Error" });
     }
-});
+  });
 
-
-fastify.post('/addvariant', async (req, reply) => {
+  fastify.post("/addvariant", async (req, reply) => {
     try {
-        // Parse form data
-        const data = {};
-        let fileName;
-        let photos = [];
+      // Parse form data
+      const data = {};
+      let fileName;
+      let photos = [];
 
-        for await (const part of req.parts()) {
-            if (part.type === "file") {
-                // It's a file, save it
-                fileName = part.filename;
-                const filePath = path.join("public/image/", fileName);
-                const writableStream = fs.createWriteStream(filePath);
-                await part.file.pipe(writableStream);
-                newFile = `public/image/${fileName}`;
-                photos.push(newFile);
-                console.log(photos);
-                
-            } else {
-                // Handle other form fields
-            
-                data[part.fieldname] = part.value;
-                
-            }
+      for await (const part of req.parts()) {
+        if (part.type === "file") {
+          // It's a file, save it
+          fileName = part.filename;
+          const filePath = path.join("public/image/", fileName);
+          const writableStream = fs.createWriteStream(filePath);
+          await part.file.pipe(writableStream);
+          newFile = `public/image/${fileName}`;
+          photos.push(newFile);
+          console.log(photos);
+        } else {
+          // Handle other form fields
+
+          data[part.fieldname] = part.value;
         }
-        if (!data['variants']) {
-            data['variants'] = {};
-        }
+      }
+      if (!data["variants"]) {
+        data["variants"] = {};
+      }
 
-        // Set images property
-        data['variants']['images'] = photos;
+      // Set images property
+      data["variants"]["images"] = photos;
 
-        // Add variants data to the data object
-    
+      // Add variants data to the data object
 
-        // Create a new model instance with the parsed data
-        const newModel = new Variant(data);
+      // Create a new model instance with the parsed data
+      const newModel = new Variant(data);
 
-        // Save the model to the database
-        const savedModel = await newModel.save();
+      // Save the model to the database
+      const savedModel = await newModel.save();
 
-        // Respond with the saved model
-        return savedModel;
+      // Respond with the saved model
+      return savedModel;
     } catch (error) {
-        // Handle errors
-        console.error('Error adding model:', error);
-        reply.code(500).send({ error: 'Internal Server Error' });
+      // Handle errors
+      console.error("Error adding model:", error);
+      reply.code(500).send({ error: "Internal Server Error" });
     }
-});
+  });
 
-
-fastify.post(
+  fastify.post(
     "/product2",
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
@@ -518,28 +500,27 @@ fastify.post(
         let model;
         let variants = [];
         for await (const part of req.parts()) {
-            if (part.fieldname === "model") {
-                model = part.value;
-                console.log(model);
-            } else if (part.fieldname === "variants") {
-                const myvariants = await Variant.findOne({ _id: part.value });
-                variants.push(myvariants)
-            } 
+          if (part.fieldname === "model") {
+            model = part.value;
+            console.log(model);
+          } else if (part.fieldname === "variants") {
+            const myvariants = await Variant.findOne({ _id: part.value });
+            variants.push(myvariants);
+          }
         }
-        
+
         const user_id = await User.findOne({ $or: [{ _id: shop }] });
         const mymodel = await Model2.findOne({ _id: model });
         console.log(mymodel);
-        
+
         const prod = new Product2({
-        model: mymodel,
-        user: {
+          model: mymodel,
+          user: {
             _id: user_id._id,
             shopNumber: user_id.mobile,
             shopName: user_id.name,
-        },
-        variants: variants
-        
+          },
+          variants: variants,
         });
         const ProdSaved = await prod.save();
 
@@ -550,17 +531,28 @@ fastify.post(
       }
     }
   );
- 
-  fastify.post('/location',async (req,reply)=>{
-    let location = req.body;
-    let {latitude,longitude} = req.body;
-    console.log("LATTT",latitude); 
-    console.log("LONG",longitude); 
-    console.log(location); 
-    reply.send(location);
-  })
 
+  fastify.post("/location", { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+      let { latitude, longitude } = req.body;
+      const userId = req.user.userId._id;
+      const user = await User.findById(userId);
 
+      if (!user) {
+        return reply.code(404).send({ error: "User not found" });
+      }
+
+      user.latitude = latitude;
+      user.longitude = longitude;
+
+      await user.save();
+
+      reply.send({ message: "Location updated successfully" });
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  });
 }
 
 module.exports = Upload;
