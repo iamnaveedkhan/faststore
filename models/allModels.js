@@ -156,7 +156,7 @@ const inquirySchema = new mongoose.Schema({
 
 const specificationSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    // category: { type: Schema.Types.ObjectId, ref: 'Category' },
+    category: { type: Schema.Types.ObjectId, ref: 'Category' },
     // subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
     specification: mongoose.Schema.Types.Mixed,
 });

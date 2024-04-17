@@ -7,7 +7,8 @@ const {
   SubCategory,
   Inquiry,
   Product2,
-  Model2
+  Model2,
+  Specification
 } = require("../../models/allModels");
 
 
@@ -296,13 +297,38 @@ async function getProduct(fastify, options) {
     }
   });
 
-  // fastify.get("/specifications", async (req, reply)=>{
-  //   try {
-  //     const 
-  //   } catch (error) {
-      
-  //   }
-  // })
+  fastify.get("/specification/:id", async (req, reply)=>{
+    try {
+      const specificationId = req.params.id;;
+      const existingSpecifications = await Specification.find({
+        $or: [
+          { _id: specificationId },
+          { category: specificationId }
+        ]
+      });      if(existingSpecifications.length > 0){
+        reply.send(existingSpecifications);
+      }else {
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  })
+
+  fastify.get("/specifications", async (req, reply)=>{
+    try {
+      const existingSpecifications = await Specification.find();
+      if(existingSpecifications.length > 0){
+        reply.send(existingSpecifications);
+      }else {
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+  })
 
   fastify.get("/products2",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
     try {
