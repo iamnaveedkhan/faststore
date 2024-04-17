@@ -550,7 +550,12 @@ fastify.post(
       }
     }
   );
-
+ 
+  fastify.post('/location',async (req,reply)=>{
+    let location = req.body;
+    console.log(location); 
+    reply.send(location);
+  })
 
 
 }
