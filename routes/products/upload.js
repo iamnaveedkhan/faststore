@@ -490,48 +490,6 @@ async function Upload(fastify, options) {
     }
   });
 
-  fastify.post(
-    "/product2",
-    { onRequest: [fastify.authenticate] },
-    async function (req, reply) {
-      try {
-        const parts = req.parts();
-        const shop = req.user.userId._id;
-        let model;
-        let variants = [];
-        for await (const part of req.parts()) {
-          if (part.fieldname === "model") {
-            model = part.value;
-            console.log(model);
-          } else if (part.fieldname === "variants") {
-            const myvariants = await Variant.findOne({ _id: part.value });
-            variants.push(myvariants);
-          }
-        }
-
-        const user_id = await User.findOne({ $or: [{ _id: shop }] });
-        const mymodel = await Model2.findOne({ _id: model });
-        console.log(mymodel);
-
-        const prod = new Product2({
-          model: mymodel,
-          user: {
-            _id: user_id._id,
-            shopNumber: user_id.mobile,
-            shopName: user_id.name,
-          },
-          variants: variants,
-        });
-        const ProdSaved = await prod.save();
-
-        return { savedProduct: ProdSaved };
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        return reply.status(500).send("Internal Server Error");
-      }
-    }
-  );
-
   fastify.post("/location", { onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       let { latitude, longitude } = req.body;

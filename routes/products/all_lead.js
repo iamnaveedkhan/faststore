@@ -11,18 +11,10 @@ const {
   Specification
 } = require("../../models/allModels");
 
-
-
-
 async function getProduct(fastify, options) {
-
- 
-
-
 
   fastify.get("/products",async (req, reply) => {
     try {
-      const userId = "6604f9313a87c4f151fd06d7";
       const existingData = await Product.find();
 
       if (existingData.length > 0) {
@@ -260,7 +252,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/inquiries",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
+  fastify.get("/inquiries", async function (req, reply) {
     try {
       const userId = await User.findOne({ _id: req.user.userId._id });
       let existingData;
@@ -329,29 +321,6 @@ async function getProduct(fastify, options) {
       reply.code(500).send({ error: "Internal server error" });
     }
   })
-
-  fastify.get("/products2",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
-    try {
-      const userId = await User.findOne({ _id: req.user.userId._id });
-      let existingData;
-      if (userId.role==1){
-        existingData = await Product2.find().populate('user').populate('model').populate('variants') 
-        
-      } else if (userId.role == 2) {
-        existingData = await Product2.find().populate('user').populate('model').populate('variants');
-    } else {
-        return reply.code(403).send({ error: "Unauthorized access" });
-      }
-      if (existingData.length > 0) {
-        reply.send(existingData.reverse());
-      } else {
-        reply.code(404).send({ error: "No data found" });
-      }
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
-    }
-  });
 }
 
 
