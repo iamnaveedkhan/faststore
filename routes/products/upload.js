@@ -94,11 +94,11 @@ async function Upload(fastify, options) {
           }
         }
 
-        if (name == undefined || name == "" || fileName == undefined) {
-          return reply
-            .status(400)
-            .send({ error: "Name and file fields are required" });
-        }
+        // if (name == undefined || name == "" || fileName == undefined) {
+        //   return reply
+        //     .status(400)
+        //     .send({ error: "Name and file fields are required" });
+        // }
 
         const existingBrand = await Category.findOne({ categoryName: name });
         if (existingBrand) {

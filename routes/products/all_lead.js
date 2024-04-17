@@ -296,6 +296,13 @@ async function getProduct(fastify, options) {
     }
   });
 
+  // fastify.get("/specifications", async (req, reply)=>{
+  //   try {
+  //     const 
+  //   } catch (error) {
+      
+  //   }
+  // })
 
   fastify.get("/products2",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
     try {
@@ -320,5 +327,6 @@ async function getProduct(fastify, options) {
     }
   });
 }
+
 
 module.exports = getProduct;
