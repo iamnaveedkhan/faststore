@@ -252,7 +252,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/inquiries", async function (req, reply) {
+  fastify.get("/inquiries",{ onRequest: [fastify.authenticate] }, async function (req, reply) {
     try {
       const userId = await User.findOne({ _id: req.user.userId._id });
       let existingData;
