@@ -5,8 +5,9 @@ const bcrypt = require('bcrypt');
 async function registerUser(fastify, options) {
   fastify.post("/register_user", async (request, reply) => {
     try {
-      const { mobile , name , role , isActive} = request.body;
-
+      const { mobile , name , role , latitude, longitude, isActive} = request.body;
+      console.log(request.body);
+      console.log("LOCATION : ",latitude,"LOCCC",longitude);
       // Check if a user with the provided email or username already exists
       const existingUser = await User.findOne({ mobile });
 
