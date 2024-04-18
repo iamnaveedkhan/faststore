@@ -490,31 +490,59 @@ async function Upload(fastify, options) {
     }
   });
 
-  fastify.post("/location", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
-      let { latitude, longitude } = req.body;
-      const userId = req.user.userId._id;
-      const user = await User.findById(userId);
+  fastify.post(
+    "/location",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        let { latitude, longitude } = req.body;
+        const userId = req.user.userId._id;
+        const user = await User.findById(userId);
 
-      if (!user) {
-        return reply.code(404).send({ error: "User not found" });
+        if (!user) {
+          return reply.code(404).send({ error: "User not found" });
+        }
+
+        user.latitude = latitude;
+        user.longitude = longitude;
+
+        function handleSubmit(userLatitude, userLongitude, currentPosition) {
+          userLatitude = parseFloat(userLatitude) || 0.0;
+          userLongitude = parseFloat(userLongitude) || 0.0;
+
+          if (
+            userLatitude !== 0.0 &&
+            userLongitude !== 0.0 &&
+            currentPosition !== null
+          ) {
+            const distanceInMeters = Math.sqrt(
+              Math.pow(currentPosition.latitude - userLatitude, 2) +
+                Math.pow(currentPosition.longitude - userLongitude, 2)
+            );
+
+            const distanceInKm = distanceInMeters / 1000; // Convert meters to kilometers
+
+            return distanceInKm;
+          }
+
+          return null;
+        }
+
+        await user.save();
+
+        reply.send({ message: "Location updated successfully" });
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
       }
-
-      user.latitude = latitude;
-      user.longitude = longitude;
-
-      await user.save();
-
-      reply.send({ message: "Location updated successfully" });
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
     }
-  });
+  );
 
-
-  fastify.post('/addproduct', { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
+  fastify.post(
+    "/addproduct",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
         // const userId = req.user.userId._id;
         // const user = await User.findById(userId);
 
@@ -525,42 +553,41 @@ async function Upload(fastify, options) {
         // if (!user) {
         //     return reply.code(404).send({ error: "User not found" });
         // }
-        
+
         // data['user']['_id'] = userId._id;
         // data['user']['shopName'] = userId.name;
         // data['user']['shopNumber'] = userId.mobile;
 
         for await (const part of req.parts()) {
-            if (part.file) {
-                fileName = part.filename;
-                const filePath = path.join("public/image/", fileName);
-                const writableStream = fs.createWriteStream(filePath);
-                await part.file.pipe(writableStream);
-                photos.push = `public/image/${fileName}`;
-
+          if (part.file) {
+            fileName = part.filename;
+            const filePath = path.join("public/image/", fileName);
+            const writableStream = fs.createWriteStream(filePath);
+            await part.file.pipe(writableStream);
+            photos.push = `public/image/${fileName}`;
+          } else {
+            if (part.fieldname.startsWith("specification.")) {
+              data[part.fieldname] = part.value;
+            } else if (part.fieldname.startsWith("properties.")) {
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
             } else {
-                if (part.fieldname.startsWith('specification.')) {
-                    data[part.fieldname] = part.value;
-                } else if (part.fieldname.startsWith('properties.')) {
-                    // Convert string values to ObjectId
-                    data[part.fieldname] = part.value;
-                } else {
-                    data[part.fieldname] = part.value;
-                }
+              data[part.fieldname] = part.value;
             }
+          }
         }
-        data['photo'] = photos;
+        data["photo"] = photos;
         const newModel = new Model2(data);
 
         const savedModel = await newModel.save();
 
         return savedModel;
-    } catch (error) {
-
-        console.error('Error adding model:', error);
-        reply.code(500).send({ error: 'Internal Server Error' });
+      } catch (error) {
+        console.error("Error adding model:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
     }
-});
+  );
 }
 
 module.exports = Upload;
