@@ -382,33 +382,33 @@ async function getProduct(fastify, options) {
 
   fastify.get("/nearby", { onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
-        // const EARTH_RADIUS_KM = 6371;
-        // const maxDistance = 5;
+        const EARTH_RADIUS_KM = 6371;
+        const maxDistance = 5;
         const user = await User.findOne({ _id: "661f8578ff5d1de3e57f2973" });
 
-        // const userLatitude = parseFloat(user.latitude);
-        // const userLongitude = parseFloat(user.longitude);
+        const userLatitude = parseFloat(user.latitude);
+        const userLongitude = parseFloat(user.longitude);
 
         // Convert distance to radians
-        // const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
-        // const deltaLongitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLatitude * Math.PI / 180);
+        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
+        const deltaLongitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLatitude * Math.PI / 180);
 
         // Calculate latitude and longitude ranges
-        // const minLatitude = userLatitude - deltaLatitude;
-        // const maxLatitude = userLatitude + deltaLatitude;
-        // const minLongitude = userLongitude - deltaLongitude;
-        // const maxLongitude = userLongitude + deltaLongitude;
+        const minLatitude = userLatitude - deltaLatitude;
+        const maxLatitude = userLatitude + deltaLatitude;
+        const minLongitude = userLongitude - deltaLongitude;
+        const maxLongitude = userLongitude + deltaLongitude;
 
-        // console.log("Latitude Range:", minLatitude, "-", maxLatitude);
-        // console.log("Longitude Range:", minLongitude, "-", maxLongitude);
+        console.log("Latitude Range:", minLatitude, "-", maxLatitude);
+        console.log("Longitude Range:", minLongitude, "-", maxLongitude);
 
         // Find products within the calculated ranges
         const filteredProducts = await Product.find({
-            "user.latitude": { $gte: parseFloat(user.latitude) -(5 / 6371) * (180 / Math.PI), $lte: (parseFloat(user.latitude)) +(5 / 6371) * (180 / Math.PI) },
-            "user.longitude": { $gte: parseFloat(user.longitude) - ((5 / 6371) * (180 / Math.PI) / Math.cos(user.latitude * Math.PI / 180)), $lte: parseFloat(user.longitude) + ((5 / 6371) * (180 / Math.PI) / Math.cos(user.latitude * Math.PI / 180)) }
+            "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
+            "user.longitude": { $gte: minLongitude, $lte: maxLongitude }
         });
 
-        // console.log("Filtered Products:", filteredProducts);
+        console.log("Filtered Products:", filteredProducts);
 
         return filteredProducts;
     } catch (error) {

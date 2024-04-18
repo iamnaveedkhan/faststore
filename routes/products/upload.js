@@ -564,11 +564,12 @@ async function Upload(fastify, options) {
 
         for await (const part of req.parts()) {
           if (part.file) {
+            console.log(part.filename);
             fileName = part.filename;
             const filePath = path.join("public/image/", fileName);
             const writableStream = fs.createWriteStream(filePath);
             await part.file.pipe(writableStream);
-            photos.push = `public/image/${fileName}`;
+            photos.push(`public/image/${fileName}`);
           } else {
             if (part.fieldname.startsWith("specification.")) {
               data[part.fieldname] = part.value;
