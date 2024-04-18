@@ -495,49 +495,51 @@ async function Upload(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        let { latitude, longitude } = req.body;
-        const userId = req.user.userId._id;
-        const user = await User.findById(userId);
-
-        if (!user) {
-          return reply.code(404).send({ error: "User not found" });
+        const role1User = await User.findOne({ role: 1 });
+        const role2User = await User.findOne({ role: 2 });
+  
+        if (!role1User || !role2User) {
+          return reply.code(404).send({ error: "One or both users not found" });
         }
-
-        user.latitude = latitude;
-        user.longitude = longitude;
-
-        function handleSubmit(userLatitude, userLongitude, currentPosition) {
-          userLatitude = parseFloat(userLatitude) || 0.0;
-          userLongitude = parseFloat(userLongitude) || 0.0;
-
-          if (
-            userLatitude !== 0.0 &&
-            userLongitude !== 0.0 &&
-            currentPosition !== null
-          ) {
-            const distanceInMeters = Math.sqrt(
-              Math.pow(currentPosition.latitude - userLatitude, 2) +
-                Math.pow(currentPosition.longitude - userLongitude, 2)
-            );
-
-            const distanceInKm = distanceInMeters / 1000; // Convert meters to kilometers
-
-            return distanceInKm;
-          }
-
-          return null;
-        }
-
-        await user.save();
-
-        reply.send({ message: "Location updated successfully" });
+  
+        const distanceInKm = calculateDistance(
+          role1User.latitude,
+          role1User.longitude,
+          role2User.latitude,
+          role2User.longitude
+        );
+  
+        reply.send({ distanceInKm, message: "Distance calculated successfully" });
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
       }
     }
   );
-
+  
+  function calculateDistance(user1Latitude, user1Longitude, user2Latitude, user2Longitude) {
+    user1Latitude = parseFloat(user1Latitude) || 0.0;
+    user1Longitude = parseFloat(user1Longitude) || 0.0;
+    user2Latitude = parseFloat(user2Latitude) || 0.0;
+    user2Longitude = parseFloat(user2Longitude) || 0.0;
+  
+    if (
+      user1Latitude !== 0.0 &&
+      user1Longitude !== 0.0 &&
+      user2Latitude !== 0.0 &&
+      user2Longitude !== 0.0
+    ) {
+      const distanceInMeters = Math.sqrt(
+        Math.pow(user2Latitude - user1Latitude, 2) +
+          Math.pow(user2Longitude - user1Longitude, 2)
+      );
+  
+      return distanceInMeters / 1000; // Convert meters to kilometers
+    }
+  
+    return null;
+  }
+  
   fastify.post(
     "/addproduct",
     { onRequest: [fastify.authenticate] },
@@ -571,6 +573,12 @@ async function Upload(fastify, options) {
             } else if (part.fieldname.startsWith("properties.")) {
               // Convert string values to ObjectId
               data[part.fieldname] = part.value;
+            } else if (part.fieldname == "type") {
+                // Convert string values to ObjectId
+                data[part.fieldname] = part.value;
+            } else if (part.fieldname == "productName") {
+                // Convert string values to ObjectId
+                data[part.fieldname] = part.value;  
             } else {
               data[part.fieldname] = part.value;
             }

@@ -56,6 +56,10 @@ const model2Schema = new mongoose.Schema({
       return Math.random().toString(36).substring(7);
     },
   },
+  productName: {
+    type: String,
+    default: null,
+  },
   type: {
     type: String,
     default: null,
