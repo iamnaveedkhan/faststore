@@ -85,13 +85,11 @@ const variantSchema = new mongoose.Schema({
 });
 
 const product2Schema = new mongoose.Schema({
-  model: { type: Schema.Types.ObjectId, ref: "Model2" },
-  user: {
-    _id: { type: "string" },
-    shopNumber: { type: Number },
-    shopName: { type: String },
-  },
-  variants: [{ type: Schema.Types.ObjectId, ref: "Variant" }],
+  product: model2Schema,
+  user: userSchema,
+  price : {type: Number},
+  quantity : {type : Number},
+  vertical : { type: Schema.Types.ObjectId, ref: "Specification" },
 });
 
 const photoSchema = new mongoose.Schema({

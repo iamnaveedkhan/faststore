@@ -357,6 +357,83 @@ async function Upload(fastify, options) {
     }
   );
 
+  fastify.post("/product2", { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+        const parts = req.parts();
+        let price;
+        let quantity;
+        for await (const part of parts) {
+            if (part.type === 'field') {
+                if (part.fieldname === 'price') {
+                   price = part.value;
+                } else if (part.fieldname === 'quantity') {
+                  quantity = part.value;
+                }
+            }
+        }
+        const newProduct = new Product2({
+          price: price,
+          quantity: quantity
+      });
+
+      const savedProduct = await newProduct.save();
+
+        return savedProduct;
+    } catch (error) {
+        console.error("Error creating product:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+    }
+});
+
+fastify.post(
+  "/product2rr",
+  { onRequest: [fastify.authenticate] },
+  async (req, reply) => {
+    try {
+      const parts = req.parts();
+      let name;
+      let fileName;
+
+      for await (const part of parts) {
+        if (part.type === "file") {
+          fileName = part.filename;
+          filePath = path.join("public/image/", fileName);
+          const writableStream = fs.createWriteStream(filePath);
+          await part.file.pipe(writableStream);
+          hasFileField = true;
+        } else if (part.type === "field") {
+          if (part.fieldname === "name") {
+            name = part.value;
+            hasNameField = true;
+          }
+        }
+      }
+
+      // if (!hasNameField || !hasFileField) {
+      //   return reply
+      //     .status(400)
+      //     .send({ error: "Name and file fields are required" });
+      // }
+
+      const existingBrand = await Brand.findOne({ brandName: name });
+      if (existingBrand) {
+        return reply.status(409).send({ error: "Brand already registered" });
+      }
+      const brand = new Brand({
+        brandName: name,
+        brandImage: `public/image/${fileName}`,
+      });
+      const BrandSaved = await brand.save();
+      return { brandName: name };
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      return reply.status(500).send("Internal Server Error");
+    }
+  }
+);
+
+
+
   fastify.get(
     "/enquiry/:id",
     { onRequest: [fastify.authenticate] },

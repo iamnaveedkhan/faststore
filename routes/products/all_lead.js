@@ -29,6 +29,24 @@ async function getProduct(fastify, options) {
   });
 
   fastify.get(
+    "/productalldetails",
+    async (req, reply) => {
+      try {
+        const existingData = await Model2.find();
+
+        if (existingData.length > 0) {
+          reply.send(existingData);
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get(
     "/product/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
@@ -314,6 +332,7 @@ async function getProduct(fastify, options) {
     async function (req, reply) {
       try {
         const userId = await User.findOne({ _id: req.user.userId._id });
+        console.log(req.user.userId._id);
         let existingData;
         if (userId.role == 1) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
