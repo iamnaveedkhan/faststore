@@ -357,82 +357,48 @@ async function Upload(fastify, options) {
     }
   );
 
-  fastify.post("/product2", async (req, reply) => {
-    try {
+  fastify.post(
+    "/product21",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
         const parts = req.parts();
-        let price;
-        let quantity;
+        const userId = await User.findOne({ _id: req.user.userId._id });
+
+        data = {};
+        let savedProduct;
+
         for await (const part of parts) {
-            if (part.type === 'field') {
-                if (part.fieldname === 'price') {
-                   price = part.value;
-                } else if (part.fieldname === 'quantity') {
-                  quantity = part.value;
-                }
+          if (part.type === "field") {
+            if (part.fieldname === "price") {
+              data["price"] = part.value;
+            } else if (part.fieldname === "quantity") {
+              data["quantity"] = part.value;
+            } else if (part.fieldname === "productId") {
+              data["product"] = await Model2.findById({ _id: part.value });
             }
-        }
-        const newProduct = new Product2({
-          price: price,
-          quantity: quantity
-      });
-
-      const savedProduct = await newProduct.save();
-
-      return savedProduct;
-    } catch (error) {
-        console.error("Error creating product:", error);
-        reply.code(500).send({ error: "Internal Server Error" });
-    }
-});
-
-fastify.post(
-  "/product2rr",
-  { onRequest: [fastify.authenticate] },
-  async (req, reply) => {
-    try {
-      const parts = req.parts();
-      let name;
-      let fileName;
-
-      for await (const part of parts) {
-        if (part.type === "file") {
-          fileName = part.filename;
-          filePath = path.join("public/image/", fileName);
-          const writableStream = fs.createWriteStream(filePath);
-          await part.file.pipe(writableStream);
-          hasFileField = true;
-        } else if (part.type === "field") {
-          if (part.fieldname === "name") {
-            name = part.value;
-            hasNameField = true;
           }
         }
-      }
 
-      // if (!hasNameField || !hasFileField) {
-      //   return reply
-      //     .status(400)
-      //     .send({ error: "Name and file fields are required" });
-      // }
+        const user = await User.findById(userId);
+        if (!user) {
+          return reply.code(404).send({ error: "User not found" });
+        } else {
+          if (user.role == 2) {
+            data["user"] = user;
+            const newProduct = Product2(data);
 
-      const existingBrand = await Brand.findOne({ brandName: name });
-      if (existingBrand) {
-        return reply.status(409).send({ error: "Brand already registered" });
+             savedProduct = await newProduct.save();
+          }
+        }
+
+        return savedProduct;
+      } catch (error) {
+        console.error("Error creating product:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
       }
-      const brand = new Brand({
-        brandName: name,
-        brandImage: `public/image/${fileName}`,
-      });
-      const BrandSaved = await brand.save();
-      return { brandName: name };
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      return reply.status(500).send("Internal Server Error");
     }
-  }
-);
-
-
+  );
 
   fastify.get(
     "/enquiry/:id",
@@ -442,7 +408,6 @@ fastify.post(
         const productId = req.params.id;
         const userId = await User.findOne({ _id: req.user.userId._id });
         console.log(userId);
-
         const existingProduct = await Product.findOne({ _id: productId });
         if (existingProduct) {
           shopName = existingProduct.user._id;
@@ -567,58 +532,6 @@ fastify.post(
     }
   });
 
-//   fastify.post(
-//     "/location",
-//     { onRequest: [fastify.authenticate] },
-//     async (req, reply) => {
-//       try {
-//         const role1User = await User.findOne({ role: 1 });
-//         const role2User = await User.findOne({ role: 2 });
-  
-//         if (!role1User || !role2User) {
-//           return reply.code(404).send({ error: "One or both users not found" });
-//         }
-  
-//         const distanceInKm = calculateDistance(
-//           role1User.latitude,
-//           role1User.longitude,
-//           role2User.latitude,
-//           role2User.longitude
-//         );
-  
-//         reply.send({ distanceInKm, message: "Distance calculated successfully" });
-//       } catch (error) {
-//         console.error(error);
-//         reply.code(500).send({ error: "Internal server error" });
-//       }
-//     }
-//   );
-  
-//   function calculateDistance(user1Latitude, user1Longitude, user2Latitude, user2Longitude) {
-//     const R = 6371; // Radius of the Earth in kilometers
-//     const lat1 = toRadians(user1Latitude);
-//     const lon1 = toRadians(user1Longitude);
-//     const lat2 = toRadians(user2Latitude);
-//     const lon2 = toRadians(user2Longitude);
-
-//     const dLat = lat2 - lat1;
-//     const dLon = lon2 - lon1;
-
-//     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-//               Math.cos(lat1) * Math.cos(lat2) *
-//               Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-//     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-//     const distanceInKm = R * c;
-//     return distanceInKm;
-// }
-
-// function toRadians(degrees) {
-//     return degrees * (Math.PI / 180);
-// }
-
-
   fastify.post(
     "/addproduct",
     { onRequest: [fastify.authenticate] },
@@ -654,11 +567,11 @@ fastify.post(
               // Convert string values to ObjectId
               data[part.fieldname] = part.value;
             } else if (part.fieldname == "type") {
-                // Convert string values to ObjectId
-                data[part.fieldname] = part.value;
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
             } else if (part.fieldname == "productName") {
-                // Convert string values to ObjectId
-                data[part.fieldname] = part.value;  
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
             } else {
               data[part.fieldname] = part.value;
             }
