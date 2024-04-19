@@ -357,7 +357,7 @@ async function Upload(fastify, options) {
     }
   );
 
-  fastify.post("/product2", { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.post("/product2", async (req, reply) => {
     try {
         const parts = req.parts();
         let price;
@@ -378,7 +378,7 @@ async function Upload(fastify, options) {
 
       const savedProduct = await newProduct.save();
 
-        return savedProduct;
+      return savedProduct;
     } catch (error) {
         console.error("Error creating product:", error);
         reply.code(500).send({ error: "Internal Server Error" });
