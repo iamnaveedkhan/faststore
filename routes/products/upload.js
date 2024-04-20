@@ -485,52 +485,7 @@ async function Upload(fastify, options) {
     }
   });
 
-  fastify.post("/addvariant", async (req, reply) => {
-    try {
-      // Parse form data
-      const data = {};
-      let fileName;
-      let photos = [];
-
-      for await (const part of req.parts()) {
-        if (part.type === "file") {
-          // It's a file, save it
-          fileName = part.filename;
-          const filePath = path.join("public/image/", fileName);
-          const writableStream = fs.createWriteStream(filePath);
-          await part.file.pipe(writableStream);
-          newFile = `public/image/${fileName}`;
-          photos.push(newFile);
-          console.log(photos);
-        } else {
-          // Handle other form fields
-
-          data[part.fieldname] = part.value;
-        }
-      }
-      if (!data["variants"]) {
-        data["variants"] = {};
-      }
-
-      // Set images property
-      data["variants"]["images"] = photos;
-
-      // Add variants data to the data object
-
-      // Create a new model instance with the parsed data
-      const newModel = new Variant(data);
-
-      // Save the model to the database
-      const savedModel = await newModel.save();
-
-      // Respond with the saved model
-      return savedModel;
-    } catch (error) {
-      // Handle errors
-      console.error("Error adding model:", error);
-      reply.code(500).send({ error: "Internal Server Error" });
-    }
-  });
+  
 
   fastify.post(
     "/addproduct",
@@ -589,6 +544,56 @@ async function Upload(fastify, options) {
       }
     }
   );
+
+  fastify.post(
+    "/addvariant/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const data = {};
+        let photos = [];
+        let fileName;
+        data['groupId'] = req.params.id;
+        for await (const part of req.parts()) {
+          if (part.file) {
+            console.log(part.filename);
+            fileName = part.filename;
+            const filePath = path.join("public/image/", fileName);
+            const writableStream = fs.createWriteStream(filePath);
+            await part.file.pipe(writableStream);
+            photos.push(`public/image/${fileName}`);
+          } else {
+            if (part.fieldname.startsWith("specification.")) {
+              data[part.fieldname] = part.value;
+            } else if (part.fieldname.startsWith("properties.")) {
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
+            } else if (part.fieldname == "type") {
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
+            } else if (part.fieldname == "productName") {
+              // Convert string values to ObjectId
+              data[part.fieldname] = part.value;
+            } else {
+              data[part.fieldname] = part.value;
+            }
+          }
+        }
+        data["photo"] = photos;
+        const newModel = new Model2(data);
+
+        const savedModel = await newModel.save();
+
+        return savedModel;
+      } catch (error) {
+        console.error("Error adding model:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+
+
+  
 }
 
 module.exports = Upload;

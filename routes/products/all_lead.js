@@ -75,8 +75,8 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const subCategoryId = req.params.id;
-        const existingData = await Product.find({
-          "subCategory._id": subCategoryId,
+        const existingData = await Model2.find({
+          "properties.subcategory": subCategoryId,
         });
 
         if (existingData) {
