@@ -32,7 +32,7 @@ async function getProduct(fastify, options) {
     "/productalldetails",
     async (req, reply) => {
       try {
-        const existingData = await Model2.find();
+        const existingData = await Product2.find();
 
         if (existingData.length > 0) {
           reply.send(existingData);
