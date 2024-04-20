@@ -576,7 +576,7 @@ async function Upload(fastify, options) {
               data[part.fieldname] = part.value;
             } else if (part.fieldname === "brandId") {
               data["brand"] = await Brand.findById({ _id: part.value });
-            }else {
+            }else { 
               data[part.fieldname] = part.value;
             }
           }

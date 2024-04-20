@@ -470,7 +470,7 @@ async function getProduct(fastify, options) {
         console.log("Longitude Range:", minLongitude, "-", maxLongitude);
 
         // Find products within the calculated ranges
-        const filteredProducts = await Product.find({
+        const filteredProducts = await Product2.find({
             "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
             "user.longitude": { $gte: minLongitude, $lte: maxLongitude }
         });
