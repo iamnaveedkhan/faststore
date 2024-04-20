@@ -70,7 +70,9 @@ const model2Schema = new mongoose.Schema({
     vertical: { type: String, default: null},
   },
   photo: { type: [String], default: null },
+  brand:brandSchema,
   specification: mongoose.Schema.Types.Mixed,
+
 });
 
 const variantSchema = new mongoose.Schema({

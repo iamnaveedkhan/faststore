@@ -574,11 +574,14 @@ async function Upload(fastify, options) {
             } else if (part.fieldname == "productName") {
               // Convert string values to ObjectId
               data[part.fieldname] = part.value;
-            } else {
+            } else if (part.fieldname === "brandId") {
+              data["brand"] = await Brand.findById({ _id: part.value });
+            }else {
               data[part.fieldname] = part.value;
             }
           }
         }
+
         data["photo"] = photos;
         const newModel = new Model2(data);
 
