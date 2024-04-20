@@ -70,7 +70,7 @@ async function getProduct(fastify, options) {
   );
 
   fastify.get(
-    "/productsbycategory/:id",
+    "/productsbysubcategory/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -90,6 +90,54 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  fastify.get(
+    "/productsbycategory/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const categoryId = req.params.id;
+        const existingData = await Model2.find({
+          "properties.category": categoryId,
+        });
+
+        if (existingData) {
+          reply.send(existingData);
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  
+  fastify.get(
+    "/productsbyvertical/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+
+        const verticalId = req.params.id;
+        console.log(verticalId);   
+        const existingData = await Model2.find({
+          "properties.vertical": verticalId,
+        });
+        console.log("aaaaaaaaa:", existingData);
+        if (existingData) {
+          reply.send(existingData);
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
 
   fastify.get(
     "/brands",
