@@ -52,7 +52,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product2.find({ groupId: userId })
+        const existingData = await Product2.find({ "properties.groupId": userId })
 
         if (existingData) {
           reply.send(existingData);
@@ -73,7 +73,7 @@ async function getProduct(fastify, options) {
       try {
         const subCategoryId = req.params.id;
         const existingData = await Product2.find({
-          "properties.subcategory": subCategoryId,
+          "product.properties.subcategory": subCategoryId,
         });
 
         if (existingData) {
