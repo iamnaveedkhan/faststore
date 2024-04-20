@@ -14,7 +14,7 @@ const {
 async function getProduct(fastify, options) {
   fastify.get("/products", async (req, reply) => {
     try {
-      const existingData = await Product.find();
+      const existingData = await Product2.find();
 
       if (existingData.length > 0) {
         reply.send(existingData);
@@ -52,7 +52,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product.find({ _id: userId }).populate({
+        const existingData = await Product2.find({ _id: userId }).populate({
           path: "photos",
           model: "Photo",
         });

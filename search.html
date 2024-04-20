@@ -22,7 +22,7 @@
 
     searchInput.addEventListener('input', async () => {
       const searchTerm = searchInput.value.trim();
-      if (searchTerm.length >= 3) {
+      if (searchTerm.length > 2) {
         const url = `http://192.168.1.231:3000/search/${searchTerm}`;
         try {
           const response = await fetch(url);
