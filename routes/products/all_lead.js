@@ -48,13 +48,14 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/product/:id",
-    { onRequest: [fastify.authenticate] },
+   
     async (req, reply) => {
       try {
         const userId = req.params.id;
         const existingData = await Product.find({ "product.groupId": userId })
 
         if (existingData) {
+
           reply.send(existingData);
         } else {
           reply.code(404).send({ error: "No data found" });
@@ -404,7 +405,6 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const existingData = await Inquiry.find();
-
         if (existingData.length > 0) {
           reply.send(existingData);
         } else {

@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const moment = require('moment-timezone');   
+
+
+const dateIndia = moment.tz("Asia/kolkata");
+const formattedDate = dateIndia.format();
 
 const userSchema = new mongoose.Schema({
   name: { type: String, default: null },
@@ -92,7 +97,10 @@ const productSchema = new mongoose.Schema({
   price : {type: Number},
   quantity : {type : Number},
   vertical : { type: Schema.Types.ObjectId, ref: "Specification" },
-  date: { type: Date, default: Date.now },
+  date: {
+    type: Date,
+    default: formattedDate 
+  },
 });
 
 const photoSchema = new mongoose.Schema({
