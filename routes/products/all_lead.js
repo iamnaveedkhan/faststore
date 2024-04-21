@@ -48,6 +48,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/product/:id",
+
     async (req, reply) => {
       try {
         const userId = req.params.id;
