@@ -35,6 +35,7 @@ async function getProduct(fastify, options) {
         const existingData = await Product2.find();
 
         if (existingData.length > 0) {
+          console.log(existingData);
           reply.send(existingData);
         } else {
           reply.code(404).send({ error: "No data found" });
