@@ -418,8 +418,8 @@ async function Upload(fastify, options) {
             },
             shop: {
               _id: existingProduct.user._id,
-              shopNumber: existingProduct.user.shopNumber,
-              shopName: existingProduct.user.shopName,
+              shopNumber: existingProduct.user.mobile,
+              shopName: existingProduct.user.name,
             },
             product: {
               _id: existingProduct._id,

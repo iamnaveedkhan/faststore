@@ -467,7 +467,9 @@ async function getProduct(fastify, options) {
     try {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
-        const user = await User.findOne({ _id: "661f8578ff5d1de3e57f2973" });
+        const userid=req.user.userId._id;
+        console.log(userid);
+        const user = await User.findById({ _id:userid });
 
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
