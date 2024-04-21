@@ -48,11 +48,10 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/product/:id",
-   
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product.find({ "product.groupId": userId })
+        const existingData = await Product.find($or[{ "product.groupId": userId }, {"_id" : userId}] )
 
         if (existingData) {
 
@@ -404,7 +403,25 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const existingData = await Inquiry.find();
+        // Extract start and end dates from query parameters
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
+  
+        // Convert start and end dates to Date objects
+        const startDateTime = new Date(startDate);
+        const endDateTime = new Date(endDate);
+  
+        // Add 1 day to the end date to include inquiries up to the end of that day
+        endDateTime.setDate(endDateTime.getDate() + 1);
+  
+        // Find inquiries within the specified date range
+        const existingData = await Inquiry.find({
+          date: {
+            $gte: startDateTime,
+            $lt: endDateTime
+          }
+        });
+  
         if (existingData.length > 0) {
           reply.send(existingData);
         } else {
@@ -416,6 +433,7 @@ async function getProduct(fastify, options) {
       }
     }
   );
+  
 
   fastify.get("/inquiry/:id", { onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
