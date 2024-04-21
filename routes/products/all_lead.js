@@ -27,45 +27,47 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get(
-    "/productalldetails",
-    async (req, reply) => {
-      try {
-        const existingData = await Product.find();
+  fastify.get("/productalldetails", async (req, reply) => {
+    try {
+      const existingData = await Product.find();
 
-        if (existingData.length > 0) {
-          console.log(existingData);
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
+      if (existingData.length > 0) {
+        console.log(existingData);
+        reply.send(existingData);
+      } else {
+        reply.code(404).send({ error: "No data found" });
       }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
     }
-  );
+  });
 
-  fastify.get(
-    "/product/:id",
-
-    async (req, reply) => {
-      try {
-        const userId = req.params.id;
-        const existingData = await Product.find($or[{ "product.groupId": userId }] )
-
-        if (existingData) {
-
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
+  fastify.get("/product/:id", async (req, reply) => {
+    try {
+      const userId = req.params.id;
+      let existingData;
+      if(userId.length>10){
+        existingData = await Product.find({
+          $or: [{ "_id": userId }],
+        });
+      }else {
+        existingData = await Product.find({
+          $or: [{ "product.groupId": userId }],
+        })
       }
+  
+      if (existingData.length > 0) {
+        reply.send(existingData);
+      } else {
+        reply.code(404).send({ error: "No data found" });
+      }
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
     }
-  );
+  });
+  
 
   fastify.get(
     "/productsbysubcategory/:id",
@@ -111,15 +113,13 @@ async function getProduct(fastify, options) {
     }
   );
 
-  
   fastify.get(
     "/productsbyvertical/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-
         const verticalId = req.params.id;
-        console.log(verticalId);   
+        console.log(verticalId);
         const existingData = await Model2.find({
           "properties.vertical": verticalId,
         });
@@ -135,7 +135,6 @@ async function getProduct(fastify, options) {
       }
     }
   );
-
 
   fastify.get(
     "/brands",
@@ -404,25 +403,21 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        // Extract start and end dates from query parameters
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
-  
-        // Convert start and end dates to Date objects
+
         const startDateTime = new Date(startDate);
         const endDateTime = new Date(endDate);
-  
-        // Add 1 day to the end date to include inquiries up to the end of that day
+
         endDateTime.setDate(endDateTime.getDate() + 1);
-  
-        // Find inquiries within the specified date range
+
         const existingData = await Inquiry.find({
           date: {
             $gte: startDateTime,
-            $lt: endDateTime
-          }
+            $lt: endDateTime,
+          },
         });
-  
+
         if (existingData.length > 0) {
           reply.send(existingData);
         } else {
@@ -434,68 +429,84 @@ async function getProduct(fastify, options) {
       }
     }
   );
-  
 
-  fastify.get("/inquiry/:id", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
-      const inquiryId = req.params.id;
-      const existingInquiry = await Inquiry.findOne({ _id: inquiryId });
-      if (existingInquiry) {
-        reply.send(existingInquiry);
-      } else {
-        reply.code(404).send({ error: "Inquiry not found" });
+  fastify.get(
+    "/inquiry/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const inquiryId = req.params.id;
+        const existingInquiry = await Inquiry.findOne({ _id: inquiryId });
+        if (existingInquiry) {
+          reply.send(existingInquiry);
+        } else {
+          reply.code(404).send({ error: "Inquiry not found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
       }
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
     }
-  });
+  );
 
-  fastify.get("/specification/:id", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
-      const specificationId = req.params.id;
-      const existingSpecifications = await Specification.find({
-        $or: [{ _id: specificationId }, { category: specificationId }],
-      });
-      if (existingSpecifications.length > 0) {
-        reply.send(existingSpecifications);
-      } else {
-        reply.code(404).send({ error: "No data found" });
+  fastify.get(
+    "/specification/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const specificationId = req.params.id;
+        const existingSpecifications = await Specification.find({
+          $or: [{ _id: specificationId }, { category: specificationId }],
+        });
+        if (existingSpecifications.length > 0) {
+          reply.send(existingSpecifications);
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
       }
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
     }
-  });
+  );
 
-  fastify.get("/specifications", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
-      const existingSpecifications = await Specification.find();
-      if (existingSpecifications.length > 0) {
-        reply.send(existingSpecifications);
-      } else {
-        reply.code(404).send({ error: "No data found" });
+  fastify.get(
+    "/specifications",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const existingSpecifications = await Specification.find();
+        if (existingSpecifications.length > 0) {
+          reply.send(existingSpecifications);
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
       }
-    } catch (error) {
-      console.error(error);
-      reply.code(500).send({ error: "Internal server error" });
     }
-  });
+  );
 
-  fastify.get("/nearby", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
+  fastify.get(
+    "/nearby",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
-        const userid=req.user.userId._id;
+        const userid = req.user.userId._id;
         console.log(userid);
-        const user = await User.findById({ _id:userid });
+        const user = await User.findById({ _id: userid });
 
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
 
         // Convert distance to radians
         const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
-        const deltaLongitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLatitude * Math.PI / 180);
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
 
         // Calculate latitude and longitude ranges
         const minLatitude = userLatitude - deltaLatitude;
@@ -508,19 +519,40 @@ async function getProduct(fastify, options) {
 
         // Find products within the calculated ranges
         const filteredProducts = await Product.find({
-            "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
-            "user.longitude": { $gte: minLongitude, $lte: maxLongitude }
+          "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
+          "user.longitude": { $gte: minLongitude, $lte: maxLongitude },
         });
 
         console.log("Filtered Products:", filteredProducts);
 
         return filteredProducts;
-    } catch (error) {
+      } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
+      }
     }
-});
+  );
 
+  fastify.get(
+    "/activeCustomerandRetailerList/:role",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const role = req.params.role;
+        const existingData = await User.find({
+          $and: [{ role: role }, { isActive: 1 }],
+        });
+        if (existingData.length > 0) {
+          return existingData;
+        } else {
+          return "no data found";
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;
