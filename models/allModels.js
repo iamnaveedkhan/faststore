@@ -92,6 +92,7 @@ const productSchema = new mongoose.Schema({
   price : {type: Number},
   quantity : {type : Number},
   vertical : { type: Schema.Types.ObjectId, ref: "Specification" },
+  date: { type: Date, default: Date.now },
 });
 
 const photoSchema = new mongoose.Schema({

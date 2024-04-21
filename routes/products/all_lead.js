@@ -52,7 +52,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product.find({ "properties.groupId": userId })
+        const existingData = await Product.find({ "product.groupId": userId })
 
         if (existingData) {
           reply.send(existingData);
