@@ -51,7 +51,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product.find($or[{ "product.groupId": userId }, {"_id" : userId}] )
+        const existingData = await Product.find($or[{ "product.groupId": userId }] )
 
         if (existingData) {
 
