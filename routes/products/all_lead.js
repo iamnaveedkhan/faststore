@@ -404,7 +404,7 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const existingData = await Model.find();
+        const existingData = await Inquiry.find();
 
         if (existingData.length > 0) {
           reply.send(existingData);
