@@ -176,12 +176,11 @@ const Model = mongoose.model("Model", modelSchema);
 const Model2 = mongoose.model("Model2", model2Schema);
 const Photo = mongoose.model("Photo", photoSchema);
 const Inquiry = mongoose.model("Inquiry", inquirySchema);
-const Variant = mongoose.model("Variant", variantSchema);
+// const Variant = mongoose.model("Variant", variantSchema);
 const Specification = mongoose.model("Specification", specificationSchema);
 
 module.exports = {
   Specification,
-  Variant,
   User,
   Brand,
   Category,
