@@ -52,7 +52,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product.find($or[{ "product.groupId": userId }, {"_id" : userId}] )
+        const existingData = await Product.find($or[{ "product.groupId": userId }] )
 
         if (existingData) {
 
@@ -359,11 +359,11 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const modelId = req.params.id;
-        const existingModel = await Model.findOne({ _id: modelId });
+        const existingModel = await Model2.findOne({ _id: modelId });
         if (existingModel) {
           reply.send(existingModel);
         } else {
-          reply.code(404).send({ error: "User not found" });
+          reply.code(401).send({ error: "User not found" });
         }
       } catch (error) {
         console.error(error);
