@@ -423,8 +423,8 @@ async function Upload(fastify, options) {
             },
             product: {
               _id: existingProduct._id,
-              productName: existingProduct.model.productName,
-              photo: existingProduct.model.photo,
+              productName: existingProduct.product.productName,
+              photo: existingProduct.product.photo[0],
             },
           });
 
