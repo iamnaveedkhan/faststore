@@ -6,7 +6,6 @@ const {
   Category,
   SubCategory,
   Inquiry,
-  Product2,
   Model2,
   Specification,
 } = require("../../models/allModels");
@@ -14,7 +13,7 @@ const {
 async function getProduct(fastify, options) {
   fastify.get("/products", async (req, reply) => {
     try {
-      const existingData = await Product2.find();
+      const existingData = await Product.find();
 
       if (existingData.length > 0) {
         reply.send(existingData);
@@ -32,7 +31,7 @@ async function getProduct(fastify, options) {
     "/productalldetails",
     async (req, reply) => {
       try {
-        const existingData = await Product2.find();
+        const existingData = await Product.find();
 
         if (existingData.length > 0) {
           console.log(existingData);
@@ -53,7 +52,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingData = await Product2.find({ "properties.groupId": userId })
+        const existingData = await Product.find({ "properties.groupId": userId })
 
         if (existingData) {
           reply.send(existingData);
@@ -73,7 +72,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const subCategoryId = req.params.id;
-        const existingData = await Product2.find({
+        const existingData = await Product.find({
           "product.properties.subcategory": subCategoryId,
         });
 
@@ -487,7 +486,7 @@ async function getProduct(fastify, options) {
         console.log("Longitude Range:", minLongitude, "-", maxLongitude);
 
         // Find products within the calculated ranges
-        const filteredProducts = await Product2.find({
+        const filteredProducts = await Product.find({
             "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
             "user.longitude": { $gte: minLongitude, $lte: maxLongitude }
         });

@@ -75,18 +75,18 @@ const model2Schema = new mongoose.Schema({
 
 });
 
-const variantSchema = new mongoose.Schema({
-  model: { type: Schema.Types.ObjectId, ref: "Model2" },
-  variants: {
-    color: String,
-    images: [String],
-    SKU: String,
-    price: Number,
-    quantity: Number,
-  },
-});
+// const variantSchema = new mongoose.Schema({
+//   model: { type: Schema.Types.ObjectId, ref: "Model2" },
+//   variants: {
+//     color: String,
+//     images: [String],
+//     SKU: String,
+//     price: Number,
+//     quantity: Number,
+//   },
+// });
 
-const product2Schema = new mongoose.Schema({
+const productSchema = new mongoose.Schema({
   product: model2Schema,
   user: userSchema,
   price : {type: Number},
@@ -99,38 +99,38 @@ const photoSchema = new mongoose.Schema({
   photos: { type: [String] }, // Array of strings representing URLs
 });
 
-const productSchema = new mongoose.Schema({
-  model: {
-    _id: { type: "string" },
-    productName: { type: "string" },
-    photo: { type: "string" },
-    description: { type: "string" },
-  },
-  brand: {
-    _id: { type: "string" },
-    brandName: { type: "string" },
-    brandImage: { type: "string" },
-  },
-  user: {
-    _id: { type: "string" },
-    shopNumber: { type: Number },
-    shopName: { type: String },
-  },
-  category: {
-    _id: { type: "string" },
-    categoryName: { type: "string" },
-  },
-  subCategory: {
-    _id: { type: "string" },
-    subCategoryName: { type: "string" },
-    category: { type: "string" },
-  },
-  photos: { type: Schema.Types.ObjectId, ref: "Photo" },
-  specifications: { type: "object" }, // Allow any key-value pairs
-  price: { type: "number" },
-  quantity: { type: "number" },
-  productDate: { type: Date, default: Date.now },
-});
+// const productSchema = new mongoose.Schema({
+//   model: {
+//     _id: { type: "string" },
+//     productName: { type: "string" },
+//     photo: { type: "string" },
+//     description: { type: "string" },
+//   },
+//   brand: {
+//     _id: { type: "string" },
+//     brandName: { type: "string" },
+//     brandImage: { type: "string" },
+//   },
+//   user: {
+//     _id: { type: "string" },
+//     shopNumber: { type: Number },
+//     shopName: { type: String },
+//   },
+//   category: {
+//     _id: { type: "string" },
+//     categoryName: { type: "string" },
+//   },
+//   subCategory: {
+//     _id: { type: "string" },
+//     subCategoryName: { type: "string" },
+//     category: { type: "string" },
+//   },
+//   photos: { type: Schema.Types.ObjectId, ref: "Photo" },
+//   specifications: { type: "object" }, // Allow any key-value pairs
+//   price: { type: "number" },
+//   quantity: { type: "number" },
+//   productDate: { type: Date, default: Date.now },
+// });
 
 const inquirySchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
@@ -169,7 +169,6 @@ const User = mongoose.model("User", userSchema);
 const Address = mongoose.model("Address", addressesSchema);
 const Order = mongoose.model("Order", ordersSchema);
 const Product = mongoose.model("Product", productSchema);
-const Product2 = mongoose.model("Product2", product2Schema);
 const Brand = mongoose.model("Brand", brandSchema);
 const Category = mongoose.model("Category", categorySchema);
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
@@ -191,7 +190,6 @@ module.exports = {
   Address,
   Order,
   Product,
-  Product2,
   Model2,
   Photo,
   Inquiry,

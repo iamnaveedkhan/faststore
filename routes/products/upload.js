@@ -13,7 +13,6 @@ const {
   Photo,
   User,
   Inquiry,
-  Product2,
   Model2,
   Variant,
   Specification,
@@ -386,7 +385,7 @@ async function Upload(fastify, options) {
         } else {
           if (user.role == 2) {
             data["user"] = user;
-            const newProduct = Product2(data);
+            const newProduct = Product(data);
 
              savedProduct = await newProduct.save();
           }
@@ -408,7 +407,7 @@ async function Upload(fastify, options) {
         const productId = req.params.id;
         const userId = await User.findOne({ _id: req.user.userId._id });
         console.log(userId);
-        const existingProduct = await Product2.findOne({ _id: productId });
+        const existingProduct = await Product.findOne({ _id: productId });
         if (existingProduct) {
           shopName = existingProduct.user._id;
           const product = new Inquiry({

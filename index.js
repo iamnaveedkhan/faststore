@@ -45,7 +45,7 @@ fastify.register(require("@fastify/static"), {
   prefix: "/public/",
 });
 
-const { User, Product, Brand, Category, Product2 } = require("./models/allModels");
+const { User, Product, Brand, Category, } = require("./models/allModels");
 
 fastify.decorate("authenticate", async (req, reply) => {
   try {
@@ -61,7 +61,7 @@ fastify.get('/search/:key', async (req, reply) => {
     const key = req.params.key;
     const searchRegex = new RegExp(key, 'i'); 
 
-    const data = await Product2.aggregate([
+    const data = await Product.aggregate([
       {
         $match: {
           $or: [
