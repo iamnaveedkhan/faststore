@@ -317,7 +317,7 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const existingData = await Model.find();
+        const existingData = await Model2.find();
 
         if (existingData.length > 0) {
           reply.send(existingData);
@@ -338,7 +338,7 @@ async function getProduct(fastify, options) {
       try {
         const modelId = req.params.id;
         const subcate = await SubCategory.findOne({ _id: modelId });
-        const existingData = await Model.find({ subCategory: subcate });
+        const existingData = await Model2.find({ subCategory: subcate });
 
         if (existingData) {
           reply.send(existingData);
