@@ -77,7 +77,7 @@ const model2Schema = new mongoose.Schema({
   photo: { type: [String], default: null },
   brand:brandSchema,
   specification: mongoose.Schema.Types.Mixed,
-
+  date: { type: Date, default: Date.now }
 });
 
 // const variantSchema = new mongoose.Schema({

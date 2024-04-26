@@ -116,7 +116,7 @@ fastify.register(require("./routes/specification/index"));
 
 const start = async () => {
   await connect();
-  fastify.listen({ port: 3000, host: "0.0.0.0" }, async (err, address) => {
+  fastify.listen({ port: 7776, host: "0.0.0.0" }, async (err, address) => {
     if (err) {
       console.log(err);
       process.exit(1);
