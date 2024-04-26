@@ -53,7 +53,7 @@ async function getProduct(fastify, options) {
         });
       }else {
         existingData = await Product.find({
-          $or: [{ "product.groupId": userId }],
+           "product.groupId": userId 
         })
       }
   
