@@ -113,10 +113,11 @@ fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
 fastify.register(require("./routes/update/index"));
 fastify.register(require("./routes/specification/index"));
+fastify.register(require("./routes/model/index"));
 
 const start = async () => {
   await connect();
-  fastify.listen({ port: 7776, host: "0.0.0.0" }, async (err, address) => {
+  fastify.listen({ port: 7776 }, async (err, address) => {
     if (err) {
       console.log(err);
       process.exit(1);

@@ -403,6 +403,7 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
+        console.log("ffffffffffffffffffff");
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
 
@@ -420,6 +421,7 @@ async function getProduct(fastify, options) {
 
         if (existingData.length > 0) {
           reply.send(existingData);
+          console.log("ffffffffffffffffffff",existingData.length);
         } else {
           reply.code(404).send({ error: "No data found" });
         }

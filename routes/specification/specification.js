@@ -2,7 +2,7 @@ const { Specification } = require("../../models/allModels");
 
 async function addSpecification(fastify, options) {
   fastify.post("/add-specifications", async (request, reply) => {
-    const { name, keyname, keyType, ismandatory, isvariant, isfilter } = request.body;
+    const { name, keyname, keyType, ismandatory, isvariant, isfilter, mainkey } = request.body;
     const specifications = {};
 
     // Check if arrays are defined and not empty
@@ -12,20 +12,12 @@ async function addSpecification(fastify, options) {
       
       // Loop through each key name
       for (let i = 0; i < keyname.length; i++) {
-        // if(ismandatory[i]==="true"){
-        //   mandatory = true;
-        // }
-        // if(isfilter[i]==="true"){
-        //   filter = true;
-        // }
-        // if(isvariant[i]==="true"){
-        //   variant = true;
-        // }
-        specifications[keyname[i]] = {
+        specifications[mainkey[keyname[i]]] = {
           type: keyType[i],
           required: ismandatory[i]==="true", // Convert string to boolean
           isFilter: isfilter[i]==="true", // Convert string to boolean
           isVariant: isvariant[i]==="true", // Convert string to boolean
+          
         };
       }
    
