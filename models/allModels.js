@@ -75,7 +75,7 @@ const model2Schema = new mongoose.Schema({
     vertical: { type: String, default: null},
   },
   photo: { type: [String], default: null },
-  brand:brandSchema,
+  
   specification: mongoose.Schema.Types.Mixed,
   date: { type: Date, default: Date.now }
 });
@@ -168,7 +168,7 @@ const inquirySchema = new mongoose.Schema({
 // })
 
 const specificationSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: false },
   category: { type: Schema.Types.ObjectId, ref: "Category" },
   // subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
   specification: mongoose.Schema.Types.Mixed,

@@ -453,7 +453,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/specification/:id",
-    { onRequest: [fastify.authenticate] },
+    // { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const specificationId = req.params.id;
@@ -474,7 +474,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/specifications",
-    { onRequest: [fastify.authenticate] },
+
     async (req, reply) => {
       try {
         const existingSpecifications = await Specification.find();
