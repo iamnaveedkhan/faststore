@@ -8,7 +8,7 @@ const formattedDate = dateIndia.format();
 
 const userSchema = new mongoose.Schema({
   name: { type: String, default: null },
-  mobile: { type: Number, unique: true },
+  mobile: { type: Number, required: true },
   longitude: { type: String, default: null },
   latitude: { type: String, default: null },
   role: { type: Number, default: 1 },

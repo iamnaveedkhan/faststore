@@ -361,37 +361,45 @@ async function Upload(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const parts = req.parts();
+        // const parts = req.parts();
+        const { price, quantity, productId } = req.body;
+        console.log(productId,price,quantity);
         const userId = await User.findOne({ _id: req.user.userId._id });
 
         data = {};
         let savedProduct;
+        data["price"]= price;
+        data["quantity"]=quantity;
+        const product = await Model2.findById({ _id:productId });
+        data["product"]= product
+        
+        const existingProduct = await Product.findOne({
+          "product._id": productId,
+          "user._id": userId,
+        });
+        console.log(existingProduct);
+        if (existingProduct) {
+          existingProduct.quantity = quantity;
+          existingProduct.price = price;
 
-        for await (const part of parts) {
-          if (part.type === "field") {
-            if (part.fieldname === "price") {
-              data["price"] = part.value;
-            } else if (part.fieldname === "quantity") {
-              data["quantity"] = part.value;
-            } else if (part.fieldname === "productId") {
-              data["product"] = await Model2.findById({ _id: part.value });
+          await existingProduct.save();
+          console.log(existingProduct);
+          return existingProduct;
+        } else
+        {
+          const user = await User.findById(userId);
+          if (!user) {
+            return reply.code(404).send({ error: "User not found" });
+          } else {
+            if (user.role == 2) {
+              data["user"] = user;
+              const newProduct = Product(data);
+
+              savedProduct = await newProduct.save();
             }
           }
+          return savedProduct;
         }
-
-        const user = await User.findById(userId);
-        if (!user) {
-          return reply.code(404).send({ error: "User not found" });
-        } else {
-          if (user.role == 2) {
-            data["user"] = user;
-            const newProduct = Product(data);
-
-             savedProduct = await newProduct.save();
-          }
-        }
-
-        return savedProduct;
       } catch (error) {
         console.error("Error creating product:", error);
         reply.code(500).send({ error: "Internal Server Error" });
