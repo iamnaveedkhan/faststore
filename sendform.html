@@ -69,55 +69,68 @@
     }
 
     // Fetch data from the API
-    fetch('http://127.0.0.1:7776/specification/662fb657808fe8be1953e103')
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            // Once data is fetched, create the form dynamically
-            const specifications = data[0].specification;
+    fetch('http://127.0.0.1:7776/specification/6630aa2753f435a133f0b5f6')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const specifications = data[0].specification;
 
-            // Create form HTML dynamically based on specifications
-            let formHTML = '<form id="dynamicForm">';
-            specifications.forEach(section => {
-                const sectionName = Object.keys(section)[0];
-                formHTML += `<h4>${sectionName}</h4>`;
-                section[sectionName].forEach(field => {
-                    formHTML += `
-                        <div class="mb-3">
-                            <input type="hidden" name="${sectionName}.${field.name}.isVariant" value="${field.isVariant}">
-                            <input type="hidden" name="${sectionName}.${field.name}.isFilter" value="${field.isFilter}">
-                            <input type="hidden" name="${sectionName}.${field.name}.isMandatory" value="${field.isMandatory}">
-                            <label for="${field.name}" class="form-label">${field.name}</label>`;
-                    // If field type is enum, create a select dropdown
-                    if (field.type === 'enum') {
-                        formHTML += `
-                            <select class="form-select" id="${field.name}" name="${sectionName}.${field.name}.title" ${field.isMandatory ? 'required' : ''}>
-                                <option value="" selected disabled>Select ${field.name}</option>`;
-                        field.options.forEach(option => {
-                            formHTML += `<option value="${option}">${option}</option>`;
-                        });
-                        formHTML += `</select>`;
-                    } else if (field.type === 'bool') { // If field type is bool, create a checkbox
-                        formHTML += `
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="${field.name}" name="${sectionName}.${field.name}.title" ${field.isMandatory ? 'required' : ''}>
-                                <label class="form-check-label" for="${field.name}">True</label>
-                            </div>`;
-                    } else { // Otherwise, create a text or number input
-                        formHTML += `<input type="${field.type === 'int' || field.type === 'double' ? 'number' : 'text'}" 
-                            class="form-control" id="${field.name}" name="${sectionName}.${field.name}.title" ${field.isMandatory ? 'required' : ''}>`;
+        // Create form HTML dynamically based on specifications
+        let formHTML = '<form id="dynamicForm">';
+
+        // Iterate over the categories
+        for (let category in specifications) {
+            if (specifications.hasOwnProperty(category)) {
+                // Get specifications for the current category
+                const categorySpecs = specifications[category];
+
+                // Add category name as a header
+                formHTML += `<h4>${category}</h4>`;
+
+                // Iterate over specifications for the current category
+                for (let specName in categorySpecs) {
+                    if (categorySpecs.hasOwnProperty(specName)) {
+                        const spec = categorySpecs[specName];
+                        // Add form input based on specification type
+
+                        formHTML += `<input type="hidden" name="${category}.${specName}.isVariant" value="${spec.isVariant}">
+                                    <input type="hidden" name="${category}.${specName}.isFilter" value="${spec.isFilter}">
+                                    <input type="hidden" name="${category}.${specName}.isMandatory" value="${spec.isMandatory}">`;
+                        formHTML += `<div class="mb-3">
+                                        <label for="${specName}" class="form-label">${specName}</label>`;
+                        if (spec.type === 'enum') {
+                            // If field type is enum, create a select dropdown
+                            formHTML += `<select class="form-select" id="${specName}" name="${category}.${specName}.title" ${spec.isMandatory ? 'required' : ''}>
+                                            <option value="" selected disabled>Select ${specName}</option>`;
+                            spec.options.forEach(option => {
+                                formHTML += `<option value="${option}">${option}</option>`;
+                            });
+                            formHTML += `</select>`;
+                        } else if (spec.type === 'bool') {
+                            // If field type is bool, create a checkbox
+                            formHTML += `<div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="${specName}" name="${category}.${specName}.title" ${spec.isMandatory ? 'required' : ''}>
+                                            <label class="form-check-label" for="${specName}">True</label>
+                                        </div>`;
+                        } else {
+                            // Otherwise, create a text or number input
+                            formHTML += `<input type="${spec.type === 'int' || spec.type === 'double' ? 'number' : 'text'}" 
+                                            class="form-control" id="${specName}" name="${category}.${specName}.title" ${spec.isMandatory ? 'required' : ''}>`;
+                        }
+                        formHTML += `</div>`;
                     }
-                    formHTML += `</div>`;
-                });
-            });
+                }
+            }
+        }
 
-            // Submit button
-            formHTML += `<button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button></form>`;
+        // Submit button
+        formHTML += `<button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button></form>`;
 
-            // Append form HTML to the specified div
-            document.getElementById('specificationForm').innerHTML = formHTML;
-        })
-        .catch(error => console.error('Error fetching data:', error));
+        // Append form HTML to the specified div
+        document.getElementById('specificationForm').innerHTML = formHTML;
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
 </script>
 </body>
 </html>
