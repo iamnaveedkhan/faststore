@@ -1,4 +1,5 @@
 const {
+  Chat,
   Product,
   Model,
   Brand,
@@ -555,6 +556,21 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  fastify.get('/chat', { onRequest: [fastify.authenticate] },async (req, reply)=>{
+    let existingData;
+      const userid = req.user.userId._id;
+      const user = await User.findById({_id:userid})
+
+      if(user.role == 1){
+        existingData = await Chat.find({ customer:userid});
+      }
+      else if(user.role == 2){
+        existingData = await Chat.find({ retailer:userid});
+      }
+      reply.send(existingData);
+
+  })
 }
 
 module.exports = getProduct;

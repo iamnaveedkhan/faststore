@@ -69,25 +69,27 @@ async function addSpecification(fastify, options) {
 
     fastify.post('/add-models', async (request, reply) => {
         try {
-            const specifications = request.body.specification;
-            
-            // Create a new Specification document
-            const spec = new Model2({
-                type: request.body.name, // Assuming 'name' here represents the type
-                specification: specifications
+            const { productName, type, properties, photo, specification } = request.body;
+    
+            const { category, subcategory, vertical } = properties;
+    
+            const model = new Model2({
+                type, 
+                productName,
+                properties: { category, subcategory, vertical }, 
+                photo,
+                specification
             });
     
-            // Save the document to the database
-            const savedSpec = await spec.save();
+            const savedModel = await model.save();
     
-            // Send response
-            reply.code(201).send(savedSpec);
+           
+            reply.code(201).send(savedModel);
         } catch (error) {
-            console.error('Error saving specifications:', error);
+            console.error('Error saving model:', error);
             reply.code(500).send({ error: 'Internal Server Error' });
         }
     });
-    
     
 }
 

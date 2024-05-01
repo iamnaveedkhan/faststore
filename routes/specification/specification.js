@@ -1,7 +1,7 @@
 const { Specification } = require("../../models/allModels");
 
 async function addSpecification(fastify, options) {
-  fastify.post("/add-specificatio", async (request, reply) => {
+  fastify.post("/add-specification", async (request, reply) => {
     const { name, keyname, keyType, ismandatory, isvariant, isfilter, mainkey } = request.body;
     const specifications = {};
 
