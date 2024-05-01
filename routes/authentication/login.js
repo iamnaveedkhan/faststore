@@ -13,8 +13,9 @@ async function loginUser(fastify, options) {
       if (existingUser) {
         console.log(mob);
         const token = fastify.jwt.sign({ userId: existingUser });
+        const id = existingUser._id;
         status = "success";
-        reply.send({ token, status });
+        reply.send({ token, id, status });
       } else {
         status = "fail";
         return reply.status(404).send({ error: "User not found...", status });

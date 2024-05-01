@@ -4,8 +4,8 @@ async function addSpecification(fastify, options) {
     fastify.post('/add-specifications', async (request, reply) => {
         try {
             const mainKeys = Array.isArray(request.body.mainKey) ? request.body.mainKey : [request.body.mainKey];
-            const name = request.body.name;
-    
+            const { name, category} = request.body;
+
             // Create an array to store specifications
             const specifications = {};
 
@@ -50,6 +50,7 @@ async function addSpecification(fastify, options) {
             // Create a new Specification document
             const spec = new Specification({
                 name: name,
+                category: category,
                 specification: specifications
             });
     
