@@ -359,7 +359,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const modelId = req.params.id;
-        const existingModel = await Model2.findOne({ _id: modelId });
+        const existingModel = await Model2.find({ _id: modelId });
         if (existingModel) {
           reply.send(existingModel);
         } else {
