@@ -1,12 +1,15 @@
 const { Specification , Model2 } = require("../../models/allModels");
 
 async function addSpecification(fastify, options) {
+    fastify.register(require("@fastify/multipart"));
+
     fastify.post('/add-specifications', async (request, reply) => {
         try {
             const mainKeys = Array.isArray(request.body.mainKey) ? request.body.mainKey : [request.body.mainKey];
             const { name, category} = request.body;
 
             // Create an array to store specifications
+            console.log(request.body);
             const specifications = {};
 
             // Loop through each main key
@@ -36,9 +39,9 @@ async function addSpecification(fastify, options) {
                     keys[keyName] = {
                         type: type,
                         options: options, // Add options field
-                        isFilter: isFilters[j] ? true : false,
-                        isMandatory: isMandatories[j] ? true : false,
-                        isVariant: isVariants[j] ? true : false
+                        isFilter: isFilters[j] ? isFilters[j] : false,
+                        isMandatory: isMandatories[j] ? isMandatories[j] : false,
+                        isVariant: isVariants[j] ? isVariants[j] : false
                     };
                 }
 
@@ -70,7 +73,8 @@ async function addSpecification(fastify, options) {
     fastify.post('/add-models', async (request, reply) => {
         try {
             const { productName, type, properties, photo, specification } = request.body;
-    
+
+            
             const { category, subcategory, vertical } = properties;
     
             const model = new Model2({
@@ -82,8 +86,6 @@ async function addSpecification(fastify, options) {
             });
     
             const savedModel = await model.save();
-    
-           
             reply.code(201).send(savedModel);
         } catch (error) {
             console.error('Error saving model:', error);
