@@ -200,7 +200,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.params.id;
-        const existingUser = await User.findOne({ _id: userId });
+        const existingUser = await User.find({ _id: userId });
         if (existingUser) {
           reply.send(existingUser);
         } else {
