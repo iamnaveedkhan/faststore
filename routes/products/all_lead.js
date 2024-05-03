@@ -360,6 +360,7 @@ async function getProduct(fastify, options) {
       try {
         const modelId = req.params.id;
         const existingModel = await Model2.find({ _id: modelId });
+        console.log(existingModel);
         if (existingModel) {
           reply.send(existingModel);
         } else {
