@@ -6,14 +6,16 @@ const moment = require('moment-timezone');
 const dateIndia = moment.tz("Asia/kolkata");
 const formattedDate = dateIndia.format();
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
   name: { type: String, default: null },
   mobile: { type: Number, required: true },
+  liked: [String],
+  viewed: [String],
   longitude: { type: String, default: null },
   latitude: { type: String, default: null },
   role: { type: Number, default: 1 },
   isActive: { type: Number, default: 1 },
-  password: { type: String, default: "Zerotouch" },
+  password: { type: String, default: 'Zerotouch' },
 });
 
 const addressesSchema = new mongoose.Schema({
@@ -102,6 +104,8 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: formattedDate 
   },
+  liked: {type: Number, default: 0},
+  viewed: {type: Number, default: 0},
 });
 
 const photoSchema = new mongoose.Schema({

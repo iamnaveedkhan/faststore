@@ -44,7 +44,7 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/product/:id", async (req, reply) => {
+  fastify.get("/product/:id", { onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const userId = req.params.id;
       let existingData;
