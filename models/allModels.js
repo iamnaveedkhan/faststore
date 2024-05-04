@@ -71,6 +71,7 @@ const model2Schema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  main: { type : Boolean, default: false},
   properties: {
     category:{ type: String, default: null },
     subcategory: { type: String, default: null },
@@ -177,6 +178,11 @@ const specificationSchema = new mongoose.Schema({
   category: { type: Schema.Types.ObjectId, ref: "Category" },
   // subCategory: { type: Schema.Types.ObjectId, ref: 'SubCategory' },
   specification: mongoose.Schema.Types.Mixed,
+
+  date: {
+    type: Date,
+    default: formattedDate 
+  },
 });
 
 
