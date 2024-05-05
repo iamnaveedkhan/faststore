@@ -31,8 +31,8 @@ async function Upload(fastify, options) {
         let name;
         let fileName;
 
-        let hasNameField = false;
-        let hasFileField = false;
+        // let hasNameField = false;
+        // let hasFileField = false;
 
         for await (const part of parts) {
           if (part.type === "file") {
@@ -44,7 +44,7 @@ async function Upload(fastify, options) {
           } else if (part.type === "field") {
             if (part.fieldname === "name") {
               name = part.value;
-              hasNameField = true;
+              // hasNameField = true;
             }
           }
         }
@@ -64,7 +64,7 @@ async function Upload(fastify, options) {
           brandImage: `public/image/${fileName}`,
         });
         const BrandSaved = await brand.save();
-        return { brandName: name };
+        return { BrandSaved };
       } catch (error) {
         console.error("Error uploading file:", error);
         return reply.status(500).send("Internal Server Error");

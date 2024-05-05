@@ -9,6 +9,7 @@ const {
   Inquiry,
   Model2,
   Specification,
+  Offers,
 } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
@@ -391,9 +392,9 @@ async function getProduct(fastify, options) {
         console.log(req.user.userId._id);
         let existingData;
         if (userId.role == 1) {
-          existingData = await Inquiry.find({ "customer._id": userId._id });
+          existingData = await Inquiry.find({ "customer._id": userId._id }).populate('user');
         } else if (userId.role == 2) {
-          existingData = await Inquiry.find({ "shop._id": userId._id });
+          existingData = await Inquiry.find({ "shop._id": userId._id }).populate('user');
         } else {
           return reply.code(403).send({ error: "Unauthorized access" });
         }
@@ -501,50 +502,7 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get(
-    "/nearby",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const EARTH_RADIUS_KM = 6371;
-        const maxDistance = 5;
-        const userid = req.user.userId._id;
-        console.log(userid);
-        const user = await User.findById({ _id: userid });
 
-        const userLatitude = parseFloat(user.latitude);
-        const userLongitude = parseFloat(user.longitude);
-
-        // Convert distance to radians
-        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
-        const deltaLongitude =
-          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
-          Math.cos((userLatitude * Math.PI) / 180);
-
-        // Calculate latitude and longitude ranges
-        const minLatitude = userLatitude - deltaLatitude;
-        const maxLatitude = userLatitude + deltaLatitude;
-        const minLongitude = userLongitude - deltaLongitude;
-        const maxLongitude = userLongitude + deltaLongitude;
-
-        console.log("Latitude Range:", minLatitude, "-", maxLatitude);
-        console.log("Longitude Range:", minLongitude, "-", maxLongitude);
-
-        // Find products within the calculated ranges
-        const filteredProducts = await Product.find({
-          "user.latitude": { $gte: minLatitude, $lte: maxLatitude },
-          "user.longitude": { $gte: minLongitude, $lte: maxLongitude },
-        }).populate('user');
-
-        console.log("Filtered Products:", filteredProducts);
-
-        return filteredProducts;
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
 
   fastify.get(
     "/activeCustomerandRetailerList/:role",
@@ -581,6 +539,76 @@ async function getProduct(fastify, options) {
       reply.send(existingData);
 
   })
+
+  fastify.get(
+    "/nearby",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const EARTH_RADIUS_KM = 6371;
+        const maxDistance = 5;
+        const userid = req.user.userId._id;
+
+        const user = await User.findById({ _id: userid });
+
+        const userLatitude = parseFloat(user.latitude);
+        const userLongitude = parseFloat(user.longitude);
+
+        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
+
+        // Calculate latitude and longitude ranges
+        const minLatitude = userLatitude - deltaLatitude;
+        const maxLatitude = userLatitude + deltaLatitude;
+        const minLongitude = userLongitude - deltaLongitude;
+        const maxLongitude = userLongitude + deltaLongitude;
+
+        console.log("Latitude Range:", minLatitude, "-", maxLatitude);
+        console.log("Longitude Range:", minLongitude, "-", maxLongitude);
+
+        // Find products within the calculated ranges
+        const filteredProducts = await Product.find({})
+          .populate({
+            path: 'user',
+            select: 'latitude longitude', // Assuming latitude and longitude are the field names in the User schema
+            match: {
+              latitude: { $gte: minLatitude, $lte: maxLatitude },
+              longitude: { $gte: minLongitude, $lte: maxLongitude }
+            }
+          })
+          .exec();
+
+          let activeOffers = await Offers.find({isActive:true}).populate({
+            path: 'user',
+            select: 'latitude longitude', // Assuming latitude and longitude are the field names in the User schema
+            match: {
+              latitude: { $gte: minLatitude, $lte: maxLatitude },
+              longitude: { $gte: minLongitude, $lte: maxLongitude }
+            }
+          })
+          .exec();
+            reply.send({'offer':activeOffers,'product':filteredProducts})
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get('/offersAndNearby', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+        let activeOffers = await Offers.find({isActive:true});
+
+        
+        return activeOffers;
+    } catch (error) {
+        // Handle errors
+        reply.code(500).send({ error: "Internal server error" });
+    }
+});
+
 }
 
 module.exports = getProduct;
