@@ -354,7 +354,7 @@ async function Upload(fastify, options) {
         const productId = req.params.id;
         const userId = await User.findOne({ _id: req.user.userId._id });
         console.log(userId);
-        const existingProduct = await Product.findOne({ _id: productId });
+        const existingProduct = await Product.findOne({ _id: productId }).populate('user');
         if (existingProduct) {
           shopName = existingProduct.user._id;
           const product = new Inquiry({
