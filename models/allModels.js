@@ -97,7 +97,7 @@ const model2Schema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   product: model2Schema,
-  user: userSchema,
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   price : {type: Number},
   quantity : {type : Number},
   vertical : { type: Schema.Types.ObjectId, ref: "Specification" },
@@ -110,7 +110,7 @@ const productSchema = new mongoose.Schema({
 });
 
 const photoSchema = new mongoose.Schema({
-  model: { type: Schema.Types.ObjectId, ref: "Model" },
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   photos: { type: [String] }, // Array of strings representing URLs
 });
 
