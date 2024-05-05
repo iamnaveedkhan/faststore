@@ -392,9 +392,9 @@ async function getProduct(fastify, options) {
         console.log(req.user.userId._id);
         let existingData;
         if (userId.role == 1) {
-          existingData = await Inquiry.find({ "customer._id": userId._id }).populate('user');
+          existingData = await Inquiry.find({ "customer._id": userId._id }).populate('shop');
         } else if (userId.role == 2) {
-          existingData = await Inquiry.find({ "shop._id": userId._id }).populate('user');
+          existingData = await Inquiry.find({ "shop._id": userId._id }).populate('shop');
         } else {
           return reply.code(403).send({ error: "Unauthorized access" });
         }
