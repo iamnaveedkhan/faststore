@@ -597,7 +597,20 @@ async function getProduct(fastify, options) {
     }
   );
 
+  fastify.get('/productsOnRetailer',  { onRequest: [fastify.authenticate] }, async (req,resp)=>{
+    try {
+      const userid = req.user.userId._id;
+      console.log(userid);
+      const existingData = await Product.find({user:userid}).populate('user');
 
+      return existingData;
+
+    } catch (error) {
+      console.error(error);
+      reply.code(500).send({ error: "Internal server error" });
+    }
+
+  })
 
 
 
