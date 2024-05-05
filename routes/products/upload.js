@@ -10,7 +10,7 @@ const {
   Model,
   Category,
   SubCategory,
-  Photo,
+  Offers,
   User,
   Inquiry,
   Model2,
@@ -169,100 +169,40 @@ async function Upload(fastify, options) {
     }
   );
 
+
+
+
   fastify.post(
-    "/model",
+    "/offer/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const parts = req.parts();
-        let filePath;
-
-        let name, category, subCategory, brand, fileName;
-
-        for await (const part of parts) {
-          if (part.type === "file") {
-            fileName = part.filename;
-            filePath = path.join("public/image/", fileName);
-            const writableStream = fs.createWriteStream(filePath);
-            await part.file.pipe(writableStream);
-          } else if (part.type === "field") {
-            if (part.fieldname === "name") {
-              name = part.value;
-            } else if (part.fieldname === "category") {
-              category = part.value;
-            } else if (part.fieldname === "subcategory") {
-              subCategory = part.value;
-            } else if (part.fieldname === "brand") {
-              brand = part.value;
-            }
-          }
-        }
-        const existingModel = await Model.findOne({ productName: name });
-        if (existingModel) {
-          return reply.status(409).send({ error: "Model already registered" });
-        }
-        const model = new Model({
-          photo: `public/image/${fileName}`,
-          productName: name,
-          brand: brand,
-          category: category,
-          subCategory: subCategory,
-        });
-        const ProdSaved = await model.save();
-        console.log(model._id);
-        const photo = new Photo({
-          photos: [`public/image/${fileName}`],
-          model: model._id,
-        });
-        const photoSaved = await photo.save();
-        return { productName: name };
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        return reply.status(500).send("Internal Server Error");
-      }
-    }
-  );
-
-  fastify.post(
-    "/photos",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const parts = req.parts();
-        let filePath;
-
-        let productModel;
-        let newFile;
+        let userId = req.params.id;
         let fileName;
-        let phpto = [];
+        let filePath;
+
         for await (const part of parts) {
           if (part.type === "file") {
             fileName = part.filename;
             filePath = path.join("public/image/", fileName);
             const writableStream = fs.createWriteStream(filePath);
             await part.file.pipe(writableStream);
-            newFile = `public/image/${fileName}`;
-            phpto.push(newFile);
-          } else if (part.type === "field") {
-            if (part.fieldname === "model") {
-              productModel = part.value;
-            }
           }
         }
 
-        const existingModel = await Photo.findOne({
-          $or: [{ model: productModel }],
+        const newOffer = new Offers({
+          user : userId,
+          photos : `public/image/${fileName}`,
         });
-        // phpto.push(existingModel.photos.values);
-        // console.log(phpto)
-        existingModel.photos = phpto;
 
-        const ProdSaved = await existingModel.save();
-
-        return { photos: phpto };
+       
+        const OfferSaved =  await newOffer.save();
+        console.log(OfferSaved);
+        return { success: true, message: "offer saved successfully" };
       } catch (error) {
-        console.error("Error uploading file:", error);
-        return reply.status(500).send("Internal Server Error");
+        console.error("Error saving offer:", error);
+        return { success: false, message: "Failed to save offer" };
       }
     }
   );
@@ -363,16 +303,16 @@ async function Upload(fastify, options) {
       try {
         // const parts = req.parts();
         const { price, quantity, productId } = req.body;
-        console.log(productId,price,quantity);
+        console.log(productId, price, quantity);
         const userId = await User.findOne({ _id: req.user.userId._id });
 
         data = {};
         let savedProduct;
-        data["price"]= price;
-        data["quantity"]=quantity;
-        const product = await Model2.findById({ _id:productId });
-        data["product"]= product
-        
+        data["price"] = price;
+        data["quantity"] = quantity;
+        const product = await Model2.findById({ _id: productId });
+        data["product"] = product;
+
         const existingProduct = await Product.findOne({
           "product._id": productId,
           "user._id": userId,
@@ -385,8 +325,7 @@ async function Upload(fastify, options) {
           await existingProduct.save();
           console.log(existingProduct);
           return existingProduct;
-        } else
-        {
+        } else {
           const user = await User.findById(userId);
           if (!user) {
             return reply.code(404).send({ error: "User not found" });
@@ -444,7 +383,7 @@ async function Upload(fastify, options) {
         console.error("Error uploading file:", error);
         return reply.status(500).send("Internal Server Error");
       }
-    }  
+    }
   );
 
   fastify.post("/addmodel", async (req, reply) => {
@@ -491,8 +430,6 @@ async function Upload(fastify, options) {
       reply.code(500).send({ error: "Internal Server Error" });
     }
   });
-
-  
 
   fastify.post(
     "/addproduct",
@@ -560,7 +497,7 @@ async function Upload(fastify, options) {
         const data = {};
         let photos = [];
         let fileName;
-        data['groupId'] = req.params.id;
+        data["groupId"] = req.params.id;
         for await (const part of req.parts()) {
           if (part.file) {
             console.log(part.filename);
@@ -583,7 +520,7 @@ async function Upload(fastify, options) {
               data[part.fieldname] = part.value;
             } else if (part.fieldname === "brandId") {
               data["brand"] = await Brand.findById({ _id: part.value });
-            }else { 
+            } else {
               data[part.fieldname] = part.value;
             }
           }
@@ -601,9 +538,6 @@ async function Upload(fastify, options) {
       }
     }
   );
-
-
-  
 }
 
 module.exports = Upload;

@@ -109,9 +109,10 @@ const productSchema = new mongoose.Schema({
   viewed: {type: Number, default: 0},
 });
 
-const photoSchema = new mongoose.Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
-  photos: { type: [String] }, // Array of strings representing URLs
+const offersSchema = new mongoose.Schema({
+  user: { type: String},
+  photos: { type: String }, 
+  isActive: {type: Boolean, default:true }
 });
 
 // const productSchema = new mongoose.Schema({
@@ -208,7 +209,7 @@ const Category = mongoose.model("Category", categorySchema);
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
 const Model = mongoose.model("Model", modelSchema);
 const Model2 = mongoose.model("Model2", model2Schema);
-const Photo = mongoose.model("Photo", photoSchema);
+const Offers = mongoose.model("Offers", offersSchema);
 const Inquiry = mongoose.model("Inquiry", inquirySchema);
 // const Variant = mongoose.model("Variant", variantSchema);
 const Specification = mongoose.model("Specification", specificationSchema);
@@ -225,6 +226,6 @@ module.exports = {
   Order,
   Product,
   Model2,
-  Photo,
+  Offers,
   Inquiry,
 };
