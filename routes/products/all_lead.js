@@ -392,9 +392,9 @@ async function getProduct(fastify, options) {
         console.log(req.user.userId._id);
         let existingData;
         if (userId.role == 1) {
-          existingData = await Inquiry.find({ "customer._id": userId._id }).populate('shop');
+          existingData = await Inquiry.find({ "customer._id": userId._id }).populate({populate: {path: 'shop',model: 'User'}});
         } else if (userId.role == 2) {
-          existingData = await Inquiry.find({ "shop._id": userId._id }).populate('shop');
+          existingData = await Inquiry.find({ "shop._id": userId._id }).populate({populate: {path: 'shop',model: 'User'}});
         } else {
           return reply.code(403).send({ error: "Unauthorized access" });
         }
@@ -541,7 +541,7 @@ async function getProduct(fastify, options) {
   })
 
   fastify.get(
-    "/nearby",
+    "/nearbyAndOffers",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
