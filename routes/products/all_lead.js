@@ -597,7 +597,7 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get('/productsOnretailere')
+
 
 
 
