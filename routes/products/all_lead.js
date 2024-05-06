@@ -346,7 +346,7 @@ async function getProduct(fastify, options) {
           existingModel = await Product.find({
             
              "product.groupId": modelId 
-          })
+          }).populate('user');
         }
     
         if (existingModel.length > 0) {
