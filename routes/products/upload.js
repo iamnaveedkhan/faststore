@@ -541,6 +541,10 @@ async function Upload(fastify, options) {
       }
     }
   );
+
+  // fastify.post('/updateuserdetails', { onRequest: [fastify.authenticate] }, async(req,reply)=>{
+      
+  // } )
 }
 
 module.exports = Upload;
