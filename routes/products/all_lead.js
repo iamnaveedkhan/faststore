@@ -574,8 +574,7 @@ async function getProduct(fastify, options) {
         // Find products within the calculated ranges
         const filteredProducts = await Product.find({})
           .populate({
-            path: "user",
-            select: "latitude longitude", // Assuming latitude and longitude are the field names in the User schema
+            path: "user", // Assuming latitude and longitude are the field names in the User schema
             match: {
               latitude: { $gte: minLatitude, $lte: maxLatitude },
               longitude: { $gte: minLongitude, $lte: maxLongitude },
@@ -585,8 +584,7 @@ async function getProduct(fastify, options) {
 
         let activeOffers = await Offers.find({ isActive: true })
           .populate({
-            path: "user",
-            select: "latitude longitude", // Assuming latitude and longitude are the field names in the User schema
+            path: "user", // Assuming latitude and longitude are the field names in the User schema
             match: {
               latitude: { $gte: minLatitude, $lte: maxLatitude },
               longitude: { $gte: minLongitude, $lte: maxLongitude },
