@@ -342,8 +342,10 @@ async function getProduct(fastify, options) {
         if(modelId.length>10){
           existingModel = await Model2.find({ "_id": modelId })
         }else{
+          console.log(modelId);
           existingModel = await Product.find({
-             "groupId": modelId 
+            
+             "product.groupId": modelId 
           })
         }
     
