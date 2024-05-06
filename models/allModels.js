@@ -76,6 +76,7 @@ const model2Schema = new mongoose.Schema({
     category:{ type: String, default: null },
     subcategory: { type: String, default: null },
     vertical: { type: String, default: null},
+    brand: { type: String, default: null},
   },
   photo: { type: [String], default: null },
   
@@ -105,6 +106,7 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: formattedDate 
   },
+  fatured: {type: Boolean,default: false}, 
   liked: {type: Number, default: 0},
   viewed: {type: Number, default: 0},
   enquired: {type: Number, default: 0},
