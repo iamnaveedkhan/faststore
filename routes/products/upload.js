@@ -378,6 +378,9 @@ async function Upload(fastify, options) {
           await product.save();
         }
 
+        existingProduct.enquired = existingProduct.enquired + 1;
+        await existingProduct.save();
+
         return { shopName: shopName };
       } catch (error) {
         console.error("Error uploading file:", error);

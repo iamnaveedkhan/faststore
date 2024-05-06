@@ -107,6 +107,7 @@ const productSchema = new mongoose.Schema({
   },
   liked: {type: Number, default: 0},
   viewed: {type: Number, default: 0},
+  enquired: {type: Number, default: 0},
 });
 
 const offersSchema = new mongoose.Schema({
