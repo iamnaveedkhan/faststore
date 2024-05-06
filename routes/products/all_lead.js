@@ -641,7 +641,10 @@ async function getProduct(fastify, options) {
         }
 
         
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
     }
   );
 }

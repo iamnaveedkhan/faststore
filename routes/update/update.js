@@ -1,7 +1,8 @@
 const path = require('path');
 const fs = require('fs');
-const { Brand, Category, Product,SubCategory } = require("../../models/allModels");
+const { Brand, Category, Product,SubCategory, User } = require("../../models/allModels");
 const { isNullOrUndefined } = require('util');
+const { send } = require('process');
 async function Update(fastify, options) {
     fastify.register(require('@fastify/multipart'));
     fastify.post('/brand/:id',{ onRequest: [fastify.authenticate] }, async (req, reply) => {
@@ -135,16 +136,33 @@ async function Update(fastify, options) {
         }
     });
 
-    // fastify.post('/photos/:id', async (req, reply) => {
-    //     try {
-    //         const photosId = req.params.id;
-    //         const parts = req.parts();
-    //         reply.send('Request processed successfully');
-    //     } catch (error) {
-    //         console.error('Error processing request:', error);
-    //         reply.status(500).send('Internal Server Error');
-    //     }
-    // });
+    fastify.post('/updateuser', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+        try {
+            const userid = req.user.userId._id;
+            const parts = req.parts();
+
+            const userData = await User.findById({_id:userid});
+
+            let newName;
+
+            for await (const part of parts) { 
+                console.log(userData.role);
+                if (part.type === 'field'  && part.fieldname == 'name' && userData.role == 1 ) {
+                    newName = part.value.trim();
+                }
+            }
+
+            userData.name = newName;
+
+            await userData.save();
+
+            return userData;
+
+        } catch (error) {
+            console.error('Error processing request:', error);
+            reply.status(500).send('Internal Server Error');
+        }
+    });
     
 }
 
