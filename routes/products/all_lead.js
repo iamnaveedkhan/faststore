@@ -619,14 +619,14 @@ async function getProduct(fastify, options) {
   );
 
   fastify.get(
-    "/editproduct/:id",
+    "/modeltoproduct/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const modelOrProductId = req.params.id;
         const userid = req.user.userId._id;
-          existingData = await Model2.find({_id:modelOrProductId});
-          reply.send(existingData);
+        existingData = await Model2.find({ groupId: modelOrProductId });
+        reply.send(existingData);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
@@ -634,9 +634,8 @@ async function getProduct(fastify, options) {
     }
   );
 
-
   fastify.get(
-    "/modeltoproduct/:id",
+    "/editproduct/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -645,11 +644,10 @@ async function getProduct(fastify, options) {
 
         let existingData = "";
         existingData = await Product.find({
-          $and: [{ "product.groupId": modelOrProductId }, { user: userid }],
-        }).populate('user');
+          $and: [{ "_id": modelOrProductId }, { user: userid }],
+        }).populate("user");
 
         reply.send(existingData);
-
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
