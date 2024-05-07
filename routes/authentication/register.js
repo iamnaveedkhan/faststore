@@ -35,7 +35,7 @@ async function registerUser(fastify, options) {
       data['user_id']=savedUser._id;
       const UserAddres = new Address(data);
       const savedAddress = await UserAddres.save();
-      const token = fastify.jwt.sign({ userId: savedUser._id });
+      const token = fastify.jwt.sign({ userId: savedUser });
       var status = "success";
 
 
