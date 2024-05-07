@@ -1,8 +1,9 @@
+
 const { User } = require("../../models/allModels");
 async function location(fastify, options) {
   fastify.register(require("@fastify/multipart"));
   fastify.post(
-    "/savelocation",
+    "/savelocation", 
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
