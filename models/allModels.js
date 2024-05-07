@@ -15,7 +15,8 @@ const userSchema = new Schema({
   latitude: { type: String, default: null },
   role: { type: Number, default: 1 },
   isActive: { type: Number, default: 1 },
-  password: { type: String, default: 'Zerotouch' },
+  photo: { type: String, default: "" },
+  email: { type: String, default: "" },
 });
 
 const addressesSchema = new mongoose.Schema({

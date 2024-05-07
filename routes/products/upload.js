@@ -169,9 +169,6 @@ async function Upload(fastify, options) {
     }
   );
 
-
-
-
   fastify.post(
     "/offer/:id",
     { onRequest: [fastify.authenticate] },
@@ -192,12 +189,11 @@ async function Upload(fastify, options) {
         }
 
         const newOffer = new Offers({
-          user : userId,
-          photos : `public/image/${fileName}`,
+          user: userId,
+          photos: `public/image/${fileName}`,
         });
 
-       
-        const OfferSaved =  await newOffer.save();
+        const OfferSaved = await newOffer.save();
         console.log(OfferSaved);
         return { success: true, message: "offer saved successfully" };
       } catch (error) {
@@ -354,7 +350,9 @@ async function Upload(fastify, options) {
         const productId = req.params.id;
         const userId = await User.findOne({ _id: req.user.userId._id });
         console.log(userId);
-        const existingProduct = await Product.findOne({ _id: productId }).populate('user');
+        const existingProduct = await Product.findOne({
+          _id: productId,
+        }).populate("user");
         if (existingProduct) {
           shopName = existingProduct.user._id;
           const product = new Inquiry({
@@ -542,7 +540,40 @@ async function Upload(fastify, options) {
     }
   );
 
+  fastify.post(
+    "/location",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const parts = req.parts();
+        const userid = req.user.userId._id;
+        const userData = await User.findById({ _id: userid });
 
+        let latitude;
+        let longitude;
+
+        for await (const part of parts) {
+          if (part.type === "field" && part.fieldname == "latitude") {
+            latitude = part.value;
+            hasFileField = true;
+          } else if (part.type === "field" && part.fieldname == "longitude") {
+            longitude = part.value;
+            hasNameField = true;
+          }
+        }
+       
+        userData.latitude = latitude;
+        userData.longitude = longitude;
+
+        await userData.save()
+        
+        return userData
+      } catch (error) {
+        console.error("Error adding model:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
 }
 
 module.exports = Upload;
