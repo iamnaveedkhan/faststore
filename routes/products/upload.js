@@ -555,10 +555,10 @@ async function Upload(fastify, options) {
         for await (const part of parts) {
           if (part.type === "field" && part.fieldname == "latitude") {
             latitude = part.value;
-            hasFileField = true;
+            // hasFileField = true;
           } else if (part.type === "field" && part.fieldname == "longitude") {
             longitude = part.value;
-            hasNameField = true;
+            // hasNameField = true;
           }
         }
        
@@ -566,7 +566,7 @@ async function Upload(fastify, options) {
         userData.longitude = longitude;
 
         await userData.save()
-        
+
         return userData
       } catch (error) {
         console.error("Error adding model:", error);
