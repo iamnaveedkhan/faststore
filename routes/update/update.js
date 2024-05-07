@@ -140,29 +140,47 @@ async function Update(fastify, options) {
         try {
             const userid = req.user.userId._id;
             const parts = req.parts();
-
-            const userData = await User.findById({_id:userid});
-
-            let newName;
-
+    
+            let userData = await User.findById({_id: userid});
+    
+            let newName, fileName, filePath;
+            let data = {}; // Changed from array to object
+    
             for await (const part of parts) { 
-                console.log(userData.role);
-                if (part.type === 'field'  && part.fieldname == 'name' && userData.role == 1 ) {
-                    newName = part.value.trim();
+                if(userData.role == 1){
+                    if (part.type === 'field'  && part.fieldname == 'name' ) {
+                        newName = part.value.trim();
+                        userData.name = newName;
+                    }
                 }
+                else if(userData.role == 2){
+                    if (part.type === "field") {
+                        data[part.fieldname] = part.value;
+                    } else if (part.type === "file") {
+                        fileName = part.filename;
+                        filePath = path.join("public/image/", fileName);
+                        const writableStream = fs.createWriteStream(filePath);
+                        await part.file.pipe(writableStream);
+                        data['photo'] = `public/image/${fileName}`
+                    }
+                }    
             }
-
-            userData.name = newName;
-
+    
+            // Update userData with data
+            if(userData.role == 2){
+                Object.assign(userData, data);
+            }
+    
             await userData.save();
-
+    
             return userData;
-
+    
         } catch (error) {
             console.error('Error processing request:', error);
             reply.status(500).send('Internal Server Error');
         }
     });
+    
     
 }
 
