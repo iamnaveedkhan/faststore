@@ -1,7 +1,7 @@
-
 const { User } = require("../../models/allModels");
 async function location(fastify, options) {
-fastify.post(
+  fastify.register(require("@fastify/multipart"));
+  fastify.post(
     "/savelocation",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
@@ -22,13 +22,13 @@ fastify.post(
             // hasNameField = true;
           }
         }
-       
+
         userData.latitude = latitude;
         userData.longitude = longitude;
 
-        await userData.save()
+        await userData.save();
 
-        return userData
+        return userData;
       } catch (error) {
         console.error("Error adding model:", error);
         reply.code(500).send({ error: "Internal Server Error" });
@@ -36,6 +36,5 @@ fastify.post(
     }
   );
 }
-
 
 module.exports = location;

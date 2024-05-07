@@ -9,14 +9,18 @@ const formattedDate = dateIndia.format();
 const userSchema = new Schema({
   name: { type: String, default: null },
   mobile: { type: Number, required: true },
-  liked: [String],
-  viewed: [String],
-  longitude: { type: String, default: null },
-  latitude: { type: String, default: null },
+  email: { type: String, default: "" },
+  
+  photo: { type: String, default: "" },
+  
   role: { type: Number, default: 1 },
   isActive: { type: Number, default: 1 },
-  photo: { type: String, default: "" },
-  email: { type: String, default: "" },
+
+  longitude: { type: String, default: null },
+  latitude: { type: String, default: null },
+
+  liked: [String],
+  viewed: [String],
 });
 
 const addressesSchema = new mongoose.Schema({

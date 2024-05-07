@@ -13,6 +13,7 @@ const {
 } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
+  fastify.register(require("@fastify/multipart"));
   fastify.get("/products", async (req, reply) => {
     try {
       const existingData = await Product.find().populate("user");
