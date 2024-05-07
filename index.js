@@ -115,6 +115,7 @@ fastify.register(require("./routes/update/index"));
 fastify.register(require("./routes/specification/index"));
 fastify.register(require("./routes/model/index"));
 fastify.register(require("./routes/likedandViewed/index"));
+fastify.register(require("./routes/location/index"));
 
 const start = async () => {
   await connect();

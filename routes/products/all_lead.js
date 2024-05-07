@@ -624,8 +624,7 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const modelOrProductId = req.params.id;
-        const userid = req.user.userId._id;
-        existingData = await Model2.find({ groupId: modelOrProductId });
+        existingData = await Model2.find({ _id: modelOrProductId });
         reply.send(existingData);
       } catch (error) {
         console.error(error);
@@ -644,7 +643,7 @@ async function getProduct(fastify, options) {
 
         let existingData = "";
         existingData = await Product.find({
-          $and: [{ "_id": modelOrProductId }, { user: userid }],
+          $and: [{ "product._id": modelOrProductId }, { user: userid }],
         }).populate("user");
 
         reply.send(existingData);

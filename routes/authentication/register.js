@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 async function registerUser(fastify, options) {
   fastify.post("/register_user", async (request, reply) => {
     try {
-      const { mobile , name , role , isActive} = request.body;
+      const { mobile , name , role , address,  isActive} = request.body;
 
       const existingUser = await User.findOne({ mobile });
 
