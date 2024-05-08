@@ -654,6 +654,30 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  fastify.get(
+    "/brandToModel/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const brandId = req.params.id;
+        const userid = req.user.userId._id;
+        const usedData = await User.find({ _id: userid });
+        console.log(usedData.role);
+        let existingData;
+        if (usedData.role==2) {
+          existingData = await Model2.find({ "properties.brand": brandId });
+        } else {
+          reply.send({error:"Not authroized"});
+        }
+        
+        reply.send(existingData);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;

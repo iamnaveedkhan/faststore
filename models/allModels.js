@@ -8,7 +8,7 @@ const formattedDate = dateIndia.format();
 
 const userSchema = new Schema({
   name: { type: String, default: null },
-  mobile: { type: Number, required: true },
+  mobile: { type: Number, unique : true},
   email: { type: String, default: "" },
   
   photo: { type: String, default: "" },
