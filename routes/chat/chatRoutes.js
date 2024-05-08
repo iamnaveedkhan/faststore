@@ -35,7 +35,7 @@ async function chatRoutes(fastify, options) {
     }
   });
 
-  fastify.post('/addchatd', async (request, reply) => {
+  fastify.post('/addchat', async (request, reply) => {
     try {
       const chat = new Chat(request.body);
       await chat.save();
