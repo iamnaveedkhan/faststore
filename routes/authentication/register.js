@@ -7,11 +7,10 @@ const bcrypt = require("bcrypt");
 async function registerUser(fastify, options) {
   fastify.register(require("@fastify/multipart"));
 
-  fastify.post("/register_user", async (req, reply) => {
+  fastify.post("/register", async (req, reply) => {
     try {
       const parts = req.parts();
       
-
       let fileName;
       let filePath;
       

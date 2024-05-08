@@ -1,12 +1,11 @@
-
 const { User } = require("../../models/allModels");
 async function location(fastify, options) {
   fastify.post(
-    "/savelocation", 
+    "/savelocation",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const {latitude , longitude} = req.body;
+        const { latitude, longitude } = req.body;
         const userid = req.user.userId._id;
         console.log(userid);
         const userData = await User.findById({ _id: userid });

@@ -141,66 +141,6 @@ async function getProduct(fastify, options) {
   );
 
 
-
-  fastify.get(
-    "/users",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const existingData = await User.find();
-
-        if (existingData.length > 0) {
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
-  fastify.get(
-    "/user/:id",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const userId = req.params.id;
-        const existingUser = await User.find({ _id: userId });
-        if (existingUser) {
-          reply.send(existingUser);
-        } else {
-          reply.code(404).send({ error: "User not found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
-  
-
-  fastify.get(
-    "/subCategories",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const existingData = await SubCategory.find();
-
-        if (existingData.length > 0) {
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
   fastify.get(
     "/selectedsubcategory/:id",
     { onRequest: [fastify.authenticate] },
@@ -592,11 +532,57 @@ async function getProduct(fastify, options) {
       try {
         const brandId = req.params.id;
         const userid = req.user.userId._id;
-        const usedData = await User.findById({ _id: userid });
+        const userData = await User.findById({ _id: userid });
 
         let existingData;
-        if (usedData.role==2) {
+        if (userData.role==2) {
           existingData = await Model2.find({ "properties.brand": brandId });
+        } else {
+          reply.send({error:"Not authroized"});
+        }
+        
+        reply.send(existingData);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get(
+    "/retailers-product/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userid = req.params.id
+        const userData = await User.findById({ _id: userid });
+        let existingData;
+  
+        if (userData.role==2) {
+          existingData = await Product.find({ user: userData }).populate('user');
+        } else {
+          reply.send({error:"Not authroized"});
+        }
+        
+        reply.send(existingData.length);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get(
+    "/retailers-product",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userid = req.user.userId._id;
+        const userData = await User.findById({ _id: userid });
+        let existingData;
+  
+        if (userData.role==2) {
+          existingData = await Product.find({ user: userData });
         } else {
           reply.send({error:"Not authroized"});
         }

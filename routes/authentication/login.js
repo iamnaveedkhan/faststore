@@ -1,6 +1,6 @@
 const { User } = require("../../models/allModels");
 async function loginUser(fastify, options) {
-  fastify.post("/moblogin", async (request, reply) => {
+  fastify.post("/login", async (request, reply) => {
     const { mob } = request.body;
     let status;
     

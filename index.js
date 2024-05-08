@@ -110,6 +110,9 @@ fastify.get(
 );
 fastify.register(require("./routes/brand/index"));
 fastify.register(require("./routes/category/index"));
+fastify.register(require("./routes/subcategory/index"));
+fastify.register(require("./routes/user/index"));
+
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
 fastify.register(require("./routes/update/index"));
