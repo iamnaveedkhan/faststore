@@ -9,7 +9,6 @@ async function chatRoutes(fastify, options) {
     if (userId.role == 2) {
       retailer = userId._id;
       customer = id;
-      console.log(`retailer    ${retailer}   /n   customer   ${customer}`);
     } else {
       retailer = id;
       customer = userId._id;
@@ -28,7 +27,6 @@ async function chatRoutes(fastify, options) {
             }
           }
         }
-        console.log(chats);
         if(chats.length>0){
           reply.send(chats);
         }else{
