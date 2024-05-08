@@ -140,7 +140,6 @@ async function getProduct(fastify, options) {
     }
   );
 
-
   fastify.get(
     "/selectedsubcategory/:id",
     { onRequest: [fastify.authenticate] },
@@ -216,7 +215,7 @@ async function getProduct(fastify, options) {
         } else {
           console.log(modelId);
           existingModel = await Model2.find({
-            "groupId": modelId,
+            groupId: modelId,
           });
         }
 
@@ -450,7 +449,7 @@ async function getProduct(fastify, options) {
               longitude: { $gte: minLongitude, $lte: maxLongitude },
             },
           })
-          .populate('user');
+          .populate("user");
 
         let activeOffers = await Offers.find({ isActive: true })
           .populate({
@@ -460,8 +459,8 @@ async function getProduct(fastify, options) {
               longitude: { $gte: minLongitude, $lte: maxLongitude },
             },
           })
-          .populate('user');
-          console.log({ offer: activeOffers, product: filteredProducts });
+          .populate("user");
+        console.log({ offer: activeOffers, product: filteredProducts });
         reply.send({ offer: activeOffers, product: filteredProducts });
       } catch (error) {
         console.error(error);
@@ -535,12 +534,12 @@ async function getProduct(fastify, options) {
         const userData = await User.findById({ _id: userid });
 
         let existingData;
-        if (userData.role==2) {
+        if (userData.role == 2) {
           existingData = await Model2.find({ "properties.brand": brandId });
         } else {
-          reply.send({error:"Not authroized"});
+          reply.send({ error: "Not authroized" });
         }
-        
+
         reply.send(existingData);
       } catch (error) {
         console.error(error);
@@ -554,16 +553,18 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const userid = req.params.id
+        const userid = req.params.id;
         const userData = await User.findById({ _id: userid });
         let existingData;
-  
-        if (userData.role==2) {
-          existingData = await Product.find({ user: userData }).populate('user');
+
+        if (userData.role == 2) {
+          existingData = await Product.find({ user: userData }).populate(
+            "user"
+          );
         } else {
-          reply.send({error:"Not authroized"});
+          reply.send({ error: "Not authroized" });
         }
-        
+
         reply.send(existingData);
       } catch (error) {
         console.error(error);
@@ -571,23 +572,37 @@ async function getProduct(fastify, options) {
       }
     }
   );
-
   fastify.get(
-    "/retailers-product",
+    "/notHavingtheRequestedUser",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const userid = req.user.userId._id;
-        const userData = await User.findById({ _id: userid });
-        let existingData;
-  
-        if (userData.role==2) {
-          existingData = await Product.find({ user: userData });
-        } else {
-          reply.send({error:"Not authroized"});
+        const userId = req.user.userId._id;
+        const userData = await User.findById(userId);
+        console.log(userId);
+
+        if (userData.role !== 2) {
+          return reply.send({ error: "Not authorized" });
         }
         
-        reply.send(existingData);
+        let product2 = [];
+        const productsNotAssociated = await Product.aggregate([
+          {
+            $group: {
+              _id: "$product.groupId",
+              product: { $first: "$$ROOT" },
+            },
+          },
+          { $replaceRoot: { newRoot: "$product" } },
+        ]);
+        for await (var x of productsNotAssociated){
+          if (x.user != userData){
+            product2.push(x);
+          }
+        }
+
+
+        reply.send(product2);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });

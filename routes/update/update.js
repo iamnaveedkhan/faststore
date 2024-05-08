@@ -53,7 +53,7 @@ async function Update(fastify, options) {
         }
     });
 
-    fastify.post('/updateuser', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    fastify.post('/update-user', { onRequest: [fastify.authenticate] }, async (req, reply) => {
         try {
             const userid = req.user.userId._id;
             const parts = req.parts();
