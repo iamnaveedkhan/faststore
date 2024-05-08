@@ -564,7 +564,7 @@ async function getProduct(fastify, options) {
           reply.send({error:"Not authroized"});
         }
         
-        reply.send(existingData.length);
+        reply.send(existingData);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
