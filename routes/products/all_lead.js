@@ -581,7 +581,7 @@ async function getProduct(fastify, options) {
               longitude: { $gte: minLongitude, $lte: maxLongitude },
             },
           })
-          .exec();
+          .populate('user');
 
         let activeOffers = await Offers.find({ isActive: true })
           .populate({
@@ -591,7 +591,8 @@ async function getProduct(fastify, options) {
               longitude: { $gte: minLongitude, $lte: maxLongitude },
             },
           })
-          .exec();
+          .populate('user');
+          console.log({ offer: activeOffers, product: filteredProducts });
         reply.send({ offer: activeOffers, product: filteredProducts });
       } catch (error) {
         console.error(error);
