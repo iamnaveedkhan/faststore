@@ -572,6 +572,7 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
   fastify.get(
     "/notHavingtheRequestedUser",
     { onRequest: [fastify.authenticate] },
@@ -579,14 +580,12 @@ async function getProduct(fastify, options) {
       try {
         const userId = req.user.userId._id;
         const userData = await User.findById(userId);
-        console.log(userId);
-
+  
         if (userData.role !== 2) {
           return reply.send({ error: "Not authorized" });
         }
-        
-        let product2 = [];
-        const productsNotAssociated = await Product.aggregate([
+  
+        const uniqueProduct = await Product.aggregate([
           {
             $group: {
               _id: "$product.groupId",
@@ -594,21 +593,19 @@ async function getProduct(fastify, options) {
             },
           },
           { $replaceRoot: { newRoot: "$product" } },
+     
         ]);
-        for await (var x of productsNotAssociated){
-          if (x.user != userData){
-            product2.push(x);
-          }
-        }
 
-
-        reply.send(product2);
+        const productsNotAssociated = await uniqueProduct.find({ user: { $ne: userId } });
+  
+        reply.send(productsNotAssociated);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
       }
     }
   );
+  
 }
 
 module.exports = getProduct;
