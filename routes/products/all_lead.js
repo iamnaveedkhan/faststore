@@ -412,6 +412,7 @@ async function getProduct(fastify, options) {
     }
   );
 
+  
   fastify.get(
     "/nearbyAndOffers",
     { onRequest: [fastify.authenticate] },
@@ -420,47 +421,34 @@ async function getProduct(fastify, options) {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
         const userid = req.user.userId._id;
-
-        const user = await User.findById({ _id: userid });
-
+  
+        const user = await User.findById(userid);
+  
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
-
+  
         const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
-        const deltaLongitude =
-          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
-          Math.cos((userLatitude * Math.PI) / 180);
-
+        const deltaLongitude = ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) / Math.cos((userLatitude * Math.PI) / 180);
+  
         // Calculate latitude and longitude ranges
         const minLatitude = userLatitude - deltaLatitude;
         const maxLatitude = userLatitude + deltaLatitude;
         const minLongitude = userLongitude - deltaLongitude;
         const maxLongitude = userLongitude + deltaLongitude;
-
+  
         console.log("Latitude Range:", minLatitude, "-", maxLatitude);
         console.log("Longitude Range:", minLongitude, "-", maxLongitude);
-
-        // Find products within the calculated ranges
-        const filteredProducts = await Product.find({})
-          .populate({
-            path: "user", // Assuming latitude and longitude are the field names in the User schema
-            match: {
-              latitude: { $gte: minLatitude, $lte: maxLatitude },
-              longitude: { $gte: minLongitude, $lte: maxLongitude },
-            },
-          })
-          .populate("user");
-
-        let activeOffers = await Offers.find({ isActive: true })
-          .populate({
-            path: "user", // Assuming latitude and longitude are the field names in the User schema
-            match: {
-              latitude: { $gte: minLatitude, $lte: maxLatitude },
-              longitude: { $gte: minLongitude, $lte: maxLongitude },
-            },
-          })
-          .populate("user");
-        console.log({ offer: activeOffers, product: filteredProducts });
+  
+        // Find users within the calculated ranges
+        const nearbyUsers = await User.find({
+          latitude: { $gte: minLatitude, $lte: maxLatitude },
+          longitude: { $gte: minLongitude, $lte: maxLongitude }
+        });
+  
+        // Find products and offers associated with nearby users
+        const filteredProducts = await Product.find({ user: { $in: nearbyUsers } }).populate("user");
+        const activeOffers = await Offers.find({ user: { $in: nearbyUsers }, isActive: true }).populate("user");
+  
         reply.send({ offer: activeOffers, product: filteredProducts });
       } catch (error) {
         console.error(error);
@@ -585,18 +573,36 @@ async function getProduct(fastify, options) {
           return reply.send({ error: "Not authorized" });
         }
   
-        const uniqueProduct = await Product.aggregate([
+        // Aggregate to get unique products by groupId
+        const uniqueProducts = await Product.aggregate([
           {
             $group: {
-              _id: "$product.groupId",
-              product: { $first: "$$ROOT" },
+              _id: "$groupId",
+              products: { $push: "$$ROOT" }, // Push all documents with the same groupId into an array
             },
           },
-          { $replaceRoot: { newRoot: "$product" } },
-     
+          { $unwind: "$products" }, // Unwind to get each product separately
+          {
+            $lookup: {
+              from: "users",
+              localField: "products.user",
+              foreignField: "_id",
+              as: "user"
+            }
+          },
+          { $unwind: "$user" }, // Unwind to get the user details
+          {
+            $group: {
+              _id: "$products._id",
+              product: { $first: "$products" }, // Keep the first product encountered for each groupId
+              user: { $first: "$user" } // Keep the associated user
+            }
+          },
+          { $replaceRoot: { newRoot: "$product" } }
         ]);
-
-        const productsNotAssociated = await uniqueProduct.find({ user: { $ne: userId } });
+  
+        // Filter out products associated with the requested user
+        const productsNotAssociated = uniqueProducts.filter(product => product.user._id.toString() !== userId);
   
         reply.send(productsNotAssociated);
       } catch (error) {
@@ -605,6 +611,8 @@ async function getProduct(fastify, options) {
       }
     }
   );
+  
+  
   
 }
 
