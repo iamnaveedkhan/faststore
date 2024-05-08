@@ -16,8 +16,8 @@ const userSchema = new Schema({
   role: { type: Number, default: 1 },
   isActive: { type: Number, default: 1 },
 
-  longitude: { type: String, default: null },
-  latitude: { type: String, default: null },
+  longitude: { type: String, default: "" },
+  latitude: { type: String, default: "" },
 
   liked: [String],
   viewed: [String],

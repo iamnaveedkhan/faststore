@@ -108,7 +108,8 @@ fastify.get(
     return reply.send("dashboard");
   }
 );
-
+fastify.register(require("./routes/brand/index"));
+fastify.register(require("./routes/category/index"));
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
 fastify.register(require("./routes/update/index"));

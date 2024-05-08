@@ -140,43 +140,7 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get(
-    "/brands",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const existingData = await Brand.find();
 
-        if (existingData.length > 0) {
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
-  fastify.get(
-    "/brand/:id",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const brandId = req.params.id;
-        const existingBrand = await Brand.findOne({ _id: brandId });
-        if (existingBrand) {
-          reply.send(existingBrand);
-        } else {
-          reply.code(404).send({ error: "Brand not found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
 
   fastify.get(
     "/users",
@@ -216,43 +180,7 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get(
-    "/categories",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const existingData = await Category.find();
-
-        if (existingData.length > 0) {
-          reply.send(existingData);
-        } else {
-          reply.code(404).send({ error: "No data found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
-  fastify.get(
-    "/category/:id",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const categoryId = req.params.id;
-        const existingCategory = await Category.findOne({ _id: categoryId });
-        if (existingCategory) {
-          reply.send(existingCategory);
-        } else {
-          reply.code(404).send({ error: "User not found" });
-        }
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
+  
 
   fastify.get(
     "/subCategories",
@@ -663,8 +591,8 @@ async function getProduct(fastify, options) {
       try {
         const brandId = req.params.id;
         const userid = req.user.userId._id;
-        const usedData = await User.find({ _id: userid });
-        console.log(usedData.role);
+        const usedData = await User.findById({ _id: userid });
+
         let existingData;
         if (usedData.role==2) {
           existingData = await Model2.find({ "properties.brand": brandId });
