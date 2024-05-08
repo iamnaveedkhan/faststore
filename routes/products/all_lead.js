@@ -281,6 +281,7 @@ async function getProduct(fastify, options) {
         }
 
         if (existingModel.length > 0) {
+          console.log(existingModel);
           reply.send(existingModel);
         } else {
           reply.code(404).send({ error: "No data found" });
