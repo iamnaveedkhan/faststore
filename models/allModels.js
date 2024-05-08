@@ -195,19 +195,6 @@ const specificationSchema = new mongoose.Schema({
 });
 
 
-const chatSchema = new mongoose.Schema({
-  retailer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  messages: [{
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    content: String,
-    timestamp: { type: Date, default: Date.now },
-    isRead: { type: Boolean, default: false }
-  }],
-});
-
-const Chat = mongoose.model("Chat", chatSchema);
 const User = mongoose.model("User", userSchema);
 const Address = mongoose.model("Address", addressesSchema);
 const Order = mongoose.model("Order", ordersSchema);
@@ -223,7 +210,6 @@ const Inquiry = mongoose.model("Inquiry", inquirySchema);
 const Specification = mongoose.model("Specification", specificationSchema);
 
 module.exports = {
-  Chat,
   Specification,
   User,
   Brand,
