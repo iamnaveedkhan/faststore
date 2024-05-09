@@ -27,7 +27,7 @@ const addressesSchema = new mongoose.Schema({
   address: { type: String, default: null },
   city: { type: String, default: null },
   state: { type: String, default: null },
-  user_id: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
 const ordersSchema = new mongoose.Schema({

@@ -605,7 +605,7 @@ async function getProduct(fastify, options) {
   
         // Filter out products associated with the requested user
         const productsNotAssociated = uniqueProducts.filter(product => product.user._id.toString() !== userId);
-  
+        console.log(productsNotAssociated.length);
         reply.send(productsNotAssociated);
       } catch (error) {
         console.error(error);
