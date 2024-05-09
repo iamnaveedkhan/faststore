@@ -111,10 +111,10 @@ fastify.register(require("./routes/user/index"));
 fastify.register(require("./routes/chat/index"));
 fastify.register(require("./routes/authentication/index"));
 fastify.register(require("./routes/products/index"));
-fastify.register(require("./routes/update/index"));
+
 fastify.register(require("./routes/specification/index"));
 fastify.register(require("./routes/model/index"));
-fastify.register(require("./routes/likedandViewed/index"));
+fastify.register(require("./routes/liked-viewed/index"));
 fastify.register(require("./routes/location/index"));
 
 const start = async () => {

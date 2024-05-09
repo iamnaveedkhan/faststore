@@ -1,4 +1,5 @@
 async function specRoutes(fastify, options) {
-    fastify.register(require("./specification"))
-  }
-  module.exports = specRoutes;
+  fastify.register(require("./postSpecification")),
+  fastify.register(require("./Oldspecification"));
+}
+module.exports = specRoutes;

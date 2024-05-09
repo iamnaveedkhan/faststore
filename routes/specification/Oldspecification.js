@@ -1,7 +1,7 @@
 const { Specification } = require("../../models/allModels");
 
 async function addSpecification(fastify, options) {
-  fastify.post("/add-specification", async (request, reply) => {
+  fastify.post("/add-old-specification", async (request, reply) => {
     const { name, keyname, keyType, ismandatory, isvariant, isfilter, mainkey } = request.body;
     const specifications = {};
 
@@ -14,9 +14,9 @@ async function addSpecification(fastify, options) {
       for (let i = 0; i < keyname.length; i++) {
         specifications[mainkey[keyname[i]]] = {
           type: keyType[i],
-          required: ismandatory[i]==="true", // Convert string to boolean
-          isFilter: isfilter[i]==="true", // Convert string to boolean
-          isVariant: isvariant[i]==="true", // Convert string to boolean
+          required: ismandatory[i]==="true", 
+          isFilter: isfilter[i]==="true", 
+          isVariant: isvariant[i]==="true", 
           
         };
       }

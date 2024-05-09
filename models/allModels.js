@@ -106,7 +106,6 @@ const productSchema = new mongoose.Schema({
   user: { type: Schema.Types.ObjectId, ref: "User" },
   price : {type: Number},
   quantity : {type : Number},
-  vertical : { type: Schema.Types.ObjectId, ref: "Specification" },
   date: {
     type: Date,
     default: formattedDate 

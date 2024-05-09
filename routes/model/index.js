@@ -1,4 +1,4 @@
 async function modelRoutes(fastify, options) {
-    fastify.register(require("./model"))
+    fastify.register(require("./postModel"))
   }
 module.exports = modelRoutes;
