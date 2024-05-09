@@ -111,7 +111,7 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: formattedDate 
   },
-  fatured: {type: Boolean,default: false}, 
+  featured: {type: Boolean,default: false}, 
   liked: {type: Number, default: 0},
   viewed: {type: Number, default: 0},
   enquired: {type: Number, default: 0},
