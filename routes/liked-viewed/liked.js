@@ -61,7 +61,7 @@ async function getLiked(fastify, options) {
             
             const likedProducts = await Product.find({ _id: { $in: likedProductIds } }).populate('user');
 
-            reply.send({likedProducts });
+            reply.send(likedProducts );
         } catch (error) {
             console.error("Error fetching liked products:", error);
             reply.status(500).send({ error: "Internal Server Error" });
