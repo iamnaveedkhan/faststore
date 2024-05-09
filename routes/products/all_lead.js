@@ -449,7 +449,7 @@ async function getProduct(fastify, options) {
   
         // Find products and offers associated with nearby users
         const filteredProducts = await Product.find({ user: { $in: nearbyUsers } }).populate("user");
-        const activeOffers = await Offers.find({ user: { $in: nearbyUsers }, isActive: true }).populate("user");
+        const activeOffers = await Offers.find({ user: { $in: nearbyUsers }, isActive: true });
   
         reply.send({ offer: activeOffers, product: filteredProducts });
       } catch (error) {
