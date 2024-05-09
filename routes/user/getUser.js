@@ -1,7 +1,8 @@
 const { User } = require("../../models/allModels");
 
 async function getUser(fastify, options) {
-fastify.get(
+  fastify.register(require("@fastify/multipart"));
+  fastify.get(
     "/users",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {

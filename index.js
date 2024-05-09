@@ -62,18 +62,14 @@ fastify.get('/search/:key', async (req, reply) => {
     const key = req.params.key;
     const searchRegex = new RegExp(key, 'i'); 
 
-    const data = await Product.aggregate([
-      {
-        $match: {
-          $or: [
-            // { "brand.brandName": { $regex: searchRegex } },
-            { "product.productName": { $regex: searchRegex } },
-            { "product.type": { $regex: searchRegex } },
-            { "user.name": { $regex: searchRegex } }
-          ]
-        }
-      }
-    ]);
+    const data = await Product.find({
+      $or: [
+        // { "brand.brandName": { $regex: searchRegex } },
+        { "product.productName": { $regex: searchRegex } },
+        { "product.type": { $regex: searchRegex } },
+      ]
+    }).populate('user');
+    
     reply.send(data);
   } catch (error) {
     console.error('Error during search:', error);
