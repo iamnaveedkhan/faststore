@@ -118,7 +118,7 @@ const productSchema = new mongoose.Schema({
 });
 
 const offersSchema = new mongoose.Schema({
-  user: { type: String},
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   photos: { type: String }, 
   isActive: {type: Boolean, default:true }
 });

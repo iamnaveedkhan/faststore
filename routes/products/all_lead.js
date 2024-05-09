@@ -443,7 +443,8 @@ async function getProduct(fastify, options) {
         // Find users within the calculated ranges
         const nearbyUsers = await User.find({
           latitude: { $gte: minLatitude, $lte: maxLatitude },
-          longitude: { $gte: minLongitude, $lte: maxLongitude }
+          longitude: { $gte: minLongitude, $lte: maxLongitude },
+          role:2
         });
   
         // Find products and offers associated with nearby users
