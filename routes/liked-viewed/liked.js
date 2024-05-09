@@ -1,17 +1,20 @@
-const { Product, User } = require("../../models/allModels");
+const {User,Product,Liked } = require("../../models/allModels");
 
 async function getLiked(fastify, options) {
-  fastify.register(require("@fastify/multipart"));
   fastify.post(
     "/liked/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
         try {
-            const { hasLiked } = req.body; // Get hasLiked value from req.body
-            console.log("hasLiked:", hasLiked); // Log the value of hasLiked for debugging
+            const { hasLiked } = req.body; 
+            console.log("hasLiked:", hasLiked);
 
-            const user = await User.findOne({ _id: req.user.userId._id });
-            console.log("User ID:", user.id); // Log the user ID for debugging
+            const userId = req.user.userId._id;
+
+            let user = await Liked.findOne({ user: userId });
+            if (!user) {
+                user = new Liked({ user: userId, liked: [] });
+            }
 
             const requestedProductId = req.params.id;
             const product = await Product.findById(requestedProductId);
@@ -23,7 +26,6 @@ async function getLiked(fastify, options) {
             const index = user.liked.indexOf(requestedProductId);
 
             if (hasLiked === "true") {
-                // If the product is already liked, remove it
                 if (index !== -1) {
                     user.liked.splice(index, 1);
                     await user.save();
@@ -32,7 +34,6 @@ async function getLiked(fastify, options) {
                     reply.send({ error: "Product is not liked" });
                 }
             } else if (hasLiked === "false") {
-                // If the product is not already liked, add it
                 if (index === -1) {
                     user.liked.push(requestedProductId);
                     await user.save();
@@ -49,6 +50,7 @@ async function getLiked(fastify, options) {
         }
     }
 );
+
 
 
   fastify.get(

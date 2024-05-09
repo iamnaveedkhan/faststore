@@ -19,8 +19,7 @@ const userSchema = new Schema({
   longitude: { type: String, default: "" },
   latitude: { type: String, default: "" },
 
-  liked: [String],
-  viewed: [String],
+  
 });
 
 const addressesSchema = new mongoose.Schema({
@@ -89,17 +88,15 @@ const model2Schema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
-// const variantSchema = new mongoose.Schema({
-//   model: { type: Schema.Types.ObjectId, ref: "Model2" },
-//   variants: {
-//     color: String,
-//     images: [String],
-//     SKU: String,
-//     price: Number,
-//     quantity: Number,
-//   },
-// });
+const likedSchema = new mongoose.Schema({
+  user: { type: Schema.Types.ObjectId, ref: "User" },
+  liked: [String],
+});
 
+const viewedSchema = new mongoose.Schema({
+  user: { type: Schema.Types.ObjectId, ref: "User" },
+  viewed: [String],
+});
 
 const productSchema = new mongoose.Schema({
   product: model2Schema,
@@ -174,13 +171,6 @@ const inquirySchema = new mongoose.Schema({
   },
 });
 
-// const dimensions = new mongoose.Schema({
-//     color : {
-//         title : "Color",
-//         color1: {}
-//     }
-// })
-
 const specificationSchema = new mongoose.Schema({
   name: { type: String, required: false },
   category: { type: Schema.Types.ObjectId, ref: "Category" },
@@ -205,10 +195,13 @@ const Model = mongoose.model("Model", modelSchema);
 const Model2 = mongoose.model("Model2", model2Schema);
 const Offers = mongoose.model("Offers", offersSchema);
 const Inquiry = mongoose.model("Inquiry", inquirySchema);
-// const Variant = mongoose.model("Variant", variantSchema);
+const Liked = mongoose.model("Like", likedSchema);
+const Viewed = mongoose.model("View", viewedSchema);
 const Specification = mongoose.model("Specification", specificationSchema);
 
 module.exports = {
+  Liked,
+  Viewed,
   Specification,
   User,
   Brand,
