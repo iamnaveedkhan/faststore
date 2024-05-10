@@ -1,6 +1,9 @@
 const { User, Product, Liked } = require("../../models/allModels");
 
 async function getLiked(fastify, options) {
+
+    // -----------post route---------------
+
   fastify.post(
     "/liked/:id",
     { onRequest: [fastify.authenticate] },
@@ -50,6 +53,8 @@ async function getLiked(fastify, options) {
       }
     }
   );
+
+    // -----------get route---------------
 
   fastify.get(
     "/get-liked-products",
