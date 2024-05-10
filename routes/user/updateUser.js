@@ -14,14 +14,18 @@ async function updateUser(fastify, options) {
 
         let userData = await User.findById({ _id: userid });
 
-        let newName, fileName, filePath;
+        let newName, fileName, filePath, email;
         let data = {};
 
         for await (const part of parts) {
           if (userData.role == 1) {
-            if (part.type === "field" && part.fieldname == "name") {
+            if (part.type === "field" && part.fieldname == "name" ) {
               newName = part.value.trim();
               userData.name = newName;
+            }
+            else if (part.type === "field" && part.fieldname == "email" ) {
+              email = part.value.trim();
+              userData.email = email;
             }
           } else if (userData.role == 2) {
             if (part.type === "field") {
@@ -36,7 +40,6 @@ async function updateUser(fastify, options) {
           }
         }
 
-        // Update userData with data
         if (userData.role == 2) {
           Object.assign(userData, data);
         }
