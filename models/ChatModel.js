@@ -4,7 +4,7 @@ const chatSchema = new mongoose.Schema({
   retailer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   isRequest:{ type:Boolean,default:false},
-  status:{ type:Boolean,default:false},
+  status:{ type:Number,default:false},
   messages: [{
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
