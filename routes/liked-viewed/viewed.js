@@ -1,40 +1,42 @@
-const { Product, User } = require("../../models/allModels");
+const { Product, User, Viewed } = require("../../models/allModels");
 async function getViewed(fastify, options) {
-  fastify.get(
+  fastify.post(
     "/viewed/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const user = await User.findOne({ _id: req.user.userId._id });
-        console.log("user id: ", user.id);
-        
-        let requestedProductId = req.params.id;
-        if (user.role == 1) {
-
-          if (!user.viewed.includes(requestedProductId)) {
-            const product = await Product.findOneAndUpdate(
-              { _id: requestedProductId },
-              { $inc: { viewed: 1 } },
-              { new: true }
-            );
-
-            user.viewed.push(requestedProductId);
-            await user.save();
-            reply.send(product);
-          } else {
-
-            const product = await Product.findOne({ _id: requestedProductId });
-            reply.send(product);
+        const productId = req.params.id;
+        const userId = req.user.userId._id;
+  
+        const userData = await User.findOne({ _id: userId });
+        if (!userData) {
+          return reply.status(404).send({ error: "User not found" });
+        }
+  
+        let userViewed = await Viewed.findOne({ user: userId });
+        if (!userViewed) {
+          userViewed = new Viewed({ user: userId, viewed: [] });
+        }
+  
+        if (userData.role === 1) {
+          if (!userViewed.viewed.includes(productId)) {
+            userViewed.viewed.push(productId);
           }
         } else {
-          reply.send("Unauthorized access");
+          return reply.status(403).send({ error: "Unauthorized" });
         }
+  
+        await userViewed.save();
+  
+        reply.send(userViewed);
+  
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
       }
     }
   );
+  
 }
 
 

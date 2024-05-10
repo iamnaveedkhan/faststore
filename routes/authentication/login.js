@@ -18,7 +18,7 @@ async function loginUser(fastify, options) {
         reply.send({ token, id, status, existingUser });
       } else {
         status = "fail";
-        return reply.status(404).send({ error: "User not found...", status });
+        return reply.status(401).send({ error: "User not found...", status });
       }
     } catch (error) {
       console.error("Error during login:", error);

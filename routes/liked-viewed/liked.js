@@ -56,17 +56,16 @@ async function getLiked(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        
         const userId = req.user.userId._id;
         console.log(userId);
 
-        const user = await Liked.findOne({user:userId})
-        
+        const user = await Liked.findOne({ user: userId });
+
         const likedProductIds = user.liked;
 
         const likedProducts = await Product.find({
           _id: { $in: likedProductIds },
-        }).populate('user');
+        }).populate("user");
 
         reply.send(likedProducts);
       } catch (error) {
@@ -75,7 +74,31 @@ async function getLiked(fastify, options) {
       }
     }
   );
-  
+
+  fastify.get(
+    "/liked-or-not/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userId = req.user.userId._id;
+        const productId = req.params.id;
+
+        const userLikedData = await Liked.findOne({ user: userId });
+        if (!userLikedData) {
+          return reply
+            .status(404)
+            .send({ error: "Liked data not found for the user" });
+        }
+
+        const likedOrNot = userLikedData.liked.includes(productId);
+
+        reply.send(likedOrNot);
+      } catch (error) {
+        console.error("Error fetching liked-or-not : ", error);
+        reply.status(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
 }
 
 module.exports = getLiked;
