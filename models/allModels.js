@@ -76,6 +76,7 @@ const model2Schema = new mongoose.Schema({
     default: null,
   },
   main: { type : Boolean, default: false},
+  productLink: { type : String, default: ""},
   properties: {
     category:{ type: String, default: null },
     subcategory: { type: String, default: null },
