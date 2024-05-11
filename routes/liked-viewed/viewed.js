@@ -46,22 +46,25 @@ async function getViewed(fastify, options) {
 
   // -----------get route---------------
 
+  
   fastify.get(
     "/get-viewed-products",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const userId = req.user.userId._id;
-  
-        const userViewedData = await Viewed.findOne({ user: userId });
-        if (!userViewedData) {
-          return reply.status(404).send({ error: "User not found" });
-        }
-        reply.send(userViewedData.viewed);
-  
+        
+        const user = await Viewed.findOne({ user: userId });
+   
+        const viewedProductIds = user.viewed;
+        const viewedProducts = await Product.find({
+          _id: { $in: viewedProductIds },
+        }).populate("user");
+
+        reply.send(viewedProducts);
       } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
+        console.error("Error fetching liked products:", error);
+        reply.status(500).send({ error: "Internal Server Error" });
       }
     }
   );

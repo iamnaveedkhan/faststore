@@ -19,7 +19,6 @@ async function registerUser(fastify, options) {
       const token = fastify.jwt.sign({ userId: savedUser });
       var status = "success";
 
-
       return reply.send({ savedAddress, savedUser, token, status });
     } catch (error) {
       console.error(error);

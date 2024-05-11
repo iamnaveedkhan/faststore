@@ -7,7 +7,7 @@ const dateIndia = moment.tz("Asia/kolkata");
 const formattedDate = dateIndia.format();
 
 const userSchema = new Schema({
-  name: { type: String, default: null },
+  name: { type: String, default: "" },
   mobile: { type: Number, unique : true},
   email: { type: String, default: "" },
   
