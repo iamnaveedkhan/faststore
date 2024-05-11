@@ -7,19 +7,19 @@ const bcrypt = require("bcrypt");
 const path = require("node:path");
 
 
-fastify.register(require("@fastify/cors"), (instance) => {
-  return (req, callback) => {
-    const corsOptions = {
-      origin: true,
-    };
+// fastify.register(require("@fastify/cors"), (instance) => {
+//   return (req, callback) => {
+//     const corsOptions = {
+//       origin: true,
+//     };
 
-    if (/^localhost$/m.test(req.headers.origin)) {
-      corsOptions.origin = false;
-    }
+//     if (/^localhost$/m.test(req.headers.origin)) {
+//       corsOptions.origin = false;
+//     }
 
-    callback(null, corsOptions);
-  };
-});
+//     callback(null, corsOptions);
+//   };
+// });
 
 
 
@@ -120,7 +120,7 @@ fastify.register(require("./routes/location/index"));
 const start = async () => {
   await connect();
   try {
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ port: 3000, host:'0.0.0.0' });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
