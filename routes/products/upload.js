@@ -23,9 +23,6 @@ const { log } = require("console");
 async function Upload(fastify, options) {
   fastify.register(require("@fastify/multipart"));
 
-
-  
-
   fastify.post(
     "/offer/:id",
     { onRequest: [fastify.authenticate] },
@@ -170,13 +167,14 @@ async function Upload(fastify, options) {
           "product._id": productId,
           "user._id": userId,
         });
+
         console.log(existingProduct);
         if (existingProduct) {
           existingProduct.quantity = quantity;
           existingProduct.price = price;
 
           await existingProduct.save();
-          console.log(existingProduct);
+
           return existingProduct;
         } else {
           const user = await User.findById(userId);
@@ -192,6 +190,61 @@ async function Upload(fastify, options) {
           }
           return savedProduct;
         }
+      } catch (error) {
+        console.error("Error creating product:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+
+  fastify.post(
+    "/product213",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const { price, quantity, productId } = req.body;
+        console.log(productId, price, quantity);
+        const userId = req.user.userId._id;
+
+        let savedProduct;
+
+        const existingProduct = await Product.findOne({
+          $and: [{ "product._id": productId }, { user: userId }],
+        });
+
+        if (existingProduct) {
+          return reply.send({ error: "Product Already Exists !" });
+        } else {
+          const user = await User.findById(userId);
+
+          if (!user) {
+            return reply.code(404).send({ error: "User not found" });
+          }
+
+          if (user.role !== 2) {
+            return reply
+              .code(403)
+              .send({ error: "User does not have permission" });
+          }
+
+          const product = await Model2.findById(productId);
+
+          if (!product) {
+            return reply.code(404).send({ error: "Product not found" });
+          }
+
+          const newProductData = {
+            price: price,
+            quantity: quantity,
+            product: product,
+            user: user,
+          };
+
+          const newProduct = Product(newProductData);
+          savedProduct = await newProduct.save();
+        }
+
+        reply.send(savedProduct);
       } catch (error) {
         console.error("Error creating product:", error);
         reply.code(500).send({ error: "Internal Server Error" });
@@ -396,9 +449,6 @@ async function Upload(fastify, options) {
       }
     }
   );
-
-  
-
 }
 
 module.exports = Upload;

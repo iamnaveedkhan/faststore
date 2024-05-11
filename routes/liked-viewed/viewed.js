@@ -63,7 +63,7 @@ async function getViewed(fastify, options) {
 
         reply.send(viewedProducts);
       } catch (error) {
-        console.error("Error fetching liked products:", error);
+        console.error("Error fetching Viewed products:", error);
         reply.status(500).send({ error: "Internal Server Error" });
       }
     }
