@@ -184,6 +184,24 @@ const specificationSchema = new mongoose.Schema({
 });
 
 
+const chatSchema = new mongoose.Schema({
+  retailer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  isRequest:{ type:Boolean,default:false},
+  status:{ type:Number,default:false},
+  messages: [{
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    content: String,
+    timestamp: { type: Date, default: Date.now },
+    isRead: { type: Boolean, default: false },
+    isImage:{ type: Boolean, default: false },
+    image: { type: String, default: '' },
+  }],
+});
+
+const Chat = mongoose.model("Chat", chatSchema);
 const User = mongoose.model("User", userSchema);
 const Address = mongoose.model("Address", addressesSchema);
 const Order = mongoose.model("Order", ordersSchema);
@@ -200,6 +218,7 @@ const Viewed = mongoose.model("View", viewedSchema);
 const Specification = mongoose.model("Specification", specificationSchema);
 
 module.exports = {
+  Chat,
   Liked,
   Viewed,
   Specification,
