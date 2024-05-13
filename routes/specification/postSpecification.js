@@ -36,6 +36,11 @@ async function addSpecification(fastify, options) {
         )
           ? request.body[`mainKey[${i}][isVariant][]`]
           : [request.body[`mainKey[${i}][isVariant][]`]];
+          const isHighlight = Array.isArray(
+            request.body[`mainKey[${i}][isHighlight][]`]
+          )
+            ? request.body[`mainKey[${i}][isHighlight][]`]
+            : [request.body[`mainKey[${i}][isHighlight][]`]];
         const enumOptions = Array.isArray(
           request.body[`mainKey[${i}][enumOptions][]`]
         )
@@ -63,6 +68,7 @@ async function addSpecification(fastify, options) {
             isFilter: isFilters[j] ? isFilters[j] : false,
             isMandatory: isMandatories[j] ? isMandatories[j] : false,
             isVariant: isVariants[j] ? isVariants[j] : false,
+            isHighlight: isHighlight[j] ? isHighlight[j] : false,
           };
         }
 
