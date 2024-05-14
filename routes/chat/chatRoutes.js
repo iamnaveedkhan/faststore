@@ -1,22 +1,28 @@
 // routes/chatRoutes.js
-const { Chat } = require('../../models/allModels');
+const { Chat,Product } = require('../../models/allModels');
 
 async function chatRoutes(fastify, options) {
-  fastify.get('/chats/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
-    let retailer, customer;
-    const id = request.params.id;
+  fastify.post('/chats', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+    console.log(request.body);
+    let retailer, customer,product;
+    const id = request.body.id;
     const userId = request.user.userId;
     if (userId.role == 2) {
       retailer = userId._id;
       customer = id;
+      product = request.body.product;
     } else {
       retailer = id;
       customer = userId._id;
+      product = request.body.product;
     }
+    console.log(retailer);
+    console.log(customer);
+    console.log(product);
 
     try {
-
-      const chats = await Chat.find({ $and: [{ "retailer": retailer }, { "customer": customer }] }).sort({ "messages.timestamp": 1 });
+    
+      const chats = await Chat.find({ $and: [{ "retailer": retailer }, { "customer": customer }, { "product": product }] }).sort({ "messages.timestamp": 1 });
         for (let i = 0; i < chats.length; i++) {
           const chat = chats[0];
           for (let j = 0; j < chat.messages.length; j++) {
