@@ -22,7 +22,7 @@ async function chatRoutes(fastify, options) {
 
     try {
     
-      const chats = await Chat.find({ $and: [{ "retailer": retailer }, { "customer": customer }, { "product": product }] }).sort({ "messages.timestamp": 1 });
+      const chats = await Chat.find({ $and: [{ "retailer": retailer }, { "customer": customer }, { "product": product }] }).sort({ "messages.timestamp": 1 }).populate('product');
         for (let i = 0; i < chats.length; i++) {
           const chat = chats[0];
           for (let j = 0; j < chat.messages.length; j++) {
