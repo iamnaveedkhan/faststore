@@ -406,9 +406,9 @@ async function getProduct(fastify, options) {
       const user = await User.findById({ _id: userid });
 
       if (user.role == 1) {
-        existingData = await Chat.find({ customer: userid });
+        existingData = await Chat.find({ customer: userid }).populate('product');
       } else if (user.role == 2) {
-        existingData = await Chat.find({ retailer: userid });
+        existingData = await Chat.find({ retailer: userid }).populate('product');
       }
       reply.send(existingData);
     }
