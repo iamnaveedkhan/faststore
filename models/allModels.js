@@ -188,7 +188,7 @@ const specificationSchema = new mongoose.Schema({
 const chatSchema = new mongoose.Schema({
   retailer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Model2' },
   isRequest:{ type:Boolean,default:false},
   status:{ type:Number,default:false},
   messages: [{
