@@ -284,6 +284,36 @@ async function getProduct(fastify, options) {
     }
   );
 
+
+  fastify.get(
+    "/inquiries/:id",
+    { onRequest: [fastify.authenticate] },
+    async function (req, reply) {
+      try {
+        const userId = await User.findOne({ _id: req.params.id });
+        console.log(`user find ${req.user.userId._id}     role     ${userId.role}`);
+        let existingData;
+        if (userId.role == 1) {
+          existingData = await Inquiry.find({ "customer._id": userId._id });
+          console.log(existingData);
+        } else if (userId.role == 2) {
+          existingData = await Inquiry.find({ "shop._id": userId._id });
+          console.log(existingData);
+        } else {
+          return reply.code(403).send({ error: "Unauthorized access" });
+        }
+        if (existingData.length > 0) {
+          reply.send(existingData.reverse());
+        } else {
+          reply.code(404).send({ error: "No data found" });
+        }
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
   fastify.get(
     "/allinquiries",
     { onRequest: [fastify.authenticate] },
