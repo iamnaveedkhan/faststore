@@ -400,52 +400,71 @@ async function Upload(fastify, options) {
     }
   );
 
-  fastify.post(
-    "/update-model/:id",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const modelId = req.params.id;
-        const existingModel = await Model2.findById(modelId);
-  
-        if (!existingModel) {
-          return reply.code(404).send({ error: "Model not found" });
-        }
-  
-        let photos = existingModel.photo || [];
-        let fileName;
-  
-        for await (const part of req.parts()) {
-          if (part.file) {
-            console.log(part.filename);
-            fileName = part.filename;
-            const filePath = path.join("public/image/", fileName);
-            const writableStream = fs.createWriteStream(filePath);
-            await part.file.pipe(writableStream);
-            photos.push(`public/image/${fileName}`);
+  const fs = require('fs');
+const path = require('path');
+
+fastify.post(
+  "/update-model/:id",
+  { onRequest: [fastify.authenticate] },
+  async (req, reply) => {
+    try {
+      const modelId = req.params.id;
+      const existingModel = await Model2.findById(modelId);
+
+      if (!existingModel) {
+        return reply.code(404).send({ error: "Model not found" });
+      }
+
+      let newPhotos = [];
+      let fileUploaded = false;
+
+      for await (const part of req.parts()) {
+        if (part.file) {
+          fileUploaded = true;
+          console.log(part.filename);
+          const fileName = part.filename;
+          const filePath = path.join("public/image/", fileName);
+          const writableStream = fs.createWriteStream(filePath);
+          await part.file.pipe(writableStream);
+          newPhotos.push(filePath);  // Ensure file path consistency
+        } else {
+          if (part.fieldname.startsWith("specification.")) {
+            existingModel.set(part.fieldname, part.value);
+          } else if (part.fieldname === "productName") {
+            existingModel.productName = part.value;
+          } else if (part.fieldname === "productLink") {
+            existingModel.productLink = part.value;
           } else {
-            if (part.fieldname.startsWith("specification.")) {
-              existingModel.set(part.fieldname, part.value);
-            }else if (part.fieldname == "productName") {
-              existingModel.productName = part.value;
-            }else if (part.fieldname == "productLink") {
-              existingModel.productLink = part.value;
-            } else {
-              existingModel.set(part.fieldname, part.value);
-            }
+            existingModel.set(part.fieldname, part.value);
           }
         }
-  
-        existingModel.photo = photos;
-        const updatedModel = await existingModel.save();
-  
-        return updatedModel;
-      } catch (error) {
-        console.error("Error updating model:", error);
-        reply.code(500).send({ error: "Internal Server Error" });
       }
+
+      if (fileUploaded) {
+        // Remove previously stored images if new images are uploaded
+        if (existingModel.photo) {
+          for (const photoPath of existingModel.photo) {
+            fs.unlink(photoPath, (err) => {
+              if (err) console.error(`Failed to delete ${photoPath}:`, err);
+            });
+          }
+        }
+        existingModel.photo = newPhotos;
+      } else {
+        // Keep the previous photos if no new images are uploaded
+        existingModel.photo = existingModel.photo || [];
+      }
+
+      const updatedModel = await existingModel.save();
+
+      return updatedModel;
+    } catch (error) {
+      console.error("Error updating model:", error);
+      reply.code(500).send({ error: "Internal Server Error" });
     }
-  );
+  }
+);
+
   
 
   fastify.post(
