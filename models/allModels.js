@@ -19,7 +19,9 @@ const userSchema = new Schema({
   longitude: { type: String, default: "" },
   latitude: { type: String, default: "" },
 
-  
+  firetoken : { type:String, default : "" },
+  date: { type: Date, default: Date.now },
+
 });
 
 const addressesSchema = new mongoose.Schema({
