@@ -86,6 +86,8 @@ const model2Schema = new mongoose.Schema({
     brand: { type: String, default: null},
   },
   photo: { type: [String], default: null },
+
+  isActive: {type: Boolean, default:true }, 
   
   specification: mongoose.Schema.Types.Mixed,
   date: { type: Date, default: Date.now }
