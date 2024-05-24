@@ -280,6 +280,7 @@ async function Upload(fastify, options) {
               _id: existingProduct._id,
               productName: existingProduct.product.productName,
               photo: existingProduct.product.photo[0],
+              groupId: existingProduct.product.groupId,
             },
           });
 

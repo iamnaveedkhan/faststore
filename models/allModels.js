@@ -173,7 +173,9 @@ const inquirySchema = new mongoose.Schema({
     _id: { type: "string" },
     productName: { type: "string" },
     photo: { type: "string" },
+    groupId:{type:"string"}
   },
+
 });
 
 const specificationSchema = new mongoose.Schema({
