@@ -262,7 +262,9 @@ async function getProduct(fastify, options) {
     async function (req, reply) {
       try {
         const userId = await User.findOne({ _id: req.user.userId._id });
-        console.log(`user find ${req.user.userId._id}     role     ${userId.role}`);
+        console.log(
+          `user find ${req.user.userId._id}     role     ${userId.role}`
+        );
         let existingData;
         if (userId.role == 1) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
@@ -285,14 +287,15 @@ async function getProduct(fastify, options) {
     }
   );
 
-
   fastify.get(
     "/inquiries/:id",
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
         const userId = await User.findOne({ _id: req.params.id });
-        console.log(`user find ${req.user.userId._id}     role     ${userId.role}`);
+        console.log(
+          `user find ${req.user.userId._id}     role     ${userId.role}`
+        );
         let existingData;
         if (userId.role == 1) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
@@ -437,15 +440,18 @@ async function getProduct(fastify, options) {
       const user = await User.findById({ _id: userid });
 
       if (user.role == 1) {
-        existingData = await Chat.find({ customer: userid }).populate('product');
+        existingData = await Chat.find({ customer: userid }).populate(
+          "product"
+        );
       } else if (user.role == 2) {
-        existingData = await Chat.find({ retailer: userid }).populate('product');
+        existingData = await Chat.find({ retailer: userid }).populate(
+          "product"
+        );
       }
       reply.send(existingData);
     }
   );
 
-  
   fastify.get(
     "/nearbyAndOffers",
     { onRequest: [fastify.authenticate] },
@@ -454,36 +460,43 @@ async function getProduct(fastify, options) {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
         const userid = req.user.userId._id;
-        console.log('');
-  
+        console.log("");
+
         const user = await User.findById(userid);
-  
+
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
-  
+
         const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
-        const deltaLongitude = ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) / Math.cos((userLatitude * Math.PI) / 180);
-  
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
+
         // Calculate latitude and longitude ranges
         const minLatitude = userLatitude - deltaLatitude;
         const maxLatitude = userLatitude + deltaLatitude;
         const minLongitude = userLongitude - deltaLongitude;
         const maxLongitude = userLongitude + deltaLongitude;
-  
+
         console.log("Latitude Range:", minLatitude, "-", maxLatitude);
         console.log("Longitude Range:", minLongitude, "-", maxLongitude);
-  
+
         // Find users within the calculated ranges
         const nearbyUsers = await User.find({
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
-          role:2
+          role: 2,
         });
-  
+
         // Find products and offers associated with nearby users
-        const filteredProducts = await Product.find({ user: { $in: nearbyUsers } }).populate("user");
-        const activeOffers = await Offers.find({ user: { $in: nearbyUsers }, isActive: true });
-  
+        const filteredProducts = await Product.find({
+          user: { $in: nearbyUsers },
+        }).populate("user");
+        const activeOffers = await Offers.find({
+          user: { $in: nearbyUsers },
+          isActive: true,
+        });
+
         reply.send({ offer: activeOffers, product: filteredProducts });
       } catch (error) {
         console.error(error);
@@ -579,7 +592,9 @@ async function getProduct(fastify, options) {
         const Id = req.params.id;
         let existingData;
 
-        existingData = await Product.find({ "product.properties.brand": Id }).populate('user');
+        existingData = await Product.find({
+          "product.properties.brand": Id,
+        }).populate("user");
         reply.send(existingData);
       } catch (error) {
         console.error(error);
@@ -620,11 +635,11 @@ async function getProduct(fastify, options) {
       try {
         const userId = req.user.userId._id;
         const userData = await User.findById(userId);
-  
+
         if (userData.role !== 2) {
           return reply.send({ error: "Not authorized" });
         }
-        const models = await Model2.find({main:true});
+        const models = await Model2.find({ main: true });
         // Aggregate to get unique products by groupId
         // const uniqueProducts = await Product.aggregate([
         //   {
@@ -652,7 +667,7 @@ async function getProduct(fastify, options) {
         //   },
         //   { $replaceRoot: { newRoot: "$product" } }
         // ]);
-  
+
         // // Filter out products associated with the requested user
         // const productsNotAssociated = uniqueProducts.filter(product => product.user._id.toString() !== userId);
         // console.log(productsNotAssociated.length);
@@ -665,20 +680,29 @@ async function getProduct(fastify, options) {
     }
   );
 
-  // fastify.get(
-  //   "/inquiriesby-groupid-id",
-  //   { onRequest: [fastify.authenticate] },
-  //   async (req, reply) => {
-  //     try {
-       
-  //     } catch (error) {
-  //       console.error(error);
-  //       reply.code(500).send({ error: "Internal server error" });
-  //     }
-  //   }
-  // );
+  fastify.get(
+    "/inquiriesby-groupid-id/:Id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.params.Id;
+        let enquiryData;
   
+        if (Id.length < 10) {
+          enquiryData = await Inquiry.find({ "product.groupId": Id });
+        } else if (Id.length > 10) {
+          enquiryData = await Inquiry.find({ "product._id": Id });
+        } else {
+          return reply.status(400).send({ error: "Invalid ID length" });
+        }
   
+        return reply.send(enquiryData);
+      } catch (error) {
+        console.error(error);
+        return reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
   
 }
 
