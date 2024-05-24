@@ -1,3 +1,4 @@
+const { model } = require("mongoose");
 const {
   Chat,
   Product,
@@ -623,39 +624,40 @@ async function getProduct(fastify, options) {
         if (userData.role !== 2) {
           return reply.send({ error: "Not authorized" });
         }
-  
+        const models = Model2.find({main:true,isActive:true});
         // Aggregate to get unique products by groupId
-        const uniqueProducts = await Product.aggregate([
-          {
-            $group: {
-              _id: "$groupId",
-              products: { $push: "$$ROOT" }, // Push all documents with the same groupId into an array
-            },
-          },
-          { $unwind: "$products" }, // Unwind to get each product separately
-          {
-            $lookup: {
-              from: "users",
-              localField: "products.user",
-              foreignField: "_id",
-              as: "user"
-            }
-          },
-          { $unwind: "$user" }, // Unwind to get the user details
-          {
-            $group: {
-              _id: "$products._id",
-              product: { $first: "$products" }, // Keep the first product encountered for each groupId
-              user: { $first: "$user" } // Keep the associated user
-            }
-          },
-          { $replaceRoot: { newRoot: "$product" } }
-        ]);
+        // const uniqueProducts = await Product.aggregate([
+        //   {
+        //     $group: {
+        //       _id: "$groupId",
+        //       products: { $push: "$$ROOT" }, // Push all documents with the same groupId into an array
+        //     },
+        //   },
+        //   { $unwind: "$products" }, // Unwind to get each product separately
+        //   {
+        //     $lookup: {
+        //       from: "users",
+        //       localField: "products.user",
+        //       foreignField: "_id",
+        //       as: "user"
+        //     }
+        //   },
+        //   { $unwind: "$user" }, // Unwind to get the user details
+        //   {
+        //     $group: {
+        //       _id: "$products._id",
+        //       product: { $first: "$products" }, // Keep the first product encountered for each groupId
+        //       user: { $first: "$user" } // Keep the associated user
+        //     }
+        //   },
+        //   { $replaceRoot: { newRoot: "$product" } }
+        // ]);
   
-        // Filter out products associated with the requested user
-        const productsNotAssociated = uniqueProducts.filter(product => product.user._id.toString() !== userId);
-        console.log(productsNotAssociated.length);
-        reply.send(productsNotAssociated);
+        // // Filter out products associated with the requested user
+        // const productsNotAssociated = uniqueProducts.filter(product => product.user._id.toString() !== userId);
+        // console.log(productsNotAssociated.length);
+        // reply.send(productsNotAssociated);
+        reply.send(models);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
