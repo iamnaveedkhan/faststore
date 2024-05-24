@@ -572,7 +572,7 @@ async function getProduct(fastify, options) {
        
         const existingData = await Model2.find({ groupId:modelOrProductId });
 
-        reply.send(existingData.length);
+        reply.send(existingData);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
