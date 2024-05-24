@@ -664,6 +664,19 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  // fastify.get(
+  //   "/inquiriesby-groupid-id",
+  //   { onRequest: [fastify.authenticate] },
+  //   async (req, reply) => {
+  //     try {
+       
+  //     } catch (error) {
+  //       console.error(error);
+  //       reply.code(500).send({ error: "Internal server error" });
+  //     }
+  //   }
+  // );
   
   
   
