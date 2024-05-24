@@ -624,7 +624,7 @@ async function getProduct(fastify, options) {
         if (userData.role !== 2) {
           return reply.send({ error: "Not authorized" });
         }
-        const models = Model2.find({main:true,isActive:true});
+        const models = Model2.find({main:true});
         // Aggregate to get unique products by groupId
         // const uniqueProducts = await Product.aggregate([
         //   {
