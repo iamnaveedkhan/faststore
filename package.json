@@ -22,9 +22,12 @@
     "ejs": "^3.1.9",
     "fastify": "^4.26.2",
     "fastify-static": "^4.7.0",
+    "install": "^0.13.0",
     "latest": "^0.2.0",
+    "luxon": "^3.4.4",
     "moment-timezone": "^0.5.45",
-    "mongoose": "^8.1.1"
+    "mongoose": "^8.1.1",
+    "npm": "^10.8.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
