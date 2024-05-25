@@ -560,6 +560,47 @@ async function getProduct(fastify, options) {
     }
   );
 
+
+  fastify.get(
+    "/modelfind/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const modelOrProductId = req.params.id;
+        const userid = req.user.userId._id;
+
+       
+        const existingData = await Model2.find({ groupId:modelOrProductId });
+
+        reply.send(existingData);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+
+  fastify.get(
+    "/priceandcount/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const modelOrProductId = req.params.id;
+        const userid = req.user.userId._id;
+
+       
+        const existingData = await Product.findOne({
+          $and: [{ "product._id": modelOrProductId }, { user: userid }],
+        });
+        reply.send({count:existingData.quantity,price:existingData.price});
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
   fastify.get(
     "/brandToModel/:id",
     { onRequest: [fastify.authenticate] },
