@@ -1,5 +1,4 @@
 const fastifyRoot = require("fastify");
-const moment = require('moment-timezone');  
 require("dotenv").config();
 const { connect } = require("./db");
 const fastify = fastifyRoot({logger:true});

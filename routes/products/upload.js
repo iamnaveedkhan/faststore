@@ -198,7 +198,7 @@ async function Upload(fastify, options) {
   );
 
   fastify.post(
-    "/product213",
+    "/add-product",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
