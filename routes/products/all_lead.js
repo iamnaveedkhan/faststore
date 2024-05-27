@@ -560,7 +560,6 @@ async function getProduct(fastify, options) {
     }
   );
 
-
   fastify.get(
     "/modelfind/:id",
     { onRequest: [fastify.authenticate] },
@@ -569,8 +568,7 @@ async function getProduct(fastify, options) {
         const modelOrProductId = req.params.id;
         const userid = req.user.userId._id;
 
-       
-        const existingData = await Model2.find({ groupId:modelOrProductId });
+        const existingData = await Model2.find({ groupId: modelOrProductId });
 
         reply.send(existingData);
       } catch (error) {
@@ -580,7 +578,6 @@ async function getProduct(fastify, options) {
     }
   );
 
-
   fastify.get(
     "/priceandcount/:id",
     { onRequest: [fastify.authenticate] },
@@ -589,11 +586,10 @@ async function getProduct(fastify, options) {
         const modelOrProductId = req.params.id;
         const userid = req.user.userId._id;
 
-       
         const existingData = await Product.findOne({
           $and: [{ "product._id": modelOrProductId }, { user: userid }],
         });
-        reply.send({count:existingData.quantity,price:existingData.price});
+        reply.send({ count: existingData.quantity, price: existingData.price });
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
@@ -728,7 +724,7 @@ async function getProduct(fastify, options) {
       try {
         const Id = req.params.Id;
         let enquiryData;
-  
+
         if (Id.length < 10) {
           enquiryData = await Inquiry.find({ "product.groupId": Id });
         } else if (Id.length > 10) {
@@ -736,7 +732,7 @@ async function getProduct(fastify, options) {
         } else {
           return reply.status(400).send({ error: "Invalid ID length" });
         }
-  
+
         return reply.send(enquiryData);
       } catch (error) {
         console.error(error);
@@ -744,7 +740,36 @@ async function getProduct(fastify, options) {
       }
     }
   );
-  
+
+  fastify.get(
+    "/available-in/:Id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.params.Id;
+        let products;
+
+        if (Id.length < 10) {
+          products = await Product.find({
+            "product.groupId": Id,
+          }).populate("user");
+        } else {
+          products = await Product.find({ "product._id": Id }).populate(
+            "user"
+          );
+        }
+        let userData = {};
+        products.forEach((product, index) => {
+          userData[index] = product.user;
+        });
+
+        return userData;
+      } catch (error) {
+        console.error(error);
+        return reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;
