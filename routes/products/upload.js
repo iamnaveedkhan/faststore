@@ -263,6 +263,7 @@ async function Upload(fastify, options) {
         const existingProduct = await Product.findOne({
           _id: productId,
         }).populate("user");
+
         if (existingProduct) {
           shopName = existingProduct.user._id;
           const product = new Inquiry({
@@ -281,6 +282,7 @@ async function Upload(fastify, options) {
               productName: existingProduct.product.productName,
               photo: existingProduct.product.photo[0],
               groupId: existingProduct.product.groupId,
+              modelId: existingProduct.product._id,
             },
           });
 

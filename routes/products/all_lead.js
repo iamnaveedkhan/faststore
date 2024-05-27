@@ -728,7 +728,7 @@ async function getProduct(fastify, options) {
         if (Id.length < 10) {
           enquiryData = await Inquiry.find({ "product.groupId": Id });
         } else if (Id.length > 10) {
-          enquiryData = await Inquiry.find({ "product._id": Id });
+          enquiryData = await Inquiry.find({ "product.modelId": Id });
         } else {
           return reply.status(400).send({ error: "Invalid ID length" });
         }
