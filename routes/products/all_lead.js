@@ -758,7 +758,7 @@ async function getProduct(fastify, options) {
             "user"
           );
         }
-        let userData = {};
+        let userData = [];
         products.forEach((product, index) => {
           userData[index] = product.user;
         });
