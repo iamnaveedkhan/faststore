@@ -213,7 +213,12 @@ async function Upload(fastify, options) {
         });
 
         if (existingProduct) {
-          return reply.send({ error: "Product Already Exists !" });
+          existingProduct.quantity = quantity;
+          existingProduct.price = price;
+
+          await existingProduct.save();
+
+          return existingProduct;
         } else {
           const user = await User.findById(userId);
 
