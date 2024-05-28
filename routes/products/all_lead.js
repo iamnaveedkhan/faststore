@@ -412,7 +412,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/activeCustomerandRetailerList/:role",
-    { onRequest: [fastify.authenticate] },
+    { onRequest: [fastify.authenticate] }, 
     async (req, reply) => {
       try {
         const role = req.params.role;

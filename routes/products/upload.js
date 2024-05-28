@@ -519,13 +519,37 @@ async function Upload(fastify, options) {
       }
     }
   );
-
+ 
   fastify.post("/set-model-isActive/:id", async (req, reply) => {
     const Id = req.params.id;
     const isActive = req.body.isChecked;
 
     let updatedData;
 
+    if (Id.length > 10) {
+      updatedData = await Model2.findById({ _id: Id });
+      updatedData.isActive = isActive;
+      await updatedData.save();
+    } else {
+      const data = await Model2.find({ groupId: Id });
+      updatedData = await Promise.all(
+        data.map(async (item) => {
+          item.isActive = isActive;
+          await item.save();
+          return item;
+        })
+      );
+    }
+
+    return updatedData;
+  });
+
+  fastify.post("/set-user-isActive/:id", async (req, reply) => {
+    const Id = req.params.id;
+    const isActive = req.body.isChecked;
+
+    let updatedData;
+  
     if (Id.length > 10) {
       updatedData = await Model2.findById({ _id: Id });
       updatedData.isActive = isActive;

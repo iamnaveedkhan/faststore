@@ -9,7 +9,7 @@ async function loginUser(fastify, options) {
     }
     
     try {
-      const existingUser = await User.findOne({ $and: [{ mobile: mob , isActive: 1}] });
+      const existingUser = await User.findOne({ $and: [{ mobile: mob , isActive: true}] });
       if (existingUser) {
         console.log(mob);
         const token = fastify.jwt.sign({ userId: existingUser });

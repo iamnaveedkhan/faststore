@@ -14,7 +14,7 @@ const userSchema = new Schema({
   photo: { type: String, default: "" },
   
   role: { type: Number, default: 1 },
-  isActive: { type: Number, default: 1 },
+  isActive: { type: Boolean, default: true },
 
   longitude: { type: String, default: "" },
   latitude: { type: String, default: "" },
