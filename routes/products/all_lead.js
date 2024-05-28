@@ -642,7 +642,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/retailers-product/:id",
-    { onRequest: [fastify.authenticate] },
+    { onRequest: [fastify.authenticate] }, 
     async (req, reply) => {
       try {
         const userid = req.params.id;
