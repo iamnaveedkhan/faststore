@@ -544,29 +544,23 @@ async function Upload(fastify, options) {
     return updatedData;
   });
 
-  // fastify.post("/set-user-isActive/:id", async (req, reply) => {
-  //   const Id = req.params.id;
-  //   const isActive = req.body.isChecked;
+  fastify.post("/set-user-isActive/:id", async (req, reply) => {
+    try {
+      const Id = req.params.id;
+      const isActive = req.body.isChecked;
 
-  //   let updatedData;
+      let updatedData;
 
-  //   if (Id.length > 10) {
-  //     updatedData = await Model2.findById({ _id: Id });
-  //     updatedData.isActive = isActive;
-  //     await updatedData.save();
-  //   } else {
-  //     const data = await Model2.find({ groupId: Id });
-  //     updatedData = await Promise.all(
-  //       data.map(async (item) => {
-  //         item.isActive = isActive;
-  //         await item.save();
-  //         return item;
-  //       })
-  //     );
-  //   }
+      updatedData = await User.findById(Id);
+      updatedData.isActive = isActive;
+      await updatedData.save();
 
-  //   return updatedData;
-  // });
+      return updatedData;
+    } catch (error) {
+      console.error("Error :", error);
+      reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
 
   fastify.get("/retailers-product-admin/:id", async (req, reply) => {
     try {
