@@ -770,6 +770,17 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  fastify.get("/retailers-product-admin/:id", async (req, reply) => {
+    try {
+      const Id = req.params.id;
+      const data = await Product.find({ user: Id });
+      return data;
+    } catch (error) {
+      console.error("Error :", error);
+      reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
 }
 
 module.exports = getProduct;
