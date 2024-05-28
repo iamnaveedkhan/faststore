@@ -316,7 +316,7 @@ async function getDashboardData(fastify, options) {
   );
   // ------------------------------For Retailers----------------------------------------------------
   fastify.get(
-    "/monthly-enquiry-count-for-retailer",
+    "/monthly-enquiry-count-retailer",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -348,9 +348,7 @@ async function getDashboardData(fastify, options) {
           )
         );
 
-        const response = {
-          monthlyEnquiry: {},
-        };
+        const response = {};
         const monthNames = [
           "jan",
           "feb",
@@ -366,7 +364,7 @@ async function getDashboardData(fastify, options) {
           "dec",
         ];
         for (let i = 0; i < currentMonth; i++) {
-          response.monthlyEnquiry[monthNames[i]] = enquiryCount[i];
+          response[monthNames[i]] = enquiryCount[i];
         }
 
         return response;
@@ -378,57 +376,7 @@ async function getDashboardData(fastify, options) {
   );
 
   fastify.get(
-    "/pastSevenDays-enquiry-count-for-retailer",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const userId = req.user.userId._id;
-
-        const now = DateTime.local();
-        const timeZone = "Asia/Kolkata";
-        const nowIST = now.setZone(timeZone);
-
-        const startOfPeriod = nowIST.minus({ days: 6 }).startOf("day");
-        const endOfPeriod = nowIST.endOf("day");
-
-        const dailyIntervals = [];
-        for (let i = 0; i < 7; i++) {
-          const startOfDay = startOfPeriod.plus({ days: i }).startOf("day");
-          const endOfDay = startOfPeriod.plus({ days: i }).endOf("day");
-          dailyIntervals.push({ startOfDay, endOfDay });
-        }
-
-        const enquiryCount = await Promise.all(
-          dailyIntervals.map(({ startOfDay, endOfDay }) =>
-            Inquiry.countDocuments({
-              "shop._id": userId,
-              date: {
-                $gte: startOfDay.toJSDate(),
-                $lte: endOfDay.toJSDate(),
-              },
-            })
-          )
-        );
-
-        const response = {
-          dailyEnquiry: {},
-        };
-
-        for (let i = 0; i < 7; i++) {
-          const dayName = startOfPeriod.plus({ days: i }).toFormat("cccc");
-          response.dailyEnquiry[dayName] = enquiryCount[i];
-        }
-
-        return response;
-      } catch (error) {
-        console.error(error);
-        reply.code(500).send({ error: "Internal server error" });
-      }
-    }
-  );
-
-  fastify.get(
-    "/current-month-enquiry-count-for-retailer",
+    "/current-month-enquiry-count-retailer",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -465,12 +413,10 @@ async function getDashboardData(fastify, options) {
           )
         );
 
-        const response = {
-          weeklyEnquiry: {},
-        };
+        const response = {};
 
         weeklyIntervals.forEach((interval, index) => {
-          response.weeklyEnquiry[`week${index + 1}`] = enquiryCount[index];
+          response[`week${index + 1}`] = enquiryCount[index];
         });
 
         return response;
@@ -480,6 +426,56 @@ async function getDashboardData(fastify, options) {
       }
     }
   );
+
+  fastify.get(
+    "/pastSevenDays-enquiry-count-retailer",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userId = req.user.userId._id;
+
+        const now = DateTime.local();
+        const timeZone = "Asia/Kolkata";
+        const nowIST = now.setZone(timeZone);
+
+        const startOfPeriod = nowIST.minus({ days: 6 }).startOf("day");
+        const endOfPeriod = nowIST.endOf("day");
+
+        const dailyIntervals = [];
+        for (let i = 0; i < 7; i++) {
+          const startOfDay = startOfPeriod.plus({ days: i }).startOf("day");
+          const endOfDay = startOfPeriod.plus({ days: i }).endOf("day");
+          dailyIntervals.push({ startOfDay, endOfDay });
+        }
+
+        const enquiryCount = await Promise.all(
+          dailyIntervals.map(({ startOfDay, endOfDay }) =>
+            Inquiry.countDocuments({
+              "shop._id": userId,
+              date: {
+                $gte: startOfDay.toJSDate(),
+                $lte: endOfDay.toJSDate(),
+              },
+            })
+          )
+        );
+
+        const response = {};
+
+        for (let i = 0; i < 7; i++) {
+          const dayName = startOfPeriod.plus({ days: i }).toFormat("cccc");
+          response[dayName] = enquiryCount[i];
+        }
+
+        return response;
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  
 }
 
 module.exports = getDashboardData;
