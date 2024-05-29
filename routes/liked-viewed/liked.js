@@ -22,12 +22,12 @@ async function getLiked(fastify, options) {
           if (index === -1) {
             user.liked.push(requestedProductId);
             await user.save();
-            reply.send(true);
+            reply.send({ message: "Product liked successfully" });
           } else {
             user.liked.splice(index, 1);
             await user.save();
-            reply.send(false);
-
+            reply.send({ message: "Product unliked successfully" });
+            
           }
         } catch (error) {
           console.error(error);
