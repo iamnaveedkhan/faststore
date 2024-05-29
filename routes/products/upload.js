@@ -1,5 +1,8 @@
 const path = require("path");
 const fs = require("fs");
+const fastify = require('fastify')({ logger: true });
+const { parse } = require('csv-parse');
+
 const {
   Types: { ObjectId },
 } = require("mongoose");
@@ -562,6 +565,63 @@ async function Upload(fastify, options) {
     }
   });
 
+  
+  
+  fastify.post("/set-user-data", async (req, reply) => {
+    try {
+      const parts = req.parts();
+      const users = [];
+      const errors = [];
+  
+      for await (const part of parts) {
+        if (part.file) {
+          const parser = part.file.pipe(parse({ columns: true, trim: true }));
+  
+          for await (const record of parser) {
+            const { name, mobile, email } = record;
+  
+            if (!name || !mobile || !email) {
+              errors.push({ record, error: "Missing required fields (name, mobile, email)" });
+              continue;
+            }
+  
+            if (isNaN(mobile)) {
+              errors.push({ record, error: "Invalid mobile number" });
+              continue;
+            }
+  
+            try {
+              const existingData = await User.findOne({ mobile });
+  
+              if (!existingData) {
+                const userData = {
+                  name,
+                  mobile,
+                  email,
+                  role: 2,
+                  isActive: false,
+                };
+  
+                const newUser = new User(userData);
+                const savedUser = await newUser.save();
+                users.push(savedUser);
+              } else {
+                errors.push({ record, error: "User with this mobile number already exists" });
+              }
+            } catch (dbError) {
+              errors.push({ record, error: dbError.message });
+            }
+          }
+        }
+      }
+  
+      return reply.code(207).send({ message: "Processing completed", users, errors });
+    } catch (error) {
+      console.error("Error:", error);
+      reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+  
   
 }
 
