@@ -25,9 +25,9 @@ const userSchema = new Schema({
 });
 
 const addressesSchema = new mongoose.Schema({
-  address: { type: String, default: null },
-  city: { type: String, default: null },
-  state: { type: String, default: null },
+  address: { type: String, default: "" },
+  city: { type: String, default: "" },
+  state: { type: String, default: "" },
   user: { type: Schema.Types.ObjectId, ref: "User" },
 });
 

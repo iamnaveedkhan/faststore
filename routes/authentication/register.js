@@ -5,17 +5,19 @@ const { User, Address } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 
 async function registerUser(fastify, options) {
-  fastify.register(require("@fastify/multipart"));
-
   fastify.post("/register", async (req, reply) => {
     try {
       const data = req.body;
-    
+
       const user = new User(data);
       const savedUser = await user.save();
-      data['user_id']=savedUser._id;
-      const UserAddres = new Address(data);
-      const savedAddress = await UserAddres.save();
+      let savedAddress;
+      if (savedUser.role == 2) {
+        data["user"] = savedUser._id;
+        const UserAddres = new Address(data);
+        savedAddress = await UserAddres.save();
+      }
+
       const token = fastify.jwt.sign({ userId: savedUser });
       var status = "success";
 
@@ -29,29 +31,13 @@ async function registerUser(fastify, options) {
 
 module.exports = registerUser;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // fastify.post("/register", async (req, reply) => {
 //   try {
 //     const parts = req.parts();
-    
+
 //     let fileName;
 //     let filePath;
-    
+
 //     let data = [];
 
 //     for await (const part of parts) {
@@ -66,7 +52,6 @@ module.exports = registerUser;
 //       }
 //     }
 
-    
 //     const user = new User(data);
 //     const savedUser = await user.save();
 //     data['user_id']=savedUser._id;
@@ -74,7 +59,6 @@ module.exports = registerUser;
 //     const savedAddress = await UserAddres.save();
 //     const token = fastify.jwt.sign({ userId: savedUser });
 //     var status = "success";
-
 
 //     return reply.send({ savedAddress, savedUser, token, status });
 //   } catch (error) {

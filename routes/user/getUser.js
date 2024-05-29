@@ -3,10 +3,11 @@ const { User } = require("../../models/allModels");
 async function getUser(fastify, options) {
   fastify.register(require("@fastify/multipart"));
   fastify.get(
-    "/users",
+    "/users/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
+        const role = req.params.id;
         const existingData = await User.find();
 
         if (existingData.length > 0) {
