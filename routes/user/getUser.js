@@ -1,4 +1,4 @@
-const { User } = require("../../models/allModels");
+const {Address, User } = require("../../models/allModels");
 
 async function getUser(fastify, options) {
   fastify.register(require("@fastify/multipart"));
@@ -8,11 +8,16 @@ async function getUser(fastify, options) {
     async (req, reply) => {
       try {
         const role = req.params.id;
-        const existingData = await User.find();
-
-        if (existingData.length > 0) {
-          reply.send(existingData);
-        } else {
+        let existingData; 
+            
+        if (role == 1) {
+          existingData = await User.find({role : 1,isActive : true});
+          return existingData
+        } else if (role == 2 ) {
+          existingData = await Address.find().populate('user');
+          return existingData
+        }
+        else {
           reply.code(404).send({ error: "No data found" });
         }
       } catch (error) {
