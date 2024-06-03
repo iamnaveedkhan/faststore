@@ -1,4 +1,4 @@
-const { User, Product, Liked } = require("../../models/allModels");
+const { Product, Liked } = require("../../models/allModels");
 
 async function getLiked(fastify, options) {
 

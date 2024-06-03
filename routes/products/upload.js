@@ -17,8 +17,11 @@ const {
   User,
   Inquiry,
   Model2,
+  Retailer,
+  Staff,
   Variant,
   Specification,
+  Customer,
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
@@ -547,14 +550,20 @@ async function Upload(fastify, options) {
     return updatedData;
   });
 
-  fastify.post("/set-user-isActive/:id", async (req, reply) => {
+  fastify.post("/set-customer-retailer-isActive/:id", async (req, reply) => {
     try {
       const Id = req.params.id;
       const isActive = req.body.isChecked;
-
+      const {type} = req.body;
       let updatedData;
-
-      updatedData = await User.findById(Id);
+      
+      if(type == "retailer"){
+        updatedData = await Retailer.findById(Id);
+      }else if(type == "customer"){
+        updatedData = await Customer.findById(Id);
+      }else{
+        reply.send({ error: "Something Went Wrong !" });
+      }
       updatedData.isActive = isActive;
       await updatedData.save();
 
@@ -591,22 +600,22 @@ async function Upload(fastify, options) {
             }
   
             try {
-              const existingData = await User.findOne({ mobile });
+              const existingData = await Retailer.findOne({ mobile });
   
               if (!existingData) {
                 const userData = {
                   name,
                   mobile,
                   email,
-                  role: 2,
+                  status: 2,
                   isActive: false,
                 };
   
-                const newUser = new User(userData);
+                const newUser = new Retailer(userData);
                 const savedUser = await newUser.save();
                 users.push(savedUser);
               } else {
-                errors.push({ record, error: "User with this mobile number already exists" });
+                errors.push({ record, error: "User with these mobile numbers already exists" });
               }
             } catch (dbError) {
               errors.push({ record, error: dbError.message });
@@ -614,7 +623,6 @@ async function Upload(fastify, options) {
           }
         }
       }
-  
       return reply.code(207).send({ message: "Processing completed", users, errors });
     } catch (error) {
       console.error("Error:", error);

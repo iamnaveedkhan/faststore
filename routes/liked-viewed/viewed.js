@@ -1,4 +1,4 @@
-const { Product, User, Viewed } = require("../../models/allModels");
+const { Product, Customer, Viewed } = require("../../models/allModels");
 async function getViewed(fastify, options) {
 
     // -----------post route---------------
@@ -11,7 +11,7 @@ async function getViewed(fastify, options) {
         const productId = req.params.id;
         const userId = req.user.userId._id;
   
-        const userData = await User.findOne({ _id: userId });
+        const userData = await Customer.findOne({ _id: userId });
         if (!userData) {
           return reply.status(404).send({ error: "User not found" });
         }

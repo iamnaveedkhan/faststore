@@ -1,4 +1,4 @@
-const { User } = require("../../models/allModels");
+const { Customer } = require("../../models/allModels");
 async function location(fastify, options) {
   fastify.post(
     "/savelocation",
@@ -8,7 +8,7 @@ async function location(fastify, options) {
         const { latitude, longitude } = req.body;
         const userid = req.user.userId._id;
         console.log(userid);
-        const userData = await User.findById({ _id: userid });
+        const userData = await Customer.findById({ _id: userid });
 
         userData.latitude = latitude;
         userData.longitude = longitude;

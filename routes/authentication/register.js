@@ -1,19 +1,38 @@
 const path = require("path");
 const fs = require("fs");
 const models = require("../../models/allModels");
-const { User, Address } = require("../../models/allModels");
+const {
+  Address,
+  Customer,
+  Retailer,
+  Staff,
+} = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 
 async function registerUser(fastify, options) {
   fastify.post("/register", async (req, reply) => {
     try {
       const data = req.body;
+      const type = req.body.type;
+      let savedUser;
 
-      const user = new User(data);
-      const savedUser = await user.save();
+      const customer = new Customer(data);
+      const retailer = new Retailer(data);
+      const staff = new Staff(data);
+
+      if (type == "customer") {
+        savedUser = await customer.save();
+      } else if (type == "retailer") {
+        savedUser = await retailer.save();
+      } else if (type == "staff") {
+        savedUser = await staff.save();
+      } else {
+        reply.send({ error: "something went wrong !" });
+      }
+
       let savedAddress;
-      if (savedUser.role == 2) {
-        data["user"] = savedUser._id;
+      if (type == "retailer") {
+        data["retailer"] = savedUser._id;
         const UserAddres = new Address(data);
         savedAddress = await UserAddres.save();
       }
@@ -27,42 +46,30 @@ async function registerUser(fastify, options) {
       reply.status(500).send({ error: "Internal Server Error" });
     }
   });
+
+  fastify.post(
+    "/register-staff",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userId = req.user.userId._id;
+        const data = req.body;
+        let savedUser;
+        const ADMIN = await Staff.findById(userId);
+        if(ADMIN.role == 0 && ADMIN.isActive){
+          const staff = new Staff(data);
+          savedUser = await staff.save();
+        }
+        
+        var status = "success";
+
+        return reply.send({ savedUser, status });
+      } catch (error) {
+        console.error(error);
+        reply.status(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
 }
 
 module.exports = registerUser;
-
-// fastify.post("/register", async (req, reply) => {
-//   try {
-//     const parts = req.parts();
-
-//     let fileName;
-//     let filePath;
-
-//     let data = [];
-
-//     for await (const part of parts) {
-//       if (part.type === "field") {
-//         data[part.fieldname] = part.value;
-//       } else if (part.type === "file") {
-//         fileName = part.filename;
-//         filePath = path.join("public/image/", fileName);
-//         const writableStream = fs.createWriteStream(filePath);
-//         await part.file.pipe(writableStream);
-//         data['photo'] = `public/image/${fileName}`
-//       }
-//     }
-
-//     const user = new User(data);
-//     const savedUser = await user.save();
-//     data['user_id']=savedUser._id;
-//     const UserAddres = new Address(data);
-//     const savedAddress = await UserAddres.save();
-//     const token = fastify.jwt.sign({ userId: savedUser });
-//     var status = "success";
-
-//     return reply.send({ savedAddress, savedUser, token, status });
-//   } catch (error) {
-//     console.error(error);
-//     reply.status(500).send({ error: "Internal Server Error" });
-//   }
-// });

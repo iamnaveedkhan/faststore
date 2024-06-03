@@ -1,4 +1,4 @@
-const { Model2, User, Inquiry } = require("../../models/allModels");
+const { Model2, Inquiry, Customer, Retailer } = require("../../models/allModels");
 const { DateTime, Interval } = require("luxon");
 
 async function getDashboardData(fastify, options) {
@@ -20,7 +20,7 @@ async function getDashboardData(fastify, options) {
   );
 
   fastify.get(
-    "/users-count",
+    "/customer-retailer-count",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -51,51 +51,43 @@ async function getDashboardData(fastify, options) {
           weekRetailerCount,
           monthRetailerCount,
         ] = await Promise.all([
-          User.countDocuments({
-            role: 1,
+          Customer.countDocuments({
             isActive: 1,
           }),
-          User.countDocuments({
-            role: 1,
+          Customer.countDocuments({
             date: {
               $gte: todayInterval.start.toJSDate(),
               $lte: todayInterval.end.toJSDate(),
             },
           }),
-          User.countDocuments({
-            role: 1,
+          Customer.countDocuments({
             date: {
               $gte: weekInterval.start.toJSDate(),
               $lte: weekInterval.end.toJSDate(),
             },
           }),
-          User.countDocuments({
-            role: 1,
+          Customer.countDocuments({
             date: {
               $gte: monthInterval.start.toJSDate(),
               $lte: monthInterval.end.toJSDate(),
             },
           }),
-          User.countDocuments({
-            role: 2,
+          Retailer.countDocuments({
             isActive: 1,
           }),
-          User.countDocuments({
-            role: 2,
+          Retailer.countDocuments({
             date: {
               $gte: todayInterval.start.toJSDate(),
               $lte: todayInterval.end.toJSDate(),
             },
           }),
-          User.countDocuments({
-            role: 2,
+          Retailer.countDocuments({
             date: {
               $gte: weekInterval.start.toJSDate(),
               $lte: weekInterval.end.toJSDate(),
             },
           }),
-          User.countDocuments({
-            role: 2,
+          Retailer.countDocuments({
             date: {
               $gte: monthInterval.start.toJSDate(),
               $lte: monthInterval.end.toJSDate(),
@@ -242,7 +234,7 @@ async function getDashboardData(fastify, options) {
   );
 
   fastify.get(
-    "/monthly-users-count",
+    "/monthly-customer-retailer-count",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
@@ -262,8 +254,7 @@ async function getDashboardData(fastify, options) {
 
         const customerCounts = await Promise.all(
           monthlyIntervals.map(({ startOfMonth, endOfMonth }) =>
-            User.countDocuments({
-              role: 1,
+            Customer.countDocuments({
               date: {
                 $gte: startOfMonth.toJSDate(),
                 $lte: endOfMonth.toJSDate(),
@@ -274,8 +265,7 @@ async function getDashboardData(fastify, options) {
 
         const retailerCounts = await Promise.all(
           monthlyIntervals.map(({ startOfMonth, endOfMonth }) =>
-            User.countDocuments({
-              role: 2,
+            Retailer.countDocuments({
               date: {
                 $gte: startOfMonth.toJSDate(),
                 $lte: endOfMonth.toJSDate(),

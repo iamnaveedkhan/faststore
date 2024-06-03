@@ -2,6 +2,8 @@ const { model } = require("mongoose");
 const {
   Chat,
   Product,
+  Retailer,
+  Customer,
   Model,
   Brand,
   User,
@@ -11,6 +13,7 @@ const {
   Model2,
   Specification,
   Offers,
+  Staff,
 } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
@@ -23,7 +26,7 @@ async function getProduct(fastify, options) {
         reply.send(existingData);
       } else {
         console.log("user not found");
-        reply.code(404).send({ error: "No data found" });
+        reply.code(204).send({ error: "No data found" });
       }
     } catch (error) {
       console.error(error);
@@ -39,7 +42,7 @@ async function getProduct(fastify, options) {
         console.log(existingData);
         reply.send(existingData);
       } else {
-        reply.code(404).send({ error: "No data found" });
+        reply.code(202).send({ error: "No data found" });
       }
     } catch (error) {
       console.error(error);
@@ -65,7 +68,7 @@ async function getProduct(fastify, options) {
         if (existingData.length > 0) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -87,7 +90,7 @@ async function getProduct(fastify, options) {
         if (existingData) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -109,7 +112,7 @@ async function getProduct(fastify, options) {
         if (existingData) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -132,7 +135,7 @@ async function getProduct(fastify, options) {
         if (existingData) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -154,7 +157,7 @@ async function getProduct(fastify, options) {
         if (existingData.length) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -194,7 +197,7 @@ async function getProduct(fastify, options) {
         if (existingData.length > 0) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -224,7 +227,7 @@ async function getProduct(fastify, options) {
           console.log(existingModel);
           reply.send(existingModel);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -247,7 +250,7 @@ async function getProduct(fastify, options) {
         if (existingData) {
           reply.send(existingData);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -261,10 +264,8 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
-        const userId = await User.findOne({ _id: req.user.userId._id });
-        console.log(
-          `user find ${req.user.userId._id}     role     ${userId.role}`
-        );
+        const userId = await Retailer.findOne({ _id: req.user.userId._id });
+
         let existingData;
         if (userId.role == 1) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
@@ -278,7 +279,7 @@ async function getProduct(fastify, options) {
         if (existingData.length > 0) {
           reply.send(existingData.reverse());
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -293,9 +294,6 @@ async function getProduct(fastify, options) {
     async function (req, reply) {
       try {
         const userId = await User.findOne({ _id: req.params.id });
-        console.log(
-          `user find ${req.user.userId._id}     role     ${userId.role}`
-        );
         let existingData;
         if (userId.role == 1) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
@@ -309,7 +307,7 @@ async function getProduct(fastify, options) {
         if (existingData.length > 0) {
           reply.send(existingData.reverse());
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -323,7 +321,7 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        console.log("ffffffffffffffffffff");
+      
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
 
@@ -343,7 +341,7 @@ async function getProduct(fastify, options) {
           reply.send(existingData);
           console.log("ffffffffffffffffffff", existingData.length);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -383,7 +381,7 @@ async function getProduct(fastify, options) {
         if (existingSpecifications.length > 0) {
           reply.send(existingSpecifications);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -401,7 +399,7 @@ async function getProduct(fastify, options) {
         if (existingSpecifications.length > 0) {
           reply.send(existingSpecifications);
         } else {
-          reply.code(404).send({ error: "No data found" });
+          reply.code(204).send({ error: "No data found" });
         }
       } catch (error) {
         console.error(error);
@@ -412,7 +410,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/activeCustomerandRetailerList/:role",
-    { onRequest: [fastify.authenticate] }, 
+    { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const role = req.params.role;
@@ -642,7 +640,7 @@ async function getProduct(fastify, options) {
 
   fastify.get(
     "/retailers-product/:id",
-    { onRequest: [fastify.authenticate] }, 
+    { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const userid = req.params.id;
@@ -754,9 +752,7 @@ async function getProduct(fastify, options) {
             "product.groupId": Id,
           }).populate("user");
         } else {
-          products = await Product.find({ "product._id": Id }).populate(
-            "user"
-          );
+          products = await Product.find({ "product._id": Id }).populate("user");
         }
         let userData = [];
         products.forEach((product, index) => {
@@ -776,6 +772,36 @@ async function getProduct(fastify, options) {
       const Id = req.params.id;
       const data = await Product.find({ user: Id });
       return data;
+    } catch (error) {
+      console.error("Error :", error);
+      reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  fastify.get("/ten-retailer-details", { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+      const Id = req.user.userId._id;
+
+      const dataIsAvailable = await Retailer.find({$and: [{ manager: Id }, { status: 3 }],});
+
+      if (dataIsAvailable.length > 0) {
+        console.log("In Available : ",dataIsAvailable.length);
+        return reply.send(dataIsAvailable);
+      } else {
+        const dataIsNotAvailable = await Retailer.find({
+          $and: [{ manager: null }, { isActive: false }, { status: 2 }],
+        }).limit(10);
+        
+        for await (let data of dataIsNotAvailable){
+          data.manager = Id
+          data.status = 3;
+          await data.save();
+          console.log(data);
+        }
+        console.log("In Not Available : ",dataIsNotAvailable.length);
+        return reply.send(dataIsNotAvailable);
+      }
+
     } catch (error) {
       console.error("Error :", error);
       reply.code(500).send({ error: "Internal Server Error" });
