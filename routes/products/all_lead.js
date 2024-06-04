@@ -263,13 +263,14 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
-        const userId = await Retailer.findOne({ _id: req.user.userId._id });
+        const userId = await Customer.findOne({ _id: req.user.userId._id }) || await Retailer.findOne({ _id: req.user.userId._id });
 
+        console.log(userId);
         let existingData;
-        if (userId.role == 1) {
+        if (userId.cId) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
           console.log(existingData);
-        } else if (userId.role == 2) {
+        } else if (userId.rId) {
           existingData = await Inquiry.find({ "shop._id": userId._id });
           console.log(existingData);
         } else {
