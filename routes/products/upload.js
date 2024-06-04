@@ -14,7 +14,6 @@ const {
   Category,
   SubCategory,
   Offers,
-  User,
   Inquiry,
   Model2,
   Retailer,
@@ -63,145 +62,86 @@ async function Upload(fastify, options) {
     }
   );
 
-  fastify.post(
-    "/product",
-    { onRequest: [fastify.authenticate] },
-    async function (req, reply) {
-      try {
-        const parts = req.parts();
-
-        const { name, price, quantity } = req.body;
-        const shop = req.user.userId._id;
-        // for await (const part of parts) {
-        //     if (part.type === 'field') {
-        //         if (part.fieldname === 'name') {
-        //            name = part.value;
-        //         } else if (part.fieldname === 'price') {
-        //             price = part.value;
-        //         } else if (part.fieldname === 'quantity') {
-        //             quantity = part.value;
-        //         }
-        //     }
-        // }
-        const existingProduct = await Product.findOne({
-          $and: [{ "model._id": name }, { "user._id": shop }],
-        });
-        if (existingProduct) {
-          existingProduct.quantity = quantity;
-          existingProduct.price = price;
-
-          await existingProduct.save();
-
-          return { model_id: name, message: "Product updated successfully" };
-        }
-        // if (existingProduct) {
-
-        //     return reply.status(409).send({ error: "Product Already Added" });
-        // }
-        else {
-          const user_id = await User.findOne({ $or: [{ _id: shop }] });
-          const mymodel = await Model.findOne({ _id: name });
-          const cate = await Category.findOne({ _id: mymodel.category._id });
-          const subcate = await SubCategory.findOne({
-            _id: mymodel.subCategory._id,
-          });
-          const brnd = await Brand.findOne({ _id: mymodel.brand._id });
-          const pht = await Photo.findOne({ model: name });
-          const prod = new Product({
-            model: {
-              _id: mymodel._id,
-              productName: mymodel.productName,
-              photo: mymodel.photo,
-              description:
-                "this is automated description \n  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-            },
-            brand: {
-              _id: brnd._id,
-              brandName: brnd.brandName,
-              brandImage: brnd.brandImage,
-            },
-            user: {
-              _id: user_id._id,
-              shopNumber: user_id.mobile,
-              shopName: user_id.name,
-            },
-            category: {
-              _id: cate._id,
-              categoryName: cate.categoryName,
-              categoryImage: cate.categoryImage,
-            },
-            subCategory: {
-              _id: subcate._id,
-              subCategoryName: subcate.subCategoryName,
-              subCategoryImage: subcate.subCategoryImage,
-              category: subcate.category,
-            },
-            photos: pht._id,
-            specifications: { keyone: "value1" }, // Allow any key-value pairs
-            price: price,
-            quantity: quantity,
-          });
-          const ProdSaved = await prod.save();
-        }
-
-        return { model_id: name };
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        return reply.status(500).send("Internal Server Error");
-      }
-    }
-  );
-
   // fastify.post(
-  //   "/product21",
+  //   "/product",
   //   { onRequest: [fastify.authenticate] },
-  //   async (req, reply) => {
+  //   async function (req, reply) {
   //     try {
-  //       // const parts = req.parts();
-  //       const { price, quantity, productId } = req.body;
-  //       console.log(productId, price, quantity);
-  //       const userId = await User.findOne({ _id: req.user.userId._id });
+  //       const parts = req.parts();
 
-  //       data = {};
-  //       let savedProduct;
-  //       data["price"] = price;
-  //       data["quantity"] = quantity;
-  //       const product = await Model2.findById({ _id: productId });
-  //       data["product"] = product;
-
+  //       const { name, price, quantity } = req.body;
+  //       const shop = req.user.userId._id;
+ 
   //       const existingProduct = await Product.findOne({
-  //         "product._id": productId,
-  //         "user._id": userId,
+  //         $and: [{ "model._id": name }, { "user._id": shop }],
   //       });
-
-  //       console.log(existingProduct);
   //       if (existingProduct) {
   //         existingProduct.quantity = quantity;
   //         existingProduct.price = price;
 
   //         await existingProduct.save();
 
-  //         return existingProduct;
-  //       } else {
-  //         const user = await User.findById(userId);
-  //         if (!user) {
-  //           return reply.code(404).send({ error: "User not found" });
-  //         } else {
-  //           if (user.role == 2) {
-  //             data["user"] = user;
-  //             const newProduct = Product(data);
-
-  //             savedProduct = await newProduct.save();
-  //           }
-  //         }
-  //         return savedProduct;
+  //         return { model_id: name, message: "Product updated successfully" };
   //       }
+  //       // if (existingProduct) {
+
+  //       //     return reply.status(409).send({ error: "Product Already Added" });
+  //       // }
+  //       else {
+  //         const user_id = await User.findOne({ $or: [{ _id: shop }] });
+  //         const mymodel = await Model.findOne({ _id: name });
+  //         const cate = await Category.findOne({ _id: mymodel.category._id });
+  //         const subcate = await SubCategory.findOne({
+  //           _id: mymodel.subCategory._id,
+  //         });
+  //         const brnd = await Brand.findOne({ _id: mymodel.brand._id });
+  //         const pht = await Photo.findOne({ model: name });
+  //         const prod = new Product({
+  //           model: {
+  //             _id: mymodel._id,
+  //             productName: mymodel.productName,
+  //             photo: mymodel.photo,
+  //             description:
+  //               "this is automated description \n  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+  //           },
+  //           brand: {
+  //             _id: brnd._id,
+  //             brandName: brnd.brandName,
+  //             brandImage: brnd.brandImage,
+  //           },
+  //           user: {
+  //             _id: user_id._id,
+  //             shopNumber: user_id.mobile,
+  //             shopName: user_id.name,
+  //           },
+  //           category: {
+  //             _id: cate._id,
+  //             categoryName: cate.categoryName,
+  //             categoryImage: cate.categoryImage,
+  //           },
+  //           subCategory: {
+  //             _id: subcate._id,
+  //             subCategoryName: subcate.subCategoryName,
+  //             subCategoryImage: subcate.subCategoryImage,
+  //             category: subcate.category,
+  //           },
+  //           photos: pht._id,
+  //           specifications: { keyone: "value1" }, 
+  //           price: price,
+  //           quantity: quantity,
+  //         });
+  //         const ProdSaved = await prod.save();
+  //       }
+
+  //       return { model_id: name };
   //     } catch (error) {
-  //       console.error("Error creating product:", error);
-  //       reply.code(500).send({ error: "Internal Server Error" });
+  //       console.error("Error uploading file:", error);
+  //       return reply.status(500).send("Internal Server Error");
   //     }
   //   }
   // );
+
+ 
 
   fastify.post(
     "/add-product",
@@ -226,16 +166,10 @@ async function Upload(fastify, options) {
 
           return existingProduct;
         } else {
-          const user = await User.findById(userId);
+          const user = await Retailer.findById(userId);
 
           if (!user) {
             return reply.code(404).send({ error: "User not found" });
-          }
-
-          if (user.role !== 2) {
-            return reply
-              .code(403)
-              .send({ error: "User does not have permission" });
           }
 
           const product = await Model2.findById(productId);
@@ -269,47 +203,54 @@ async function Upload(fastify, options) {
     async function (req, reply) {
       try {
         const productId = req.params.id;
-        const userId = await User.findOne({ _id: req.user.userId._id });
-        console.log(userId);
-        const existingProduct = await Product.findOne({
-          _id: productId,
-        }).populate("user");
 
-        if (existingProduct) {
-          shopName = existingProduct.user._id;
-          const product = new Inquiry({
-            customer: {
-              _id: userId._id,
-              customerNumber: userId.mobile,
-              customerName: userId.name,
-            },
-            shop: {
-              _id: existingProduct.user._id,
-              shopNumber: existingProduct.user.mobile,
-              shopName: existingProduct.user.name,
-            },
-            product: {
-              _id: existingProduct._id,
-              productName: existingProduct.product.productName,
-              photo: existingProduct.product.photo[0],
-              groupId: existingProduct.product.groupId,
-              modelId: existingProduct.product._id,
-            },
-          });
-
-          await product.save();
+        let user = await Customer.findById(req.user.userId._id) || await Retailer.findById(req.user.userId._id);
+  
+        if (!user) {
+          return reply.code(401).send({ error: "You are not authorized!" });
         }
-
-        existingProduct.enquired = existingProduct.enquired + 1;
+  
+        const existingProduct = await Product.findById(productId).populate("user");
+  
+        if (!existingProduct) {
+          return reply.code(404).send({ error: "Product not found" });
+        }
+  
+        const shop = existingProduct.user;
+  
+        const inquiry = new Inquiry({
+          customer: {
+            _id: user._id,
+            customerNumber: user.mobile,
+            customerName: user.name,
+          },
+          shop: {
+            _id: shop._id,
+            shopNumber: shop.mobile,
+            shopName: shop.name,
+          },
+          product: {
+            _id: existingProduct._id,
+            productName: existingProduct.product.productName,
+            photo: existingProduct.product.photo[0],
+            groupId: existingProduct.product.groupId,
+            modelId: existingProduct.product._id,
+          },
+        });
+  
+        await inquiry.save();
+  
+        existingProduct.enquired += 1;
         await existingProduct.save();
-
-        return { shopName: shopName };
+  
+        return { shopName: shop.name };
       } catch (error) {
-        console.error("Error uploading file:", error);
+        console.error("Error during enquiry process:", error);
         return reply.status(500).send("Internal Server Error");
       }
     }
   );
+  
 
   fastify.post("/addmodel", async (req, reply) => {
     try {
@@ -361,20 +302,10 @@ async function Upload(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        // const userId = req.user.userId._id;
-        // const user = await User.findById(userId);
 
         const data = {};
         let photos = [];
         let fileName;
-
-        // if (!user) {
-        //     return reply.code(404).send({ error: "User not found" });
-        // }
-
-        // data['user']['_id'] = userId._id;
-        // data['user']['shopName'] = userId.name;
-        // data['user']['shopNumber'] = userId.mobile;
 
         for await (const part of req.parts()) {
           if (part.file) {

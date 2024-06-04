@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { User, Retailer, Address } = require("../../models/allModels");
+const { Retailer, Address } = require("../../models/allModels");
 
 async function updateUser(fastify, options) {
   fastify.register(require("@fastify/multipart"));

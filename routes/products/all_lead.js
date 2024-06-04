@@ -6,7 +6,6 @@ const {
   Customer,
   Model,
   Brand,
-  User,
   Category,
   SubCategory,
   Inquiry,
@@ -293,12 +292,16 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
-        const userId = await User.findOne({ _id: req.params.id });
+        const userId = await Customer.findOne({ _id: req.params.id }) || await Retailer.findOne({ _id: req.params.id });
+
+        if(!userId){
+          reply.code(404).send({ error: "User not found !" }); 
+        }
         let existingData;
-        if (userId.role == 1) {
+        if (userId.cId) {
           existingData = await Inquiry.find({ "customer._id": userId._id });
           console.log(existingData);
-        } else if (userId.role == 2) {
+        } else if (userId.rId) {
           existingData = await Inquiry.find({ "shop._id": userId._id });
           console.log(existingData);
         } else {
@@ -409,14 +412,22 @@ async function getProduct(fastify, options) {
   );
 
   fastify.get(
-    "/activeCustomerandRetailerList/:role",
+    "/activeCustomerandRetailerList/:type",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const role = req.params.role;
-        const existingData = await User.find({
-          $and: [{ role: role }, { isActive: 1 }],
-        });
+        const type = req.params.type;
+        let existingData;
+        if(type == "customer"){
+          existingData = await Customer.find({isActive: true });
+        } else if(type == "retailer"){
+          existingData = await Retailer.find({
+            $and: [{ isActive: true }, { manager: { $ne: null } }],
+          });
+        }else{
+          reply.code(401).send({ error: "Unauthroized !" });
+        }
+        
         if (existingData.length > 0) {
           return existingData;
         } else {
@@ -435,13 +446,14 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       let existingData;
       const userid = req.user.userId._id;
-      const user = await User.findById({ _id: userid });
 
-      if (user.role == 1) {
+      let user = await Customer.findById({ _id: userid }) || await Retailer.findById({ _id: userid });
+
+      if (user.cId) {
         existingData = await Chat.find({ customer: userid }).populate(
           "product"
         );
-      } else if (user.role == 2) {
+      } else if (user.rId) {
         existingData = await Chat.find({ retailer: userid }).populate(
           "product"
         );
@@ -460,7 +472,7 @@ async function getProduct(fastify, options) {
         const userid = req.user.userId._id;
         console.log("");
 
-        const user = await User.findById(userid);
+        const user = await Customer.findById(userid);
 
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
@@ -480,10 +492,9 @@ async function getProduct(fastify, options) {
         console.log("Longitude Range:", minLongitude, "-", maxLongitude);
 
         // Find users within the calculated ranges
-        const nearbyUsers = await User.find({
+        const nearbyUsers = await Retailer.find({
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
-          role: 2,
         });
 
         // Find products and offers associated with nearby users
@@ -602,10 +613,10 @@ async function getProduct(fastify, options) {
       try {
         const brandId = req.params.id;
         const userid = req.user.userId._id;
-        const userData = await User.findById({ _id: userid });
+        const userData = await Retailer.findById({ _id: userid });
 
         let existingData;
-        if (userData.role == 2) {
+        if (userData) {
           existingData = await Model2.find({ "properties.brand": brandId });
         } else {
           reply.send({ error: "Not authroized" });
@@ -644,10 +655,10 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userid = req.params.id;
-        const userData = await User.findById({ _id: userid });
+        const userData = await Retailer.findById({ _id: userid });
         let existingData;
 
-        if (userData.role == 2) {
+        if (userData) {
           existingData = await Product.find({ user: userData }).populate(
             "user"
           );
@@ -669,9 +680,9 @@ async function getProduct(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.user.userId._id;
-        const userData = await User.findById(userId);
+        const userData = await Retailer.findById(userId);
 
-        if (userData.role !== 2) {
+        if (!userData) {
           return reply.send({ error: "Not authorized" });
         }
         const models = await Model2.find({ main: true });
@@ -782,31 +793,84 @@ async function getProduct(fastify, options) {
     try {
       const Id = req.user.userId._id;
 
-      const dataIsAvailable = await Retailer.find({$and: [{ manager: Id }, { status: 3 }],});
+      const managerId = await Staff.findById(Id);
+      if(!managerId){
+        return reply.code(401).send({ error: "Unauthroizd !" }); 
+      }
+
+      const dataIsAvailable = await Retailer.find({ $and: [{ "manager": managerId._id }, { status: 3 }]}).limit(10).populate('manager');
 
       if (dataIsAvailable.length > 0) {
         console.log("In Available : ",dataIsAvailable.length);
-        return reply.send(dataIsAvailable);
-      } else {
+       return reply.send(dataIsAvailable);
+      } 
+
         const dataIsNotAvailable = await Retailer.find({
           $and: [{ manager: null }, { isActive: false }, { status: 2 }],
         }).limit(10);
         
         for await (let data of dataIsNotAvailable){
-          data.manager = Id
+          data.manager = managerId._id
           data.status = 3;
           await data.save();
-          console.log(data);
+          console.log('found');
         }
+        await Promise.all(dataIsNotAvailable.map(async (prod) => {
+          // prod.product = await Model2.findById(prod.product._id);
+          prod.manager = await Staff.findById(prod.manager._id);
+      }));
         console.log("In Not Available : ",dataIsNotAvailable.length);
-        return reply.send(dataIsNotAvailable);
-      }
+        return reply.send(dataIsNotAvailable,);
+      
 
     } catch (error) {
       console.error("Error :", error);
       reply.code(500).send({ error: "Internal Server Error" });
     }
   });
+
+  fastify.post(
+    "/findSingleData",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const modelId = req.body.modelId;
+        const retailerId = req.body.retailerId;
+        const EARTH_RADIUS_KM = 6371;
+        const maxDistance = 5;
+        const userId = req.user.userId._id;
+        
+        const user = await Customer.findById(userId);
+        const userLatitude = parseFloat(user.latitude);
+        const userLongitude = parseFloat(user.longitude);
+        
+        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
+        const minLatitude = userLatitude - deltaLatitude;
+        const maxLatitude = userLatitude + deltaLatitude;
+        const minLongitude = userLongitude - deltaLongitude;
+        const maxLongitude = userLongitude + deltaLongitude;
+
+        const nearbyUsers = await Retailer.find({
+          latitude: { $gte: minLatitude, $lte: maxLatitude },
+          longitude: { $gte: minLongitude, $lte: maxLongitude },
+        });
+        
+        const uniqueProducts = await Product.find({'product._id':modelId,user:retailerId}).populate('user');
+        if(uniqueProducts.length==0){
+          console.log('not found');
+          const myProduct = await Product.find({'product._id':modelId,user:{ $in: nearbyUsers }}).limit(1).populate('user');
+          return reply.send(myProduct);
+        }
+        reply.send(uniqueProducts);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;
