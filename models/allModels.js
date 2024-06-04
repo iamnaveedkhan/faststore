@@ -81,16 +81,16 @@ const retailerSchema = new Schema({
 });
 
 const statusSchema = new Schema({
-  manager: { type: Schema.Types.ObjectId, ref: "User" },
-  retailer: { type: Schema.Types.ObjectId, ref: "User" },
+  manager: { type: Schema.Types.ObjectId, ref: "Staff" },
+  retailer: { type: Schema.Types.ObjectId, ref: "Retailer" },
   comment: { type: String, default: "" },
   status: { type: Number, default: null },
   date: { type: Date, default: Date.now },
 });
 
 const followupSchema = new Schema({
-  manager: { type: Schema.Types.ObjectId, ref: "User" },
-  retailer: { type: Schema.Types.ObjectId, ref: "User" },
+  manager: { type: Schema.Types.ObjectId, ref: "Staff" },
+  retailer: { type: Schema.Types.ObjectId, ref: "Retailer" },
   followupDate: { type: Date, default: Date.now },
   comment: { type: String, default: "" },
   followupStatus: { type: Number, default: null },
@@ -168,18 +168,18 @@ const model2Schema = new mongoose.Schema({
 });
 
 const likedSchema = new mongoose.Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "Customer" },
   liked: [String],
 });
 
 const viewedSchema = new mongoose.Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "Customer" },
   viewed: [String],
 });
 
 const productSchema = new mongoose.Schema({
   product: model2Schema,
-  user: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "Retailer" },
   price: { type: Number },
   quantity: { type: Number },
   date: {
@@ -193,7 +193,7 @@ const productSchema = new mongoose.Schema({
 });
 
 const offersSchema = new mongoose.Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: Schema.Types.ObjectId, ref: "Retailer" },
   photos: { type: String },
   isActive: { type: Boolean, default: true },
 });
@@ -232,15 +232,15 @@ const specificationSchema = new mongoose.Schema({
 });
 
 const chatSchema = new mongoose.Schema({
-  retailer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  retailer: { type: mongoose.Schema.Types.ObjectId, ref: "Retailer" },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
   isRequest: { type: Boolean, default: false },
   status: { type: Number, default: false },
   messages: [
     {
-      sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      sender: { type: String  },
+      receiver: { type: String},
       content: String,
       timestamp: { type: Date, default: Date.now },
       isRead: { type: Boolean, default: false },

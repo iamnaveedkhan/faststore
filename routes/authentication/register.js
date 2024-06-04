@@ -27,7 +27,7 @@ async function registerUser(fastify, options) {
       } else if (type == "staff") {
         savedUser = await staff.save();
       } else {
-        reply.send({ error: "something went wrong !" });
+        return reply.send({ error: "something went wrong !" });
       }
 
       let savedAddress;
