@@ -244,7 +244,7 @@ const chatSchema = new mongoose.Schema({
       content: String,
       timestamp: { type: Date, default: Date.now },
       isRead: { type: Boolean, default: false },
-      isImage: { type: Boolean, default: false },
+      isImage: { type: Number, default: 0 },
       image: { type: String, default: "" },
     },
   ],
