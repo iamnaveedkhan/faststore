@@ -489,7 +489,6 @@ async function getProduct(fastify, options) {
         const nearbyUsers = await Retailer.find({
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
-          role: 2,
         });
         
 
@@ -526,7 +525,6 @@ async function getProduct(fastify, options) {
           user: { $in: nearbyUsers },
           isActive: true,
         });
-        
         reply.send({ 
           offer: activeOffers,
            product: uniqueProducts });
@@ -886,6 +884,7 @@ async function getProduct(fastify, options) {
           const myProduct = await Product.find({'product._id':modelId,user:{ $in: nearbyUsers }}).limit(1).populate('user');
           return reply.send(myProduct);
         }
+        console.log(uniqueProducts);
         reply.send(uniqueProducts);
       } catch (error) {
         console.error(error);
