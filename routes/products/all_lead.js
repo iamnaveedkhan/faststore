@@ -519,7 +519,7 @@ async function getProduct(fastify, options) {
         
         await Promise.all(uniqueProducts.map(async (prod) => {
           // prod.product = await Model2.findById(prod.product._id);
-          prod.user = await User.findById(prod.user._id);
+          prod.user = await Retailer.findById(prod.user._id);
       }));
         
         const activeOffers = await Offers.find({
