@@ -472,7 +472,7 @@ async function getProduct(fastify, options) {
         const userId = req.user.userId._id;
         
         // Retrieve user's location
-        const user = await User.findById(userId);
+        const user = await Customer.findById(userId);
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
         
@@ -486,7 +486,7 @@ async function getProduct(fastify, options) {
         const minLongitude = userLongitude - deltaLongitude;
         const maxLongitude = userLongitude + deltaLongitude;
 
-        const nearbyUsers = await User.find({
+        const nearbyUsers = await Retailer.find({
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
           role: 2,
@@ -536,7 +536,6 @@ async function getProduct(fastify, options) {
       }
     }
   );
-
   fastify.get(
     "/productsOnRetailer",
     { onRequest: [fastify.authenticate] },

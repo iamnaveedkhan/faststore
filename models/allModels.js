@@ -6,21 +6,21 @@ const crypto = require("crypto");
 const dateIndia = moment.tz("Asia/kolkata");
 const formattedDate = dateIndia.format();
 
-const userSchema = new Schema({
-  name: { type: String, default: "" },
-  mobile: { type: Number, unique: true },
-  email: { type: String, default: "" },
-  photo: { type: String, default: "" },
+// const userSchema = new Schema({
+//   name: { type: String, default: "" },
+//   mobile: { type: Number, unique: true },
+//   email: { type: String, default: "" },
+//   photo: { type: String, default: "" },
 
-  role: { type: Number, default: 1 },
-  isActive: { type: Boolean, default: true },
+//   role: { type: Number, default: 1 },
+//   isActive: { type: Boolean, default: true },
 
-  longitude: { type: String, default: "" },
-  latitude: { type: String, default: "" },
+//   longitude: { type: String, default: "" },
+//   latitude: { type: String, default: "" },
 
-  firetoken: { type: String, default: "" },
-  date: { type: Date, default: Date.now },
-});
+//   firetoken: { type: String, default: "" },
+//   date: { type: Date, default: Date.now },
+// });
 
 const staffSchema = new Schema({
   name: { type: String, default: "" },
@@ -251,7 +251,7 @@ const chatSchema = new mongoose.Schema({
 });
 
 const Chat = mongoose.model("Chat", chatSchema);
-const User = mongoose.model("User", userSchema);
+// const User = mongoose.model("User", userSchema);
 const Staff = mongoose.model("Staff", staffSchema);
 const Customer = mongoose.model("Customer", customerSchema);
 const Retailer = mongoose.model("Retailer", retailerSchema);
@@ -276,7 +276,7 @@ module.exports = {
   Liked,
   Viewed,
   Specification,
-  User,
+  // User,
   Staff,
   Customer,
   Retailer,
