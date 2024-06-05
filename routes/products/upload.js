@@ -506,7 +506,6 @@ async function Upload(fastify, options) {
   });
 
   
-  
   fastify.post("/set-user-data", async (req, reply) => {
     try {
       const parts = req.parts();

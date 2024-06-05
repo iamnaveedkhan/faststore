@@ -263,7 +263,9 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
-        const userId = await Customer.findOne({ _id: req.user.userId._id }) || await Retailer.findOne({ _id: req.user.userId._id });
+        const userId =
+          (await Customer.findOne({ _id: req.user.userId._id })) ||
+          (await Retailer.findOne({ _id: req.user.userId._id }));
 
         console.log(userId);
         let existingData;
@@ -293,10 +295,12 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async function (req, reply) {
       try {
-        const userId = await Customer.findOne({ _id: req.params.id }) || await Retailer.findOne({ _id: req.params.id });
+        const userId =
+          (await Customer.findOne({ _id: req.params.id })) ||
+          (await Retailer.findOne({ _id: req.params.id }));
 
-        if(!userId){
-          reply.code(404).send({ error: "User not found !" }); 
+        if (!userId) {
+          reply.code(404).send({ error: "User not found !" });
         }
         let existingData;
         if (userId.cId) {
@@ -325,7 +329,6 @@ async function getProduct(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-      
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
 
@@ -343,7 +346,7 @@ async function getProduct(fastify, options) {
 
         if (existingData.length > 0) {
           reply.send(existingData);
-          console.log("ffffffffffffffffffff", existingData.length);
+       
         } else {
           reply.code(204).send({ error: "No data found" });
         }
@@ -419,16 +422,16 @@ async function getProduct(fastify, options) {
       try {
         const type = req.params.type;
         let existingData;
-        if(type == "customer"){
-          existingData = await Customer.find({isActive: true });
-        } else if(type == "retailer"){
+        if (type == "customer") {
+          existingData = await Customer.find({ isActive: true });
+        } else if (type == "retailer") {
           existingData = await Retailer.find({
             $and: [{ isActive: true }, { manager: { $ne: null } }],
           });
-        }else{
+        } else {
           reply.code(401).send({ error: "Unauthroized !" });
         }
-        
+
         if (existingData.length > 0) {
           return existingData;
         } else {
@@ -448,7 +451,9 @@ async function getProduct(fastify, options) {
       let existingData;
       const userid = req.user.userId._id;
 
-      let user = await Customer.findById({ _id: userid }) || await Retailer.findById({ _id: userid });
+      let user =
+        (await Customer.findById({ _id: userid })) ||
+        (await Retailer.findById({ _id: userid }));
 
       if (user.cId) {
         existingData = await Chat.find({ customer: userid }).populate(
@@ -471,12 +476,12 @@ async function getProduct(fastify, options) {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
         const userId = req.user.userId._id;
-        
+
         // Retrieve user's location
         const user = await Customer.findById(userId);
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
-        
+
         // Calculate latitude and longitude ranges
         const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
         const deltaLongitude =
@@ -491,44 +496,46 @@ async function getProduct(fastify, options) {
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
         });
-        
 
         const uniqueProducts = await Product.aggregate([
           {
             $match: {
-              "user": { $in: nearbyUsers.map(user => user._id) },
-            }
+              user: { $in: nearbyUsers.map((user) => user._id) },
+            },
           },
           {
             $group: {
               _id: "$product",
-              products: { $push: "$$ROOT" } 
-            }
+              products: { $push: "$$ROOT" },
+            },
           },
-          { $unwind: "$products" }, 
+          { $unwind: "$products" },
           { $sort: { "products.price": 1 } },
           { $limit: 10 },
           {
             $group: {
               _id: "$_id",
               product: { $first: "$products" },
-            }
+            },
           },
           { $replaceRoot: { newRoot: "$product" } },
         ]);
-        
-        await Promise.all(uniqueProducts.map(async (prod) => {
-          // prod.product = await Model2.findById(prod.product._id);
-          prod.user = await Retailer.findById(prod.user._id);
-      }));
-        
+
+        await Promise.all(
+          uniqueProducts.map(async (prod) => {
+            // prod.product = await Model2.findById(prod.product._id);
+            prod.user = await Retailer.findById(prod.user._id);
+          })
+        );
+
         const activeOffers = await Offers.find({
           user: { $in: nearbyUsers },
           isActive: true,
         });
-        reply.send({ 
+        reply.send({
           offer: activeOffers,
-           product: uniqueProducts });
+          product: uniqueProducts,
+        });
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
@@ -810,45 +817,106 @@ async function getProduct(fastify, options) {
     }
   });
 
-  fastify.get("/ten-retailer-details", { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    try {
-      const Id = req.user.userId._id;
+  fastify.get(
+    "/ten-retailer-details",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.user.userId._id;
 
-      const managerId = await Staff.findById(Id);
-      if(!managerId){
-        return reply.code(401).send({ error: "Unauthroizd !" }); 
-      }
+        const manager = await Staff.findById(Id);
+        console.log(manager);
+        if (!manager) {
+          return reply.code(401).send({ error: "Unauthroizd !" });
+        }
+        
+        if(manager.role==1){
 
-      const dataIsAvailable = await Retailer.find({ $and: [{ "manager": managerId._id }, { status: 3 }]}).limit(10).populate('manager');
+        const dataIsAvailable = await Retailer.find({
+          $and: [{ manager: manager._id }, { status: 3 }],
+        })
+          .limit(10)
+          .populate("manager");
 
-      if (dataIsAvailable.length > 0) {
-        console.log("In Available : ",dataIsAvailable.length);
-       return reply.send(dataIsAvailable);
-      } 
+        if (dataIsAvailable.length > 0) {
+          console.log("In Available : ", dataIsAvailable.length);
+          return reply.send(dataIsAvailable);
+        }
 
         const dataIsNotAvailable = await Retailer.find({
           $and: [{ manager: null }, { isActive: false }, { status: 2 }],
         }).limit(10);
-        
-        for await (let data of dataIsNotAvailable){
-          data.manager = managerId._id
+
+        for await (let data of dataIsNotAvailable) {
+          data.manager = manager._id;
           data.status = 3;
           await data.save();
-          console.log('found');
+          console.log("found");
         }
-        await Promise.all(dataIsNotAvailable.map(async (prod) => {
-          // prod.product = await Model2.findById(prod.product._id);
-          prod.manager = await Staff.findById(prod.manager._id);
-      }));
-        console.log("In Not Available : ",dataIsNotAvailable.length);
-        return reply.send(dataIsNotAvailable,);
-      
-
-    } catch (error) {
-      console.error("Error :", error);
-      reply.code(500).send({ error: "Internal Server Error" });
+        await Promise.all(
+          dataIsNotAvailable.map(async (prod) => {
+            // prod.product = await Model2.findById(prod.product._id);
+            prod.manager = await Staff.findById(prod.manager._id);
+          })
+        );
+      }else{
+        return reply.code(401).send({ error: "Unauthroizd !" });
+      }
+        console.log("In Not Available : ", dataIsNotAvailable.length);
+        return reply.send(dataIsNotAvailable);
+      } catch (error) {
+        console.error("Error :", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
     }
-  });
+  );
+
+  fastify.get(
+    "/admin",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.user.userId._id;
+        const staff = await Staff.findById(Id);
+  
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+  
+        let dataIsAvailable;
+  
+        if (staff.role == 0) {
+          const startDate = req.query.startDate;
+          const endDate = req.query.endDate;
+  
+          if (!startDate || !endDate) {
+            return reply.code(400).send({ error: "Start date and end date are required!" });
+          }
+  
+          const startDateTime = new Date(startDate);
+          const endDateTime = new Date(endDate);
+  
+          endDateTime.setDate(endDateTime.getDate() + 1);
+  
+          dataIsAvailable = await Retailer.find({
+            date: {
+              $gte: startDateTime,
+              $lt: endDateTime,
+            },
+          });
+        } else {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+  
+        return reply.send(dataIsAvailable);
+  
+      } catch (error) {
+        console.error("Error:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+  
 
   fastify.post(
     "/findSingleData",
@@ -860,11 +928,11 @@ async function getProduct(fastify, options) {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
         const userId = req.user.userId._id;
-        
+
         const user = await Customer.findById(userId);
         const userLatitude = parseFloat(user.latitude);
         const userLongitude = parseFloat(user.longitude);
-        
+
         const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
         const deltaLongitude =
           ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
@@ -878,11 +946,19 @@ async function getProduct(fastify, options) {
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
         });
-        
-        const uniqueProducts = await Product.find({'product._id':modelId,user:retailerId}).populate('user');
-        if(uniqueProducts.length==0){
-          console.log('not found');
-          const myProduct = await Product.find({'product._id':modelId,user:{ $in: nearbyUsers }}).limit(1).populate('user');
+
+        const uniqueProducts = await Product.find({
+          "product._id": modelId,
+          user: retailerId,
+        }).populate("user");
+        if (uniqueProducts.length == 0) {
+          console.log("not found");
+          const myProduct = await Product.find({
+            "product._id": modelId,
+            user: { $in: nearbyUsers },
+          })
+            .limit(1)
+            .populate("user");
           return reply.send(myProduct);
         }
         console.log(uniqueProducts);
