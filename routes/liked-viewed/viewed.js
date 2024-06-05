@@ -15,13 +15,14 @@ async function getViewed(fastify, options) {
         if (!userData) {
           return reply.status(404).send({ error: "User not found" });
         }
-  
+        
         let userViewed = await Viewed.findOne({ user: userId });
+
         if (!userViewed) {
           userViewed = new Viewed({ user: userId, viewed: [] });
         }
   
-        if (userData.role === 1) {
+        if (userData.cId) {
           if (!userViewed.viewed.includes(productId)) {
             if (userViewed.viewed.length >= 5) {
               userViewed.viewed.shift();

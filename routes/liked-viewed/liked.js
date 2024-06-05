@@ -45,11 +45,10 @@ async function getLiked(fastify, options) {
     async (req, reply) => {
       try {
         const userId = req.user.userId._id;
-        console.log(userId);
-
+        
         const user = await Liked.findOne({ user: userId });
-
         const likedProductIds = user.liked;
+        console.log(likedProductIds);
 
         const likedProducts = await Product.find({
           _id: { $in: likedProductIds },

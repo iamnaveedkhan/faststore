@@ -62,6 +62,7 @@ const retailerSchema = new Schema({
   name: { type: String, default: "" },
   mobile: { type: Number, unique: true },
   email: { type: String, default: "" },
+  comment: { type: String, default: "" },
   isActive: { type: Boolean, default: true },
   longitude: { type: String, default: "" },
   latitude: { type: String, default: "" },

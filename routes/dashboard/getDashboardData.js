@@ -417,7 +417,7 @@ async function getDashboardData(fastify, options) {
     }
   );
 
-  fastify.get(
+  fastify.get(   
     "/pastSevenDays-enquiry-count-retailer",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
