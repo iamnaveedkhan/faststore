@@ -7,7 +7,7 @@ async function chatRoutes(fastify, options) {
     let retailer, customer,product;
     const id = request.body.id;
     const userId = request.user.userId;
-    if (userId.role == 2) {
+    if (userId.rId) {
       retailer = userId._id;
       customer = id;
       product = request.body.product;

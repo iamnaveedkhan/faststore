@@ -8,7 +8,7 @@ async function location(fastify, options) {
         const { latitude, longitude } = req.body;
         const userid = req.user.userId._id;
         console.log(userid);
-        const userData = await Customer.findById({ _id: userid });
+        const userData = await Customer.findById(userid);
 
         userData.latitude = latitude;
         userData.longitude = longitude;
