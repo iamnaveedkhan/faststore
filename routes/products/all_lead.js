@@ -969,6 +969,52 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+
+
+  fastify.get(
+    "/retailersOfProduct/:id",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const modelId = req.params.id;
+        const EARTH_RADIUS_KM = 6371;
+        const maxDistance = 5;
+        const userId = req.user.userId._id;
+
+        const user = await Customer.findById(userId);
+        const userLatitude = parseFloat(user.latitude);
+        const userLongitude = parseFloat(user.longitude);
+
+        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
+        const minLatitude = userLatitude - deltaLatitude;
+        const maxLatitude = userLatitude + deltaLatitude;
+        const minLongitude = userLongitude - deltaLongitude;
+        const maxLongitude = userLongitude + deltaLongitude;
+
+        const nearbyUsers = await Retailer.find({
+          latitude: { $gte: minLatitude, $lte: maxLatitude },
+          longitude: { $gte: minLongitude, $lte: maxLongitude },
+        });
+
+       
+        
+          const myProduct = await Product.find({
+            "product._id": modelId,
+            user: { $in: nearbyUsers },
+          })
+            
+            .populate("user");
+          return reply.send(myProduct);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;
