@@ -2,7 +2,7 @@ const { Customer, Retailer, Staff } = require("../../models/allModels");
 async function login(fastify, options) {
   fastify.post("/login", async (req, reply) => {
     try {
-      const { mobile, type } = req.body;
+      const { mobile, type, firetoken } = req.body;
       let existingUser;
       let status;
 
@@ -23,6 +23,8 @@ async function login(fastify, options) {
       }
 
       if (existingUser) {
+        existingUser.firetoken = firetoken;
+        await existingUser.save();
         console.log(mobile);
         const token = fastify.jwt.sign({ userId: existingUser });
         const id = existingUser._id;
@@ -72,8 +74,9 @@ async function login(fastify, options) {
       const token = fastify.jwt.sign({ userId: user });
       const id = user._id;
       const status = "success";
+      const role = user.role;
   
-      reply.send({ token, id, status, user });
+      reply.send({ token, id, status, user, role });
     } catch (error) {
       console.error("Error during login:", error);
       return reply.status(500).send({ error: "Internal Server Error" });

@@ -13,6 +13,7 @@ const {
   Specification,
   Offers,
   Staff,
+  Address,
 } = require("../../models/allModels");
 
 async function getProduct(fastify, options) {
@@ -871,51 +872,7 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get(
-    "/admin",
-    { onRequest: [fastify.authenticate] },
-    async (req, reply) => {
-      try {
-        const Id = req.user.userId._id;
-        const staff = await Staff.findById(Id);
-  
-        if (!staff) {
-          return reply.code(401).send({ error: "Unauthorized!" });
-        }
-  
-        let dataIsAvailable;
-  
-        if (staff.role == 0) {
-          const startDate = req.query.startDate;
-          const endDate = req.query.endDate;
-  
-          if (!startDate || !endDate) {
-            return reply.code(400).send({ error: "Start date and end date are required!" });
-          }
-  
-          const startDateTime = new Date(startDate);
-          const endDateTime = new Date(endDate);
-  
-          endDateTime.setDate(endDateTime.getDate() + 1);
-  
-          dataIsAvailable = await Retailer.find({
-            date: {
-              $gte: startDateTime,
-              $lt: endDateTime,
-            },
-          });
-        } else {
-          return reply.code(401).send({ error: "Unauthorized!" });
-        }
-  
-        return reply.send(dataIsAvailable);
-  
-      } catch (error) {
-        console.error("Error:", error);
-        reply.code(500).send({ error: "Internal Server Error" });
-      }
-    }
-  );
+
   
 
   fastify.post(
@@ -1012,6 +969,63 @@ async function getProduct(fastify, options) {
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get(
+    "/all-retailers",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.user.userId._id;
+        const staff = await Staff.findById(Id);
+
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        // Active Retailers
+        const activeRetailers = await Address.find({status : 1});
+        if (!activeRetailers) {
+          return reply.code(404).send({ error: "Acitve Retailers Not Found!" });
+        }
+
+        const inActiveRetailers = await Retailer.find();
+        if (!inActiveRetailers) {
+          return reply.code(404).send({ error: "inAcitve Retailers Not Found!" });
+        }
+  
+        let dataIsAvailable;
+  
+        if (staff.role == 0) {
+          const startDate = req.query.startDate;
+          const endDate = req.query.endDate;
+  
+          if (!startDate || !endDate) {
+            return reply.code(400).send({ error: "Start date and end date are required!" });
+          }
+  
+          const startDateTime = new Date(startDate);
+          const endDateTime = new Date(endDate);
+  
+          endDateTime.setDate(endDateTime.getDate() + 1);
+  
+          dataIsAvailable = await Retailer.find({
+            date: {
+              $gte: startDateTime,
+              $lt: endDateTime,
+            },
+          });
+        } else {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+  
+        return reply.send({"activeRetailers":activeRetailers,"dataIsAvailable":dataIsAvailable});
+  
+      } catch (error) {
+        console.error("Error:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
       }
     }
   );
