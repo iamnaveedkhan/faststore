@@ -57,7 +57,7 @@ async function registerUser(fastify, options) {
 
         let savedUser;
         const ADMIN = await Staff.findById(userId);
-        console.log("dddddddddd",ADMIN);
+
         if(ADMIN.role == 0 && ADMIN.isActive){
           const staff = new Staff(data);
           savedUser = await staff.save();

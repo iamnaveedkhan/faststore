@@ -67,7 +67,7 @@ const retailerSchema = new Schema({
   longitude: { type: String, default: "" },
   latitude: { type: String, default: "" },
   firetoken: { type: String, default: "" },
-  status: { type: Number, default: 5 },
+  status: { type: Number, default: 1 },
   rId: {
     type: String,
     default: function () {
