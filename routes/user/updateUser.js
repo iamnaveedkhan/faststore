@@ -3,7 +3,7 @@ const fs = require("fs");
 const { Retailer, Address } = require("../../models/allModels");
 
 async function updateUser(fastify, options) {
-  fastify.register(require("@fastify/multipart"));
+ 
   fastify.post(
     "/update-retailer/:id",
     { onRequest: [fastify.authenticate] },
