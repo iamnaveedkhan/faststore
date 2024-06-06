@@ -347,7 +347,6 @@ async function getProduct(fastify, options) {
 
         if (existingData.length > 0) {
           reply.send(existingData);
-       
         } else {
           reply.code(204).send({ error: "No data found" });
         }
@@ -830,39 +829,38 @@ async function getProduct(fastify, options) {
         if (!manager) {
           return reply.code(401).send({ error: "Unauthroizd !" });
         }
-        
-        if(manager.role==1){
 
-        const dataIsAvailable = await Retailer.find({
-          $and: [{ manager: manager._id }, { status: 3 }],
-        })
-          .limit(10)
-          .populate("manager");
-
-        if (dataIsAvailable.length > 0) {
-          console.log("In Available : ", dataIsAvailable.length);
-          return reply.send(dataIsAvailable);
-        }
-
-        const dataIsNotAvailable = await Retailer.find({
-          $and: [{ manager: null }, { isActive: false }, { status: 2 }],
-        }).limit(10);
-
-        for await (let data of dataIsNotAvailable) {
-          data.manager = manager._id;
-          data.status = 3;
-          await data.save();
-          console.log("found");
-        }
-        await Promise.all(
-          dataIsNotAvailable.map(async (prod) => {
-            // prod.product = await Model2.findById(prod.product._id);
-            prod.manager = await Staff.findById(prod.manager._id);
+        if (manager.role == 1) {
+          const dataIsAvailable = await Retailer.find({
+            $and: [{ manager: manager._id }, { status: 3 }],
           })
-        );
-      }else{
-        return reply.code(401).send({ error: "Unauthroizd !" });
-      }
+            .limit(10)
+            .populate("manager");
+
+          if (dataIsAvailable.length > 0) {
+            console.log("In Available : ", dataIsAvailable.length);
+            return reply.send(dataIsAvailable);
+          }
+
+          const dataIsNotAvailable = await Retailer.find({
+            $and: [{ manager: null }, { isActive: false }, { status: 2 }],
+          }).limit(10);
+
+          for await (let data of dataIsNotAvailable) {
+            data.manager = manager._id;
+            data.status = 3;
+            await data.save();
+            console.log("found");
+          }
+          await Promise.all(
+            dataIsNotAvailable.map(async (prod) => {
+              // prod.product = await Model2.findById(prod.product._id);
+              prod.manager = await Staff.findById(prod.manager._id);
+            })
+          );
+        } else {
+          return reply.code(401).send({ error: "Unauthroizd !" });
+        }
         console.log("In Not Available : ", dataIsNotAvailable.length);
         return reply.send(dataIsNotAvailable);
       } catch (error) {
@@ -871,9 +869,6 @@ async function getProduct(fastify, options) {
       }
     }
   );
-
-
-  
 
   fastify.post(
     "/findSingleData",
@@ -927,8 +922,6 @@ async function getProduct(fastify, options) {
     }
   );
 
-
-
   fastify.get(
     "/retailersOfProduct/:id",
     { onRequest: [fastify.authenticate] },
@@ -957,15 +950,11 @@ async function getProduct(fastify, options) {
           longitude: { $gte: minLongitude, $lte: maxLongitude },
         });
 
-       
-        
-          const myProduct = await Product.find({
-            "product._id": modelId,
-            user: { $in: nearbyUsers },
-          })
-            
-            .populate("user");
-          return reply.send(myProduct);
+        const myProduct = await Product.find({
+          "product._id": modelId,
+          user: { $in: nearbyUsers },
+        }).populate("user");
+        return reply.send(myProduct);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });
@@ -973,56 +962,83 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.get(
+  fastify.post(
     "/all-retailers",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const Id = req.user.userId._id;
         const staff = await Staff.findById(Id);
-
         if (!staff) {
           return reply.code(401).send({ error: "Unauthorized!" });
         }
 
-        // Active Retailers
-        const activeRetailers = await Address.find({status : 1});
-        if (!activeRetailers) {
-          return reply.code(404).send({ error: "Acitve Retailers Not Found!" });
-        }
+        const { isActive, status, startdate, enddate } = req.body;
+        let pickedRetailers;
 
-        const inActiveRetailers = await Retailer.find();
-        if (!inActiveRetailers) {
-          return reply.code(404).send({ error: "inAcitve Retailers Not Found!" });
-        }
-  
-        let dataIsAvailable;
-  
+        const startDateTime = new Date(startdate);
+        const endDateTime = new Date(enddate);
+        endDateTime.setDate(endDateTime.getDate() + 1);
+
         if (staff.role == 0) {
-          const startDate = req.query.startDate;
-          const endDate = req.query.endDate;
-  
-          if (!startDate || !endDate) {
-            return reply.code(400).send({ error: "Start date and end date are required!" });
-          }
-  
-          const startDateTime = new Date(startDate);
-          const endDateTime = new Date(endDate);
-  
-          endDateTime.setDate(endDateTime.getDate() + 1);
-  
-          dataIsAvailable = await Retailer.find({
-            date: {
-              $gte: startDateTime,
-              $lt: endDateTime,
-            },
+          pickedRetailers = await Retailer.find({
+            $and: [
+              { status: status },
+              { isActive: isActive },
+              {
+                date: {
+                  $gte: startDateTime,
+                  $lt: endDateTime,
+                },
+              },
+            ],
           });
         } else {
-          return reply.code(401).send({ error: "Unauthorized!" });
+          if (status == 3) {
+            pickedRetailers = await Retailer.find({
+              $and: [{ manager: staff._id }, { status: 3 }],
+            })
+              .limit(10)
+              .populate("manager");
+
+            if (pickedRetailers.length > 0) {
+              console.log("In Available : ", pickedRetailers.length);
+              return reply.send(pickedRetailers);
+            }
+
+            pickedRetailers = await Retailer.find({
+              $and: [{ manager: null }, { isActive: false }, { status: 2 }],
+            }).limit(10);
+
+            for await (let data of pickedRetailers) {
+              data.manager = staff._id;
+              data.status = 3;
+              await data.save();
+              console.log("found");
+            }
+            await Promise.all(
+              pickedRetailers.map(async (prod) => {
+                prod.manager = await Staff.findById(prod.manager._id);
+              })
+            );
+          } else {
+            pickedRetailers = await Retailer.find({
+              $and: [
+                { status: status },
+                { manager: staff._id },
+                { isActive: isActive },
+                {
+                  date: {
+                    $gte: startDateTime,
+                    $lt: endDateTime,
+                  },
+                },
+              ],
+            });
+          }
         }
-  
-        return reply.send({"activeRetailers":activeRetailers,"dataIsAvailable":dataIsAvailable});
-  
+
+        return reply.send(pickedRetailers);
       } catch (error) {
         console.error("Error:", error);
         reply.code(500).send({ error: "Internal Server Error" });
