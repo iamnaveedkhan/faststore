@@ -469,14 +469,13 @@ async function getProduct(fastify, options) {
   );
 
   fastify.get(
-    "/nearbyAndOffers/:id",
+    "/nearbyAndOffers",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
         const EARTH_RADIUS_KM = 6371;
         const maxDistance = 5;
         const userId = req.user.userId._id;
-        const id = req.params.id;
 
         // Retrieve user's location
         const user = await Customer.findById(userId);
@@ -497,55 +496,30 @@ async function getProduct(fastify, options) {
           latitude: { $gte: minLatitude, $lte: maxLatitude },
           longitude: { $gte: minLongitude, $lte: maxLongitude },
         });
-        if(id==1){
-          const uniqueProducts = await Product.aggregate([
-            {
-              $match: {
-                user: { $in: nearbyUsers.map((user) => user._id) },
-              },
+
+        const uniqueProducts = await Product.aggregate([
+          {
+            $match: {
+              user: { $in: nearbyUsers.map((user) => user._id) },
             },
-            {
-              $group: {
-                _id: "$product",
-                products: { $push: "$$ROOT" },
-              },
+          },
+          {
+            $group: {
+              _id: "$product",
+              products: { $push: "$$ROOT" },
             },
-            { $unwind: "$products" },
-            { $sort: { "products.price": 1 } },
-            { $limit: 10 },
-            {
-              $group: {
-                _id: "$_id",
-                product: { $first: "$products" },
-              },
+          },
+          { $unwind: "$products" },
+          { $sort: { "products.price": 1 } },
+          // { $limit: 10 },
+          {
+            $group: {
+              _id: "$_id",
+              product: { $first: "$products" },
             },
-            { $replaceRoot: { newRoot: "$product" } },
-          ]);
-        }else{
-          const uniqueProducts = await Product.aggregate([
-            {
-              $match: {
-                user: { $in: nearbyUsers.map((user) => user._id) },
-              },
-            },
-            {
-              $group: {
-                _id: "$product",
-                products: { $push: "$$ROOT" },
-              },
-            },
-            { $unwind: "$products" },
-            { $sort: { "products.price": 1 } },
-            {
-              $group: {
-                _id: "$_id",
-                product: { $first: "$products" },
-              },
-            },
-            { $replaceRoot: { newRoot: "$product" } },
-          ]);
-        }
-        
+          },
+          { $replaceRoot: { newRoot: "$product" } },
+        ]);
 
         await Promise.all(
           uniqueProducts.map(async (prod) => {
