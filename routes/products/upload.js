@@ -209,12 +209,19 @@ async function Upload(fastify, options) {
         if (!user) {
           return reply.code(401).send({ error: "You are not authorized!" });
         }
+
+        const existingInquiry = await Inquiry.findOne({"product._id":productId,"customer._id":user._id});
+        if(existingInquiry){
+          return { shopName: existingInquiry.shop.shopName };
+        }
   
         const existingProduct = await Product.findById(productId).populate("user");
   
         if (!existingProduct) {
           return reply.code(404).send({ error: "Product not found" });
         }
+
+        
   
         const shop = existingProduct.user;
   
