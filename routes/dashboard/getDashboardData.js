@@ -1,4 +1,11 @@
-const { Model2, Inquiry, Customer, Retailer } = require("../../models/allModels");
+const {
+  Address,
+  Staff,
+  Model2,
+  Inquiry,
+  Customer,
+  Retailer,
+} = require("../../models/allModels");
 const { DateTime, Interval } = require("luxon");
 
 async function getDashboardData(fastify, options) {
@@ -417,7 +424,7 @@ async function getDashboardData(fastify, options) {
     }
   );
 
-  fastify.get(   
+  fastify.get(
     "/pastSevenDays-enquiry-count-retailer",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
@@ -465,7 +472,50 @@ async function getDashboardData(fastify, options) {
     }
   );
 
-  
+  fastify.get(
+    "/staff-retailers-count",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const Id = req.user.userId._id;
+        const staff = await Staff.findById(Id);
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        const pickedCount = await Retailer.countDocuments({
+          $and: [{ isActive: false }, { manager: Id }, { status: 3 }],
+        });
+        const followUpCount = await Retailer.countDocuments({
+          $and: [{ isActive: false }, { manager: Id }, { status: 5 }],
+        });
+        const notAnsweredCount = await Retailer.countDocuments({
+          $and: [{ isActive: false }, { manager: Id }, { status: 4 }],
+        });
+        const notInterestedCount = await Retailer.countDocuments({
+          $and: [{ isActive: false }, { manager: Id }, { status: 6 }],
+        });
+        const CompletedCount = await Retailer.countDocuments({
+          $and: [{ isActive: false }, { manager: Id }, { status: 7 }],
+        });
+        const subscribedCount = await Retailer.countDocuments({
+          $and: [{ isActive: true }, { manager: Id }, { status: 1 }],
+        });
+
+        return {
+          pickedCount,
+          followUpCount,
+          notAnsweredCount,
+          notInterestedCount,
+          CompletedCount,
+          subscribedCount,
+        };
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
 }
 
 module.exports = getDashboardData;

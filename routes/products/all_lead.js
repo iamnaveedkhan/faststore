@@ -1045,6 +1045,36 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  fastify.post(
+    "/update-retailers-status",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const {rId,StatusWantToSet } = req.body;
+
+        const Id = req.user.userId._id;
+        const staff = await Staff.findById(Id);
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        let retailerData = await Retailer.findOne({rId:rId});
+        if(retailerData){
+          retailerData.status = StatusWantToSet;
+          await retailerData.save();
+          reply.send("Status Updated Successfully ! ")
+        }else{
+          return reply.code(401).send({ error: "Retailer Not Found!" });
+        }
+        console.log(retailerData);
+
+      } catch (error) {
+        console.error("Error:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
 }
 
 module.exports = getProduct;
