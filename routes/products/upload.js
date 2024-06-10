@@ -21,6 +21,7 @@ const {
   Variant,
   Specification,
   Customer,
+  Status,
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
@@ -408,6 +409,49 @@ async function Upload(fastify, options) {
   );
 
   fastify.post(
+    "/update-model-or-product-specific-titles",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const models = await Model2.find();
+        const yesVal = "Yes";
+  
+        if (!models || models.length === 0) {
+          return reply.code(404).send({ error: "No models found" });
+        }
+  
+        const updateTitlesToYes = (obj) => {
+          for (const key in obj) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+              if (obj[key].title ) {
+                obj[key].title = obj[key].title.trim();
+              }
+              updateTitlesToYes(obj[key]);
+            }
+          }
+        };
+  
+        const updatedModels = [];
+  
+        for (const model of models) {
+          updateTitlesToYes(model.specification);
+          model.markModified('specification'); // Ensure Mongoose knows 'specification' was modified
+          const updatedModel = await model.save();
+          updatedModels.push(updatedModel);
+        }
+  
+        return reply.code(200).send(updatedModels);
+      } catch (error) {
+        console.error("Error updating models:", error);
+        return reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+  
+  
+  
+  
+  fastify.post(
     "/addvariant/:id",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
@@ -560,6 +604,46 @@ async function Upload(fastify, options) {
     }
   });
   
+
+  fastify.post(
+    "/update-retailers-status",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const {rId,StatusWantToSet,latestComment } = req.body;
+
+        const Id = req.user.userId._id;
+        const staff = await Staff.findById(Id);
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        let retailerData = await Retailer.findOne({rId:rId});
+      
+        reply.send({ msg: "Retailer Not Found!" });
+        if(retailerData){
+          retailerData.status = StatusWantToSet;
+          retailerData.comment = latestComment;
+          await retailerData.save();
+          reply.send("Status Updated Successfully ! ")
+        }else{
+          return reply.code(401).send({ error: "Retailer Not Found!" });
+        }
+
+        const statusData = new Status();
+        statusData.manager = Id;
+        statusData.retailer = retailerData._id;
+        statusData.comment = latestComment;
+        statusData.status = StatusWantToSet;
+        await statusData.save();
+
+      } catch (error) {
+        console.error("Error:", error);
+        reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+
   
 }
 

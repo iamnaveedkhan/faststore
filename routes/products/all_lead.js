@@ -1046,32 +1046,72 @@ async function getProduct(fastify, options) {
     }
   );
 
-  fastify.post(
-    "/update-retailers-status",
+  fastify.get(
+    "/nearbyFeatured",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const {rId,StatusWantToSet } = req.body;
+        const EARTH_RADIUS_KM = 6371;
+        const maxDistance = 5;
+        const userId = req.user.userId._id;
 
-        const Id = req.user.userId._id;
-        const staff = await Staff.findById(Id);
-        if (!staff) {
-          return reply.code(401).send({ error: "Unauthorized!" });
-        }
+        // Retrieve user's location
+        const user = await Customer.findById(userId);
+        const userLatitude = parseFloat(user.latitude);
+        const userLongitude = parseFloat(user.longitude);
 
-        let retailerData = await Retailer.findOne({rId:rId});
-        if(retailerData){
-          retailerData.status = StatusWantToSet;
-          await retailerData.save();
-          reply.send("Status Updated Successfully ! ")
-        }else{
-          return reply.code(401).send({ error: "Retailer Not Found!" });
-        }
-        console.log(retailerData);
+        // Calculate latitude and longitude ranges
+        const deltaLatitude = (maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI);
+        const deltaLongitude =
+          ((maxDistance / EARTH_RADIUS_KM) * (180 / Math.PI)) /
+          Math.cos((userLatitude * Math.PI) / 180);
+        const minLatitude = userLatitude - deltaLatitude;
+        const maxLatitude = userLatitude + deltaLatitude;
+        const minLongitude = userLongitude - deltaLongitude;
+        const maxLongitude = userLongitude + deltaLongitude;
 
+        const nearbyUsers = await Retailer.find({
+          latitude: { $gte: minLatitude, $lte: maxLatitude },
+          longitude: { $gte: minLongitude, $lte: maxLongitude },
+        });
+
+        const uniqueProducts = await Product.aggregate([
+          {
+            $match: {
+              user: { $in: nearbyUsers.map((user) => user._id) },
+              featured: true
+            },
+          },
+          {
+            $group: {
+              _id: "$product",
+              products: { $push: "$$ROOT" },
+            },
+          },
+          { $unwind: "$products" },
+          { $sort: { "products.price": 1 } },
+          // { $limit: 10 },
+          {
+            $group: {
+              _id: "$_id",
+              product: { $first: "$products" },
+            },
+          },
+          { $replaceRoot: { newRoot: "$product" } },
+        ]);
+
+        await Promise.all(
+          uniqueProducts.map(async (prod) => {
+            // prod.product = await Model2.findById(prod.product._id);
+            prod.user = await Retailer.findById(prod.user._id);
+          })
+        );
+
+       
+        reply.send(uniqueProducts);
       } catch (error) {
-        console.error("Error:", error);
-        reply.code(500).send({ error: "Internal Server Error" });
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
       }
     }
   );
