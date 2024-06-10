@@ -458,11 +458,11 @@ async function getProduct(fastify, options) {
       if (user.cId) {
         existingData = await Chat.find({ customer: userid }).populate(
           "product"
-        );
+        ).populate("customer").populate("retailer");
       } else if (user.rId) {
         existingData = await Chat.find({ retailer: userid }).populate(
           "product"
-        );
+        ).populate("customer").populate("retailer");
       }
       reply.send(existingData);
     }
