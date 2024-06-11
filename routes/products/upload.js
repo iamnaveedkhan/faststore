@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
-const fastify = require('fastify')({ logger: true });
-const { parse } = require('csv-parse');
+const fastify = require("fastify")({ logger: true });
+const { parse } = require("csv-parse");
 
 const {
   Types: { ObjectId },
@@ -72,7 +72,7 @@ async function Upload(fastify, options) {
 
   //       const { name, price, quantity } = req.body;
   //       const shop = req.user.userId._id;
- 
+
   //       const existingProduct = await Product.findOne({
   //         $and: [{ "model._id": name }, { "user._id": shop }],
   //       });
@@ -127,7 +127,7 @@ async function Upload(fastify, options) {
   //             category: subcate.category,
   //           },
   //           photos: pht._id,
-  //           specifications: { keyone: "value1" }, 
+  //           specifications: { keyone: "value1" },
   //           price: price,
   //           quantity: quantity,
   //         });
@@ -141,8 +141,6 @@ async function Upload(fastify, options) {
   //     }
   //   }
   // );
-
- 
 
   fastify.post(
     "/add-product",
@@ -205,27 +203,32 @@ async function Upload(fastify, options) {
       try {
         const productId = req.params.id;
 
-        let user = await Customer.findById(req.user.userId._id) || await Retailer.findById(req.user.userId._id);
-  
+        let user =
+          (await Customer.findById(req.user.userId._id)) ||
+          (await Retailer.findById(req.user.userId._id));
+
         if (!user) {
           return reply.code(401).send({ error: "You are not authorized!" });
         }
 
-        const existingInquiry = await Inquiry.findOne({"product._id":productId,"customer._id":user._id});
-        if(existingInquiry){
+        const existingInquiry = await Inquiry.findOne({
+          "product._id": productId,
+          "customer._id": user._id,
+        });
+        if (existingInquiry) {
           return { shopName: existingInquiry.shop.shopName };
         }
-  
-        const existingProduct = await Product.findById(productId).populate("user");
-  
+
+        const existingProduct = await Product.findById(productId).populate(
+          "user"
+        );
+
         if (!existingProduct) {
           return reply.code(404).send({ error: "Product not found" });
         }
 
-        
-  
         const shop = existingProduct.user;
-  
+
         const inquiry = new Inquiry({
           customer: {
             _id: user._id,
@@ -245,12 +248,12 @@ async function Upload(fastify, options) {
             modelId: existingProduct.product._id,
           },
         });
-  
+
         await inquiry.save();
-  
+
         existingProduct.enquired += 1;
         await existingProduct.save();
-  
+
         return { shopName: shop.name };
       } catch (error) {
         console.error("Error during enquiry process:", error);
@@ -258,7 +261,6 @@ async function Upload(fastify, options) {
       }
     }
   );
-  
 
   fastify.post("/addmodel", async (req, reply) => {
     try {
@@ -310,14 +312,12 @@ async function Upload(fastify, options) {
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-
         const data = {};
         let photos = [];
         let fileName;
 
         for await (const part of req.parts()) {
           if (part.file) {
-            console.log(part.filename);
             fileName = part.filename;
             const filePath = path.join("public/image/", fileName);
             const writableStream = fs.createWriteStream(filePath);
@@ -422,31 +422,31 @@ async function Upload(fastify, options) {
       try {
         const models = await Model2.find();
         const yesVal = "Yes";
-  
+
         if (!models || models.length === 0) {
           return reply.code(404).send({ error: "No models found" });
         }
-  
+
         const updateTitlesToYes = (obj) => {
           for (const key in obj) {
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-              if (obj[key].title ) {
+            if (typeof obj[key] === "object" && obj[key] !== null) {
+              if (obj[key].title) {
                 obj[key].title = obj[key].title.trim();
               }
               updateTitlesToYes(obj[key]);
             }
           }
         };
-  
+
         const updatedModels = [];
-  
+
         for (const model of models) {
           updateTitlesToYes(model.specification);
-          model.markModified('specification'); // Ensure Mongoose knows 'specification' was modified
+          model.markModified("specification"); // Ensure Mongoose knows 'specification' was modified
           const updatedModel = await model.save();
           updatedModels.push(updatedModel);
         }
-  
+
         return reply.code(200).send(updatedModels);
       } catch (error) {
         console.error("Error updating models:", error);
@@ -454,10 +454,7 @@ async function Upload(fastify, options) {
       }
     }
   );
-  
-  
-  
-  
+
   fastify.post(
     "/addvariant/:id",
     { onRequest: [fastify.authenticate] },
@@ -536,14 +533,14 @@ async function Upload(fastify, options) {
     try {
       const Id = req.params.id;
       const isActive = req.body.isChecked;
-      const {type} = req.body;
+      const { type } = req.body;
       let updatedData;
-      
-      if(type == "retailer"){
+
+      if (type == "retailer") {
         updatedData = await Retailer.findById(Id);
-      }else if(type == "customer"){
+      } else if (type == "customer") {
         updatedData = await Customer.findById(Id);
-      }else{
+      } else {
         reply.send({ error: "Something Went Wrong !" });
       }
       updatedData.isActive = isActive;
@@ -556,33 +553,35 @@ async function Upload(fastify, options) {
     }
   });
 
-  
   fastify.post("/set-user-data", async (req, reply) => {
     try {
       const parts = req.parts();
       const users = [];
       const errors = [];
-  
+
       for await (const part of parts) {
         if (part.file) {
           const parser = part.file.pipe(parse({ columns: true, trim: true }));
-  
+
           for await (const record of parser) {
             const { name, mobile, email } = record;
-  
+
             if (!name || !mobile || !email) {
-              errors.push({ record, error: "Missing required fields (name, mobile, email)" });
+              errors.push({
+                record,
+                error: "Missing required fields (name, mobile, email)",
+              });
               continue;
             }
-  
+
             if (isNaN(mobile)) {
               errors.push({ record, error: "Invalid mobile number" });
               continue;
             }
-  
+
             try {
               const existingData = await Retailer.findOne({ mobile });
-  
+
               if (!existingData) {
                 const userData = {
                   name,
@@ -591,12 +590,15 @@ async function Upload(fastify, options) {
                   status: 2,
                   isActive: false,
                 };
-  
+
                 const newUser = new Retailer(userData);
                 const savedUser = await newUser.save();
                 users.push(savedUser);
               } else {
-                errors.push({ record, error: "User with these mobile numbers already exists" });
+                errors.push({
+                  record,
+                  error: "User with these mobile numbers already exists",
+                });
               }
             } catch (dbError) {
               errors.push({ record, error: dbError.message });
@@ -604,20 +606,21 @@ async function Upload(fastify, options) {
           }
         }
       }
-      return reply.code(207).send({ message: "Processing completed", users, errors });
+      return reply
+        .code(207)
+        .send({ message: "Processing completed", users, errors });
     } catch (error) {
       console.error("Error:", error);
       reply.code(500).send({ error: "Internal Server Error" });
     }
   });
-  
 
   fastify.post(
     "/update-retailers-status",
     { onRequest: [fastify.authenticate] },
     async (req, reply) => {
       try {
-        const {rId,StatusWantToSet,latestComment } = req.body;
+        const { rId, StatusWantToSet, latestComment } = req.body;
 
         const Id = req.user.userId._id;
         const staff = await Staff.findById(Id);
@@ -625,15 +628,15 @@ async function Upload(fastify, options) {
           return reply.code(401).send({ error: "Unauthorized!" });
         }
 
-        let retailerData = await Retailer.findOne({rId:rId});
-      
+        let retailerData = await Retailer.findOne({ rId: rId });
+
         reply.send({ msg: "Retailer Not Found!" });
-        if(retailerData){
+        if (retailerData) {
           retailerData.status = StatusWantToSet;
           retailerData.comment = latestComment;
           await retailerData.save();
-          reply.send("Status Updated Successfully ! ")
-        }else{
+          reply.send("Status Updated Successfully ! ");
+        } else {
           return reply.code(401).send({ error: "Retailer Not Found!" });
         }
 
@@ -643,15 +646,12 @@ async function Upload(fastify, options) {
         statusData.comment = latestComment;
         statusData.status = StatusWantToSet;
         await statusData.save();
-
       } catch (error) {
         console.error("Error:", error);
         reply.code(500).send({ error: "Internal Server Error" });
       }
     }
   );
-
-  
 }
 
 module.exports = Upload;
