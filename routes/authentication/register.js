@@ -47,6 +47,20 @@ async function registerUser(fastify, options) {
     }
   });
 
+  // fastify.post("/retailer-address", async (req, reply) => {
+  //   try {
+  //     const data = req.body;
+  //     const type = req.body.type;
+
+     
+
+  //     return reply.send({ });
+  //   } catch (error) {
+  //     console.error(error);
+  //     reply.status(500).send({ error: "Internal Server Error" });
+  //   }
+  // });
+
   fastify.post(
     "/register-staff",
     { onRequest: [fastify.authenticate] },

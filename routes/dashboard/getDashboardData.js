@@ -516,6 +516,32 @@ async function getDashboardData(fastify, options) {
       }
     }
   );
+
+  fastify.get(
+    "/latest-ten-enquiries",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const userId = req.user.userId._id;
+        const staff = await Staff.findById(userId);
+  
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        const latest10Inquiries = await Inquiry.find()
+          .sort({ date: -1 }) 
+          .limit(10);
+  
+        return reply.send(latest10Inquiries);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+  
+  
 }
 
 module.exports = getDashboardData;
