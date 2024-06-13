@@ -79,6 +79,8 @@ const retailerSchema = new Schema({
   pickedDate: { type: Date, default: null },
   statusDate: { type: Date, default: Date.now },
   date: { type: Date, default: Date.now },
+  retailerShopLogo: { type: String, default: "" },
+  isSponsored : { type: Boolean, default: false },
 });
 
 const statusSchema = new Schema({
@@ -251,6 +253,24 @@ const chatSchema = new mongoose.Schema({
   ],
 });
 
+const productReviewSchema = new mongoose.Schema({
+  product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
+  review: {type:String, default:''},
+  isImage: { type: Boolean, default: false },
+  image : [{type:String,default:''}],
+  rating: { type: Number, default: 1 },
+  date: { type: Date, default: Date.now },
+});
+
+const shopReviewSchema = new mongoose.Schema({
+  retailer: { type: mongoose.Schema.Types.ObjectId, ref: "Retailer" },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
+  review: {type:String, default:''},
+  rating: { type: Number, default: 1 },
+  date: { type: Date, default: Date.now },
+});
+
 const Chat = mongoose.model("Chat", chatSchema);
 // const User = mongoose.model("User", userSchema);
 const Staff = mongoose.model("Staff", staffSchema);
@@ -271,6 +291,8 @@ const Viewed = mongoose.model("View", viewedSchema);
 const Specification = mongoose.model("Specification", specificationSchema);
 const FollowUp = mongoose.model("FollowUp", followupSchema);
 const Status = mongoose.model("Status", statusSchema);
+const ProductReview = mongoose.model("ProductReview", productReviewSchema);
+const ShopReview = mongoose.model("ShopReview", shopReviewSchema);
 
 module.exports = {
   Chat,
@@ -293,4 +315,6 @@ module.exports = {
   Inquiry,
   FollowUp,
   Status,
+  ProductReview,
+  ShopReview,
 };
