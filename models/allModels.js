@@ -254,10 +254,9 @@ const chatSchema = new mongoose.Schema({
 });
 
 const productReviewSchema = new mongoose.Schema({
-  product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  productGroupId: {type:String, default:''},
   customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
   review: {type:String, default:''},
-  isImage: { type: Boolean, default: false },
   image : [{type:String,default:''}],
   rating: { type: Number, default: 1 },
   date: { type: Date, default: Date.now },

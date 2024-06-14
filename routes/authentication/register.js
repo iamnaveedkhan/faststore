@@ -6,6 +6,7 @@ const {
   Customer,
   Retailer,
   Staff,
+  Status,
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 
@@ -49,8 +50,10 @@ async function registerUser(fastify, options) {
     }
   });
 
-  fastify.post("/update-retailer-informations", async (req, reply) => {
+  fastify.post("/update-retailer-informations",{ onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
+
+      const managerId = req.user.userId._id;
       const parts = req.parts();
   
       let formData = {};
@@ -80,6 +83,7 @@ async function registerUser(fastify, options) {
         retailerData.name = formData.name;
         retailerData.email = formData.email;
         retailerData.retailerShopLogo = `public/image/${fileName}`;
+        retailerData.comment = "Activated" ;
         retailerData.isActive = true;
         retailerData.status = 1;
         retailerData.latitude = formData.latitude;
@@ -91,6 +95,13 @@ async function registerUser(fastify, options) {
           state: formData.state,
           retailer: retailerData._id,
         })
+
+        const statusData = new Status();
+        statusData.manager = managerId;
+        statusData.retailer = retailerData._id;
+        statusData.comment = "Activated";
+        statusData.status = 1;
+        await statusData.save();
 
         await address.save();
         await retailerData.save();

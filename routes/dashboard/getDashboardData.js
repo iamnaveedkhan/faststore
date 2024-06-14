@@ -5,6 +5,7 @@ const {
   Inquiry,
   Customer,
   Retailer,
+  Status,
 } = require("../../models/allModels");
 const { DateTime, Interval } = require("luxon");
 
@@ -534,6 +535,34 @@ async function getDashboardData(fastify, options) {
           .limit(10);
   
         return reply.send(latest10Inquiries);
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  fastify.get(
+    "/your-active-retailers",
+    { onRequest: [fastify.authenticate] },
+    async (req, reply) => {
+      try {
+        const managerId = req.user.userId._id;
+        const staff = await Staff.findById(managerId);
+        console.log("managerId",managerId);
+        if (!staff) {
+          return reply.code(401).send({ error: "Unauthorized!" });
+        }
+
+        const yourRecentActiveRetailers = await Status.find({manager:managerId,status:1})
+          .populate({
+            path: "retailer",
+            select: "name mobile email latitude longitude",
+          })
+          .sort({ date: -1 }) 
+          .limit(10);
+  
+        return reply.send(yourRecentActiveRetailers);
       } catch (error) {
         console.error(error);
         reply.code(500).send({ error: "Internal server error" });

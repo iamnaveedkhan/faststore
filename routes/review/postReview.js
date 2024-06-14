@@ -48,13 +48,12 @@ async function postreview(fastify, options) {
         const customerId = req.user.userId._id;
 
         const parts = req.parts();
-        let productId;
+        let groupId;
         let reviewText = "";
-        let rating = 1;
+        let rating;
         let fileName;
         let filePath;
         let image = [];
-        let isImage = false;
 
         for await (const part of parts) {
           if (part.type === "file") {
@@ -62,11 +61,10 @@ async function postreview(fastify, options) {
             filePath = path.join("public/image/", fileName);
             const writableStream = fs.createWriteStream(filePath);
             await part.file.pipe(writableStream);
-            image.push(fileName);
-            isImage = true;
+            image.push(`public/image/${fileName}`);
           } else if (part.type === "field") {
-            if (part.fieldname === "productId") {
-              productId = part.value;
+            if (part.fieldname === "groupId") {
+              groupId = part.value;
             } else if (part.fieldname === "review") {
               reviewText = part.value;
             } else if (part.fieldname === "rating") {
@@ -75,22 +73,19 @@ async function postreview(fastify, options) {
           }
         }
 
-        if (!productId) {
+        if (!groupId) {
           return reply.status(400).send({ error: "Product ID is required" });
         }
 
         const existingReview = await ProductReview.findOne({
-          product: productId,
+          productGroupId: groupId,
           customer: customerId,
         });
 
         if (existingReview) {
           existingReview.review = reviewText;
           existingReview.rating = rating;
-          if (isImage) {
-            existingReview.image = image;
-            existingReview.isImage = isImage;
-          }
+          existingReview.image = image;
           const updatedReview = await existingReview.save();
           return reply.send({
             message: "Review updated successfully",
@@ -98,10 +93,9 @@ async function postreview(fastify, options) {
           });
         } else {
           const newReview = new ProductReview({
-            product: productId,
+            productGroupId: groupId,
             customer: customerId,
             review: reviewText,
-            isImage: isImage,
             image: image,
             rating: rating,
           });
