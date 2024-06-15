@@ -69,7 +69,7 @@ async function getreview(fastify, options) {
       try {
         const groupid = req.params.groupid;
         const customerId = req.user.userId._id;
-        const productReview = await ProductReview.findOne({productGroupId: groupid,customer : customerId }).populate({path: "customer", select: "name mobile", });
+        const productReview = await ProductReview.find({productGroupId: groupid,customer : customerId }).populate({path: "customer", select: "name mobile", });
 
         return { productReview, true: true };
       } catch (error) {

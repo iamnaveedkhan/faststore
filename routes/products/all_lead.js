@@ -456,13 +456,15 @@ async function getProduct(fastify, options) {
         (await Retailer.findById({ _id: userid }));
 
       if (user.cId) {
-        existingData = await Chat.find({ customer: userid }).populate(
-          "product"
-        ).populate("customer").populate("retailer");
+        existingData = await Chat.find({ customer: userid })
+          .populate("product")
+          .populate("customer")
+          .populate("retailer");
       } else if (user.rId) {
-        existingData = await Chat.find({ retailer: userid }).populate(
-          "product"
-        ).populate("customer").populate("retailer");
+        existingData = await Chat.find({ retailer: userid })
+          .populate("product")
+          .populate("customer")
+          .populate("retailer");
       }
       reply.send(existingData);
     }
@@ -981,6 +983,7 @@ async function getProduct(fastify, options) {
         endDateTime.setDate(endDateTime.getDate() + 1);
 
         if (staff.role == 0) {
+          
           pickedRetailers = await Retailer.find({
             $and: [
               { status: status },
@@ -1079,7 +1082,7 @@ async function getProduct(fastify, options) {
           {
             $match: {
               user: { $in: nearbyUsers.map((user) => user._id) },
-              featured: true
+              featured: true,
             },
           },
           {
@@ -1107,7 +1110,6 @@ async function getProduct(fastify, options) {
           })
         );
 
-       
         reply.send(uniqueProducts);
       } catch (error) {
         console.error(error);
@@ -1115,6 +1117,27 @@ async function getProduct(fastify, options) {
       }
     }
   );
+
+  // fastify.get(
+  //   "/picked-retailers",
+  //   { onRequest: [fastify.authenticate] },
+  //   async (req, reply) => {
+  //     try {
+  //       const Id = req.user.userId._id;
+  //       const staff = await Staff.findById(Id);
+  //       if (!staff) {
+  //         return reply.code(401).send({ error: "Unauthorized!" });
+  //       }
+         
+  //       const pickedRetailerData = await Retailer.find({status:3,isActive:false});
+  //       return pickedRetailerData;
+        
+  //     } catch (error) {
+  //       console.error(error);
+  //       reply.code(500).send({ error: "Internal server error" });
+  //     }
+  //   }
+  // );
 }
 
 module.exports = getProduct;
