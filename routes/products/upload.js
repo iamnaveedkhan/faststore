@@ -22,6 +22,7 @@ const {
   Specification,
   Customer,
   Status,
+  Photo3D,
 } = require("../../models/allModels");
 const bcrypt = require("bcrypt");
 const { log } = require("console");
@@ -442,7 +443,7 @@ async function Upload(fastify, options) {
 
         for (const model of models) {
           updateTitlesToYes(model.specification);
-          model.markModified("specification"); // Ensure Mongoose knows 'specification' was modified
+          model.markModified("specification"); 
           const updatedModel = await model.save();
           updatedModels.push(updatedModel);
         }
@@ -649,6 +650,37 @@ async function Upload(fastify, options) {
       } catch (error) {
         console.error("Error:", error);
         reply.code(500).send({ error: "Internal Server Error" });
+      }
+    }
+  );
+
+  fastify.post(
+    '/360-photo',
+    { onRequest: [fastify.authenticate]},
+    async (req, reply) => {
+      try {
+        const parts = req.parts();
+        let fileName;
+        let filePath;
+  
+        for await (const part of parts) {
+          if (part.type === 'file') {
+            fileName = part.filename;
+            filePath = path.join('public/glb/', fileName);
+            const writableStream = fs.createWriteStream(filePath);
+            await part.file.pipe(writableStream);
+          }
+        }
+  
+        const photo360 = new Photo3D({
+          photo3d: `public/glb/${fileName}`,
+        });
+  
+        const savedPhoto360 = await photo360.save();
+        return savedPhoto360;
+      } catch (error) {
+        console.error(error);
+        reply.code(500).send({ error: 'Internal server error' });
       }
     }
   );

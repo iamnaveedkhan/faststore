@@ -1,59 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Form</title>
-  <style>
-    /* Add your CSS styles here */
-  </style>
-</head>
-<body>
-  <form id="searchForm">
-    <input type="text" id="searchInput" placeholder="Enter keywords...">
-  </form>
-  
-  <div id="suggestions"></div>
-
-  <script>
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsDiv = document.getElementById('suggestions');
-    let uniqueSuggestions = new Set();
-
-    searchInput.addEventListener('input', async () => {
-      const searchTerm = searchInput.value.trim();
-      if (searchTerm.length > 2) {
-        const url = `http://192.168.1.231:3000/search/${searchTerm}`;
-        try {
-          const response = await fetch(url);
-          if (response.ok) {
-            const data = await response.json();
-            updateSuggestions(data);
-          } else {
-            console.error('Error1:', response.statusText);
-          }
-        } catch (error) {
-          console.error('Error2:', error);
-        }
-      } else {
-        // Clear suggestions if search term length is less than 3
-        suggestionsDiv.innerHTML = '';
-        uniqueSuggestions.clear();
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Form</title>
+    <style>
+      .main {
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+        background-color: aqua;
       }
-    });
+    </style>
+  </head>
+  <body class="main">
+    <form id="searchForm">
+      <input
+        type="text"
+        id="searchInput"
+        style="
+          padding: 18px;
+          outline: none;
+          margin-top: 200px;
+          border-radius: 10px;
+          border: none;
+        "
+        placeholder="Enter keywords..."
+      />
+      <div
+        style="background-color: white; margin-top: 5px; padding: 8px"
+        id="suggestions"
+      ></div>
+    </form>
 
-    function updateSuggestions(suggestions) {
-      suggestionsDiv.innerHTML = '';
-      suggestions.forEach((suggestion) => {
-        const suggestionText = suggestion.product.productName + ' - ' + suggestion.product.type;
-        if (!uniqueSuggestions.has(suggestionText)) {
-          const suggestionItem = document.createElement('div');
-          suggestionItem.textContent = suggestionText;
-          suggestionsDiv.appendChild(suggestionItem);
-          uniqueSuggestions.add(suggestionText);
+    <script>
+      const searchInput = document.getElementById("searchInput");
+      const suggestionsDiv = document.getElementById("suggestions");
+      let uniqueSuggestions = new Set();
+
+      searchInput.addEventListener("input", async () => {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm.length > 2) {
+          const url = `http://192.168.1.231:8080/search/${searchTerm}`;
+          try {
+            const response = await fetch(url);
+            if (response.ok) {
+              const data = await response.json();
+              updateSuggestions(data);
+            } else {
+              console.error("Error1:", response.statusText);
+            }
+          } catch (error) {
+            console.error("Error2:", error);
+          }
+        } else {
+          // Clear suggestions if search term length is less than 3
+          suggestionsDiv.innerHTML = "";
+          uniqueSuggestions.clear();
         }
       });
-    }
-  </script>
-</body>
+
+      function updateSuggestions(suggestions) {
+        suggestionsDiv.innerHTML = "";
+        suggestions.forEach((suggestion) => {
+          const suggestionText =
+            suggestion.product.productName + " - " + suggestion.product.type;
+          if (!uniqueSuggestions.has(suggestionText)) {
+            const suggestionItem = document.createElement("div");
+            suggestionItem.textContent = suggestionText;
+            suggestionsDiv.appendChild(suggestionItem);
+            uniqueSuggestions.add(suggestionText);
+          }
+        });
+      }
+    </script>
+  </body>
 </html>

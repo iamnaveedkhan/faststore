@@ -6,21 +6,9 @@ const crypto = require("crypto");
 const dateIndia = moment.tz("Asia/kolkata");
 const formattedDate = dateIndia.format();
 
-// const userSchema = new Schema({
-//   name: { type: String, default: "" },
-//   mobile: { type: Number, unique: true },
-//   email: { type: String, default: "" },
-//   photo: { type: String, default: "" },
-
-//   role: { type: Number, default: 1 },
-//   isActive: { type: Boolean, default: true },
-
-//   longitude: { type: String, default: "" },
-//   latitude: { type: String, default: "" },
-
-//   firetoken: { type: String, default: "" },
-//   date: { type: Date, default: Date.now },
-// });
+const glgSchema = new Schema({
+  photo3d: { type: String, default: "" },
+});
 
 const staffSchema = new Schema({
   name: { type: String, default: "" },
@@ -271,7 +259,7 @@ const shopReviewSchema = new mongoose.Schema({
 });
 
 const Chat = mongoose.model("Chat", chatSchema);
-// const User = mongoose.model("User", userSchema);
+const Photo3D = mongoose.model("Photo3D", glgSchema);
 const Staff = mongoose.model("Staff", staffSchema);
 const Customer = mongoose.model("Customer", customerSchema);
 const Retailer = mongoose.model("Retailer", retailerSchema);
@@ -298,7 +286,7 @@ module.exports = {
   Liked,
   Viewed,
   Specification,
-  // User,
+  Photo3D,
   Staff,
   Customer,
   Retailer,
