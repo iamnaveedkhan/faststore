@@ -29,6 +29,7 @@ async function getUser(fastify, options) {
         let existingData;
         existingData = await Customer.find();
         if(existingData.length>0){
+          console.log(existingData);
           return existingData;
         }else{
           reply.code(404).send({ error: "No data found" });
