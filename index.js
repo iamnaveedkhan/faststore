@@ -72,14 +72,6 @@ fastify.get('/search/:key', async (req, reply) => {
 
 
 
-//--------------------Ejs-------------------------------------
-fastify.register(require('point-of-view'), {
-  engine: {
-    ejs: require('ejs'),
-  },
-  root: path.join(__dirname, 'views'),
-  viewExt: 'ejs',
-});
 
 fastify.get('/ejs-file', (request, reply) => {
   reply.view('/index', { title: 'Fastify with EJS' });
