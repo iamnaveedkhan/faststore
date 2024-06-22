@@ -21,13 +21,6 @@ fastify.register(require("@fastify/cors"), (instance) => {
 });
 
 
-
-fastify.register(require("@fastify/view"), {
-  engine: {
-    ejs: require("ejs"),
-  },
-});
-
 fastify.register(require("@fastify/jwt"), {
   secret: "naveed",
   cookie: {
@@ -76,33 +69,23 @@ fastify.get('/search/:key', async (req, reply) => {
   }
 });
 
-fastify.get(
-  "/logedin",
-  { onRequest: [fastify.authenticate] }, async function (req, reply) {
-    const userId = req.user.userId;
 
-    return reply.view("/public/logedin.ejs", { userId });
-  }
-);
 
-fastify.get(
-  "/logedout",
-  { onRequest: [fastify.authenticate] },
-  function (req, reply) {
-    const userId = req.user.userId;
-    console.log(userId);
-    return reply.send("you are loged out");
-  }
-);
 
-fastify.get(
-  "/newdash",
-  { onRequest: [fastify.authenticate] },
-  function (req, reply) {
-    const userId = req.user.userId;
-    return reply.send("dashboard");
-  }
-);
+//--------------------Ejs-------------------------------------
+fastify.register(require('point-of-view'), {
+  engine: {
+    ejs: require('ejs'),
+  },
+  root: path.join(__dirname, 'views'),
+  viewExt: 'ejs',
+});
+
+fastify.get('/ejs-file', (request, reply) => {
+  reply.view('/index', { title: 'Fastify with EJS' });
+});
+
+
 fastify.register(require("./routes/brand/index"));
 fastify.register(require("./routes/category/index"));
 fastify.register(require("./routes/subcategory/index"));
