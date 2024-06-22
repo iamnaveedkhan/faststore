@@ -71,13 +71,6 @@ fastify.get('/search/:key', async (req, reply) => {
 
 
 
-
-
-fastify.get('/ejs-file', (request, reply) => {
-  reply.view('/index', { title: 'Fastify with EJS' });
-});
-
-
 fastify.register(require("./routes/brand/index"));
 fastify.register(require("./routes/category/index"));
 fastify.register(require("./routes/subcategory/index"));
